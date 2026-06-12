@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
@@ -41,14 +41,12 @@ export class PatientDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dpService = inject(DoctorPatientService);
   private notify = inject(NotificationService);
-
-  // ─────────────────────────────────────
+  @ViewChild(HealthHistoryComponent) historyTab!: HealthHistoryComponent;
   // STATE DEFINITIONS
-  // ─────────────────────────────────────
   patientId = '';
   isLoading = signal<boolean>(true);
   patientProfile = signal<DoctorPatientResponseDto | null>(null);
-
+  selectedTabIndex = 0;
   // ── ADDED: DYNAMIC AGE COMPUTED SIGNAL ──────────────────────────────
   patientAge = computed<string>(() => {
     const profile = this.patientProfile();
@@ -83,6 +81,12 @@ export class PatientDetailComponent implements OnInit {
   // ─────────────────────────────────────
   // DATA MANAGEMENT METHODS
   // ─────────────────────────────────────
+  onHealthRecordSaved(): void {
+    this.selectedTabIndex = 0;
+    if (this.historyTab) {
+      this.historyTab.ngOnInit(); 
+    }
+  }
   loadPatientDeepContext(): void {
     this.isLoading.set(true);
 

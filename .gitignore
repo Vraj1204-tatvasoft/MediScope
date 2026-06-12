@@ -1,0 +1,15 @@
+# Visual Studio
+.vs/
+.vscode/
+
+# .NET
+**/bin/
+**/obj/
+
+# Angular
+frontend/mediscope-ui/node_modules/
+frontend/mediscope-ui/.angular/
+frontend/mediscope-ui/dist/
+
+# Uploaded documents
+backend/MediScope.API/wwwroot/documents/

@@ -120,7 +120,7 @@ export class HealthHistoryComponent implements OnInit {
     });
   }
 
-  // ── 🛠️ CUSTOM MODAL DELETE ACTIONS ─────────────────────────────────
+  //  CUSTOM MODAL DELETE ACTIONS ─────────────────────────────────
   openDeleteConfirmation(submissionId: string, event: Event): void {
     event.stopPropagation(); // Prevents table row drawer from toggling
     this.targetDeleteId.set(submissionId);

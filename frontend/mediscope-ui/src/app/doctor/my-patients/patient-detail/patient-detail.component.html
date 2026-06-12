@@ -44,7 +44,8 @@
 
     <mat-card class="clinical-tabs-container-card">
       <mat-card-content class="no-padding">
-        <mat-tab-group animationDuration="150ms" class="scope-custom-tab-group" #healthTabGroup>>
+        
+        <mat-tab-group animationDuration="150ms" class="scope-custom-tab-group" [(selectedIndex)]="selectedTabIndex">
           
           <mat-tab>
             <ng-template mat-tab-label><mat-icon>assignment</mat-icon> Health History</ng-template>
@@ -62,8 +63,7 @@
               <app-add-health-data 
                 [explicitPatientId]="patientId" 
                 [explicitPatientName]="patientProfile()?.fullName"
-                (saveSuccess)="healthTabGroup.selectedIndex = 0; ">
-              </app-add-health-data>
+                (saveSuccess)="onHealthRecordSaved()"> </app-add-health-data>
           
             </div>
           </mat-tab>

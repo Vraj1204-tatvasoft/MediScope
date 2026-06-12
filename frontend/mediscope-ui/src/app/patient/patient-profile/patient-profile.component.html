@@ -245,17 +245,6 @@
   
                 <div class="info-row">
                   <div class="info-label">
-                    <mat-icon>tag</mat-icon>
-                    Patient ID
-                  </div>
-                  <span class="info-value muted-sm">
-                    {{ profile()!.patientId | slice:0:8 }}...
-                  </span>
-                </div>
-                <mat-divider />
-  
-                <div class="info-row">
-                  <div class="info-label">
                     <mat-icon>calendar_today</mat-icon>
                     Registered
                   </div>
@@ -344,33 +333,6 @@
   
                 </form>
               }
-  
-              <mat-divider />
-  
-              <!-- Two-Factor Auth row -->
-              <div class="security-row">
-                <div class="security-info">
-                  <span class="security-label">Two-Factor Auth</span>
-                  <span class="security-sub">Not enabled</span>
-                </div>
-                <button mat-stroked-button class="action-btn"
-                        matTooltip="Coming soon" disabled>
-                  Enable
-                </button>
-              </div>
-  
-              <mat-divider />
-  
-              <!-- Data Privacy row -->
-              <div class="security-row">
-                <div class="security-info">
-                  <span class="security-label">Data Privacy</span>
-                  <span class="security-sub">Manage what doctors can see</span>
-                </div>
-                <button mat-stroked-button class="action-btn">
-                  Manage
-                </button>
-              </div>
   
             </mat-card-content>
           </mat-card>
