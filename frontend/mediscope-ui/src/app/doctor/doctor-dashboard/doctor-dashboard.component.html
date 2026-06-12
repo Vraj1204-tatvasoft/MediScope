@@ -1,0 +1,226 @@
+<div class="doctor-dashboard-viewport-wrapper">
+
+    @if (isLoading()) {
+      <div class="master-spinner-loading-overlay">
+        <mat-spinner diameter="45"></mat-spinner>
+        <p>Synchronizing practitioner care panel data logs...</p>
+      </div>
+    } @else {
+  
+      <!-- CLINICAL HEADER PROFILE STRIP -->
+      <div class="practitioner-greeting-header-bar">
+        <div class="profile-identity-cluster">
+          <h1>Welcome, Dr. {{ dashboardData()?.doctorName }} </h1>
+          <p class="subtitle-timeline-label">{{ dashboardData()?.specialization }} &bull; {{ dashboardData()?.hospital }}</p>
+        </div>
+      </div>
+  
+      <!-- DYNAMIC CRITICAL ALERTS NOTIFICATION BANNER -->
+      @if ((dashboardData()?.criticalPatientCount ?? 0) > 0) {
+        <div class="clinical-alert-banner-container">
+          <mat-icon class="alert-bell-icon">error_outline</mat-icon>
+          <div class="alert-message-text">
+            <strong>{{ dashboardData()?.criticalPatientCount }} patient(s) with critical readings</strong>
+            <p class="alert-sub-detail-p">
+              {{ dashboardData()?.criticalPatientNames?.join(', ') || 'Unknown' }} &mdash; immediate review recommended.
+            </p>
+          </div>
+          <button mat-flat-button color="warn" class="alert-review-action-btn" routerLink="/doctor/manage-patients">Review</button>
+        </div>
+      }
+  
+      <!-- ══ 1. PRIMARY CARE STATS SCORECARDS ROW ══ -->
+      <div class="clinical-analytics-scorecards-grid">
+        <mat-card class="stat-node-card">
+          <mat-card-content class="flex-align-center-row">
+            <div class="icon-avatar-badge blue-tint"><mat-icon>group</mat-icon></div>
+            <div class="metric-readings-box">
+              <p class="metric-tag-label">My Patients</p>
+              <h2>{{ dashboardData()?.myPatients }}</h2>
+              <span class="sub-informational-text">Total assigned</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+  
+        <mat-card class="stat-node-card">
+          <mat-card-content class="flex-align-center-row">
+            <div class="icon-avatar-badge red-tint"><mat-icon>notification_important</mat-icon></div>
+            <div class="metric-readings-box">
+              <p class="metric-tag-label">Active Alerts</p>
+              <h2>{{ dashboardData()?.activeAlerts }}</h2>
+              <span class="sub-informational-text">Unread critical</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+  
+        <mat-card class="stat-node-card">
+          <mat-card-content class="flex-align-center-row">
+            <div class="icon-avatar-badge green-tint"><mat-icon>folder_shared</mat-icon></div>
+            <div class="metric-readings-box">
+              <p class="metric-tag-label">Total Records</p>
+              <h2>{{ dashboardData()?.totalRecords }}</h2>
+              <span class="sub-informational-text">All patients</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+  
+        <mat-card class="stat-node-card">
+          <mat-card-content class="flex-align-center-row">
+            <div class="icon-avatar-badge amber-tint"><mat-icon>gavel</mat-icon></div>
+            <div class="metric-readings-box">
+              <p class="metric-tag-label">Critical Patients</p>
+              <h2>{{ dashboardData()?.criticalPatients }}</h2>
+              <span class="sub-informational-text">Latest reading</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+  
+      <!-- ══ 2. INTERMEDIATE ANALYSIS WORKSPACE GRIDS ══ -->
+      <div class="clinical-workspace-double-split-layout">
+        
+        <mat-card class="workspace-graphics-panel-card">
+  
+          <div class="chart-header-title-strip filterable-header">
+            <div class="header-text">
+              <h3>Vital Trends</h3>
+              <p class="chart-sub-label-caption">Longitudinal patient analysis</p>
+            </div>
+        
+            <div class="chart-filters-row">
+              <select class="dashboard-native-select" [(ngModel)]="filters.metric" (change)="onFilterChange()">
+                @for (metric of availableMetrics(); track metric.value) {
+                  <option [value]="metric.value">{{ metric.label }}</option>
+                }
+              </select>
+        
+              <select class="dashboard-native-select" [(ngModel)]="filters.patient" (change)="onFilterChange()">
+                <option value="all">All Patients</option>
+                @for (p of patientOverview(); track p.patientId) {
+                  <option [value]="p.patientId">{{ p.fullName }}</option>
+                }
+              </select>
+        
+              <select class="dashboard-native-select" [(ngModel)]="filters.duration" (change)="onFilterChange()">
+                <option value="last_week">Last Week</option>
+                <option value="last_month">Last Month</option>
+                <option value="last_6months">Last 6 Months</option>
+                <option value="last_year">Last Year</option>
+                <option value="custom">Custom Range...</option>
+              </select>
+            </div>
+          </div>
+        
+          @if(filters.duration === 'custom') {
+            <div class="custom-date-row">
+              <input type="date" 
+                     class="dashboard-native-input" 
+                     [(ngModel)]="filters.customStart" 
+                     [max]="filters.customEnd || todayDateString" 
+                     (change)="onFilterChange()">
+              
+              <span>to</span>
+              
+              <input type="date" 
+                     class="dashboard-native-input" 
+                     [(ngModel)]="filters.customEnd" 
+                     [min]="filters.customStart" 
+                     [max]="todayDateString" 
+                     (change)="onFilterChange()">
+            </div>
+          }
+        
+          <div class="canvas-chart-render-frame" [class.opacity-loading]="isChartLoading()">
+            <canvas #bpCompareCanvas></canvas>
+          </div>
+        </mat-card>
+  
+        <!-- ROSTER PANEL: PATIENT STATUS OVERVIEW -->
+        <mat-card class="workspace-graphics-panel-card no-padding-override">
+          <div class="chart-header-title-strip padded-header">
+            <h3>Patient Status Overview</h3>
+          </div>
+  
+          <div class="patient-status-vertical-scroller-stack">
+            @for (patient of patientOverview(); track patient.patientId) {
+              <div class="patient-status-list-item-row">
+                <div class="patient-avatar-circle-icon" [ngClass]="getAvatarColor(patient.fullName)">
+                  {{ getInitial(patient.fullName) }}
+                </div>
+                <div class="patient-identity-details">
+                  <h4>{{ patient.fullName }}</h4>
+                  <p class="records-alerts-tally">{{ patient.totalRecords }} records &bull; {{ patient.totalAlerts }} alerts</p>
+                </div>
+                <div class="patient-trailing-meta-block">
+                  <span class="badge-vitals-row-pills" [ngClass]="patient.latestStatus.toLowerCase()">
+                    {{ formatStatusLabel(patient.latestStatus) }}
+                  </span>
+                  <p class="timestamp-label-sub">{{ formatDateString(patient.latestRecordAt) }}</p>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-roster-fallback">
+                <p>No active patients assigned to your overview.</p>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </div>
+  
+      <!-- ══ 3. CLINICAL HISTORICAL RECENT ACTIVITY TABLE STREAM ══ -->
+      <mat-card class="clinical-activity-table-master-surface">
+        <mat-card-content class="no-padding-override">
+          
+          <div class="table-header-panel-strip-row">
+            <h3>Recent Patient Activity</h3>
+            <button mat-stroked-button class="view-all-patients-redirect-btn" routerLink="/doctor/my-patients">
+              View All Patients &rarr;
+            </button>
+          </div>
+  
+          <div class="responsive-table-scroll-frame">
+            <table class="clinical-audit-stream-grid-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>BP</th>
+                  <th>HR</th>
+                  <th>Glucose</th>
+                  <th>Added By</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of recentActivities(); track row.submissionId) {
+                  <tr>
+                    <td class="bold-patient-identity-name">{{ row.patientName }}</td>
+                    <td class="tabular-numeric-cell-style">{{ formatDateString(row.recordedAt) }}</td>
+                    <td class="emphasized-vitals-cell-text">{{ getBPDisplayValue(row.metricValues) }}</td>
+                    <td>{{ getCleanMetricValue(row.metricValues, 'heart_rate') }}</td>
+                    <td>{{ getCleanMetricValue(row.metricValues, 'blood_sugar') }}</td>
+                    <td>
+                      <span class="user-logged-source-pill-tag" [ngClass]="row.addedBy.toLowerCase()">
+                        {{ row.addedBy }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge-vitals-row-pills" [ngClass]="row.status.toLowerCase()">
+                        {{ formatStatusLabel(row.status) }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="empty-fallback-table-row">No medical charts have been recorded by assigned patient nodes.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+  
+        </mat-card-content>
+      </mat-card>
+  
+    }
+  </div>

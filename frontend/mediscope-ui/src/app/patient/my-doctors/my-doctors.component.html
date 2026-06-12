@@ -1,0 +1,310 @@
+<!-- File: src/app/patient/my-doctors/my-doctors.component.html -->
+
+@if (isLoading()) {
+  <div class="loading-center"><mat-spinner diameter="48"/></div>
+}
+
+@if (!isLoading()) {
+<div class="page">
+
+  <!-- ══ STATS ROW ══ -->
+  <div class="stats-row">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-inner">
+          <div class="stat-icon stat-icon--green"><mat-icon>people</mat-icon></div>
+          <div>
+            <p class="stat-value">{{ connectedDoctors().length }}</p>
+            <p class="stat-label">Connected Doctors</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-inner">
+          <div class="stat-icon stat-icon--amber"><mat-icon>schedule</mat-icon></div>
+          <div>
+            <p class="stat-value">{{ pendingDoctors().length }}</p>
+            <p class="stat-label">Pending Requests</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-inner">
+          <div class="stat-icon stat-icon--blue"><mat-icon>medical_services</mat-icon></div>
+          <div>
+            <p class="stat-value">{{ availableDoctors().length }}</p>
+            <p class="stat-label">Available Doctors</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- ══ CONNECTED DOCTORS ══ -->
+  @if (connectedDoctors().length > 0) {
+    <div class="section">
+      <div class="section-title">
+        <mat-icon class="section-icon section-icon--green">check_circle_outline</mat-icon>
+        <span>Connected Doctors</span>
+      </div>
+      <div class="doctor-grid">
+        @for (doc of connectedDoctors(); track doc.doctorPatientId) {
+          <mat-card class="doctor-card">
+            <mat-card-content>
+              <div class="card-header">
+                <div class="doc-identity">
+                  <div class="doc-avatar">{{ getInitial(doc.fullName) }}</div>
+                  <div>
+                    <p class="doc-name">{{ doc.fullName }}</p>
+                    <p class="doc-spec">{{ doc.specialization }}</p>
+                  </div>
+                </div>
+                <span class="status-badge status-connected">
+                  <mat-icon>check_circle</mat-icon> Connected
+                </span>
+              </div>
+              <div class="doc-details">
+                @if (doc.hospital) {
+                  <div class="detail-row"><mat-icon>local_hospital</mat-icon><span>{{ doc.hospital }}</span></div>
+                }
+                <div class="detail-row"><mat-icon>mail_outline</mat-icon><span>{{ doc.email }}</span></div>
+                @if (doc.contactNumber) {
+                  <div class="detail-row"><mat-icon>phone</mat-icon><span>{{ doc.contactNumber }}</span></div>
+                }
+                @if (doc.yearsExperience) {
+                  <div class="detail-row"><mat-icon>workspace_premium</mat-icon><span>{{ doc.yearsExperience }} years experience</span></div>
+                }
+              </div>
+              <mat-divider/>
+              <div class="card-footer connected-card-footer-layout">
+                <button mat-stroked-button class="revoke-btn"
+                        (click)="confirmRevoke(doc.doctorPatientId)"
+                        [disabled]="isRevoking(doc.doctorPatientId)">
+                  @if (isRevoking(doc.doctorPatientId)) {
+                    <mat-spinner diameter="16"/>
+                  } @else { <mat-icon>person_remove</mat-icon> }
+                  Revoke
+                </button>
+                <button mat-stroked-button color="primary" class="view-doc-btn"
+                        (click)="openViewDocumentsDialog(doc.doctorId!, doc.fullName!)">
+                  <mat-icon>folder_shared</mat-icon> View Docs
+                </button>
+                <button mat-flat-button color="primary" class="upload-doc-btn"
+                        (click)="openUploadDialog(doc.doctorId!, doc.fullName!)">
+                  <mat-icon>upload_file</mat-icon> Upload
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ══ PENDING REQUESTS ══ -->
+  @if (pendingDoctors().length > 0) {
+    <div class="section">
+      <div class="section-title">
+        <mat-icon class="section-icon section-icon--amber">schedule</mat-icon>
+        <span>Pending Requests</span>
+      </div>
+      <div class="doctor-grid">
+        @for (doc of pendingDoctors(); track doc.doctorPatientId) {
+          <mat-card class="doctor-card doctor-card--pending">
+            <mat-card-content>
+              <div class="card-header">
+                <div class="doc-identity">
+                  <div class="doc-avatar doc-avatar--amber">
+                    {{ getInitial(doc.fullName) }}
+                  </div>
+                  <div>
+                    <p class="doc-name">
+                      {{ doc.fullName ?? 'Doctor Not Yet Assigned' }}
+                    </p>
+                    <p class="doc-spec">{{ doc.specialization ?? '—' }}</p>
+                  </div>
+                </div>
+
+                <!-- Dynamic status badge based on exact status -->
+                <span class="status-badge" [ngClass]="getStatusClass(doc.status)">
+                  @if (doc.status === 'pending_admin') {
+                    <mat-icon>hourglass_empty</mat-icon> Awaiting Admin
+                  } @else if (doc.status === 'pending_doctor') {
+                    <mat-icon>schedule</mat-icon> Awaiting Doctor
+                  }
+                </span>
+              </div>
+
+              @if (doc.hospital || doc.email || doc.contactNumber || doc.yearsExperience) {
+                <div class="doc-details">
+                  @if (doc.hospital) {
+                    <div class="detail-row"><mat-icon>local_hospital</mat-icon><span>{{ doc.hospital }}</span></div>
+                  }
+                  @if (doc.email) {
+                    <div class="detail-row"><mat-icon>mail_outline</mat-icon><span>{{ doc.email }}</span></div>
+                  }
+                  @if (doc.contactNumber) {
+                    <div class="detail-row"><mat-icon>phone</mat-icon><span>{{ doc.contactNumber }}</span></div>
+                  }
+                  @if (doc.yearsExperience) {
+                    <div class="detail-row"><mat-icon>workspace_premium</mat-icon><span>{{ doc.yearsExperience }} yrs exp</span></div>
+                  }
+                </div>
+              }
+
+              @if (doc.patientNote) {
+                <div class="note-box">
+                  <mat-icon>notes</mat-icon>
+                  <span>{{ doc.patientNote }}</span>
+                </div>
+              }
+
+              <mat-divider/>
+
+              <div class="card-footer">
+                <div class="pending-label">
+                  <mat-icon>schedule</mat-icon>
+                  {{ doc.status }}
+                </div>
+                <span class="patient-count">{{ doc.totalPatients }} patients</span>
+              </div>
+
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ══ FIND A DOCTOR ══ -->
+  <div class="section">
+    <div class="section-title-row">
+      <div class="section-title">
+        <mat-icon class="section-icon section-icon--blue">medical_services</mat-icon>
+        <span>Find a Doctor</span>
+      </div>
+
+      <!-- Request without selecting a doctor -->
+      <button mat-stroked-button class="no-pref-btn"
+              (click)="openRequestWithoutDoctorDialog()"
+              [disabled]="isRequesting('no-doctor')">
+        @if (isRequesting('no-doctor')) {
+          <mat-spinner diameter="16"/>
+        } @else { <mat-icon>help_outline</mat-icon> }
+        Request Without Preference
+      </button>
+    </div>
+
+    <mat-card class="search-card">
+      <mat-card-content>
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input type="text"
+                 placeholder="Search by name, specialty, or hospital..."
+                 [value]="searchQuery()"
+                 (input)="searchQuery.set($any($event.target).value)"/>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    @if (availableDoctors().length > 0) {
+      <div class="doctor-grid find-grid">
+        @for (doc of availableDoctors(); track doc.doctorId) {
+          <mat-card class="doctor-card doctor-card--available">
+            <mat-card-content>
+              <div class="card-header">
+                <div class="doc-identity">
+                  <div class="doc-avatar doc-avatar--blue">{{ getInitial(doc.fullName) }}</div>
+                  <div>
+                    <p class="doc-name">{{ doc.fullName }}</p>
+                    <p class="doc-spec">{{ doc.specialization }}</p>
+                  </div>
+                </div>
+                @if (doc.isActive) {
+                  <span class="status-badge status-available">Available</span>
+                }
+              </div>
+              <div class="doc-details">
+                @if (doc.hospital) {
+                  <div class="detail-row"><mat-icon>local_hospital</mat-icon><span>{{ doc.hospital }}</span></div>
+                }
+                <div class="detail-row"><mat-icon>mail_outline</mat-icon><span>{{ doc.email }}</span></div>
+                @if (doc.contactNumber) {
+                  <div class="detail-row"><mat-icon>phone</mat-icon><span>{{ doc.contactNumber }}</span></div>
+                }
+                @if (doc.yearsExperience) {
+                  <div class="detail-row"><mat-icon>workspace_premium</mat-icon><span>{{ doc.yearsExperience }} years experience</span></div>
+                }
+              </div>
+              <mat-divider/>
+              <div class="card-footer">
+                <button mat-flat-button color="primary" class="request-btn"
+                        (click)="sendRequest(doc.doctorId)"
+                        [disabled]="isRequesting(doc.doctorId)">
+                  @if (isRequesting(doc.doctorId)) {
+                    <mat-spinner diameter="16" class="btn-spinner"/> Sending...
+                  } @else {
+                    <mat-icon>person_add</mat-icon> Send Request
+                  }
+                </button>
+                <span class="patient-count">{{ doc.assignedPatients }} patients</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <mat-icon>medical_services</mat-icon>
+        <p>No doctors found matching your search.</p>
+      </div>
+    }
+  </div>
+
+</div>
+}
+
+<!-- ══ REVOKE CONFIRM ══ -->
+@if (showConfirm()) {
+  <div class="overlay" (click)="cancelRevoke()">
+    <mat-card class="confirm-dialog" (click)="$event.stopPropagation()">
+      <mat-card-content>
+        <div class="confirm-icon"><mat-icon>warning_amber</mat-icon></div>
+        <h3>Revoke Doctor Access?</h3>
+        <p>This doctor will no longer be able to view your records. You can send a new request later.</p>
+        <div class="confirm-actions">
+          <button mat-stroked-button (click)="cancelRevoke()">Cancel</button>
+          <button mat-flat-button color="warn" (click)="revokeAccess(showConfirm()!)">
+            Yes, Revoke
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
+
+<!-- ══ REQUEST WITHOUT DOCTOR DIALOG ══ -->
+@if (showRequestDialog()) {
+  <div class="overlay" (click)="closeRequestDialog()">
+    <mat-card class="confirm-dialog dialog-wide" (click)="$event.stopPropagation()">
+      <mat-card-content>
+        <div class="confirm-icon icon-blue"><mat-icon>medical_services</mat-icon></div>
+        <h3>Request a Doctor</h3>
+        <p>Admin will review your profile and assign the most suitable doctor for you.</p>
+
+        <div class="confirm-actions">
+          <button mat-stroked-button (click)="closeRequestDialog()">Cancel</button>
+          <button mat-flat-button color="primary" (click)="submitRequestWithoutDoctor()">
+            <mat-icon>send</mat-icon> Submit Request
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

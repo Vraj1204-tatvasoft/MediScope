@@ -1,0 +1,47 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Base container for all custom app snackbars */
+.snackbar-global.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    border-radius: 10px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
+    padding: 4px 8px !important;
+  }
+  
+  /* Success Variant - Vibrant Green */
+  .snackbar-success.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: #15803d !important; /* Tailwind green-700 */
+  }
+  .snackbar-success .mdc-snackbar__label {
+    color: #ffffff !important;
+    font-weight: 400 !important;
+  }
+  .snackbar-success .mdc-snackbar__actions button {
+    color: #bbf7d0 !important; /* Soft mint green for the action button */
+  }
+  
+  /* Error Variant - Crimson Red */
+  .snackbar-error.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: #b91c1c !important; /* Tailwind red-700 */
+  }
+  .snackbar-error .mdc-snackbar__label {
+    color: #ffffff !important;
+    font-weight: 400 !important;
+  }
+  .snackbar-error .mdc-snackbar__actions button {
+    color: #fca5a5 !important; /* Soft red for action button */
+  }
+  
+  /* Warning Variant - Amber Yellow */
+  .snackbar-warning.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: #d97706 !important; /* Tailwind amber-600 */
+  }
+  .snackbar-warning .mdc-snackbar__label {
+    color: #ffffff !important;
+    font-weight: 400 !important;
+  }
+  .snackbar-warning .mdc-snackbar__actions button {
+    color: #fef3c7 !important; /* Soft cream for action button */
+  }

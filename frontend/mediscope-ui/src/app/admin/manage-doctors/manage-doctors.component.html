@@ -1,0 +1,350 @@
+<!-- File: src/app/admin/manage-doctors/manage-doctors.component.html -->
+
+<div class="page">
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <p class="stat-value">{{ totalDoctors() }}</p>
+          <p class="stat-label">Total Doctors</p>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <p class="stat-value">{{ activeDoctors() }}</p>
+          <p class="stat-label">Active Doctors</p>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <p class="stat-value">{{ avgPatients() }}</p>
+          <p class="stat-label">Avg. Patients / Doctor</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <!-- SEARCH + ADD BUTTON -->
+    <mat-card class="search-card">
+      <mat-card-content>
+        <div class="search-row">
+          <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input type="text" placeholder="Search by name, specialty, or hospital..."
+                   [value]="searchQuery()"
+                   (input)="searchQuery.set($any($event.target).value)"/>
+          </div>
+          <button mat-flat-button color="primary" class="add-btn" (click)="openAddDialog()">
+            <mat-icon>add</mat-icon> Add Doctor
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  
+    <!-- LOADING -->
+    @if (isLoading()) {
+      <div class="loading-center"><mat-spinner diameter="48"/></div>
+    }
+  
+    <!-- DOCTOR CARDS GRID -->
+    @if (!isLoading()) {
+      <div class="doctor-grid">
+        @for (doctor of filteredDoctors(); track doctor.doctorId) {
+          <mat-card class="doctor-card">
+            <mat-card-content>
+  
+              <!-- Card header -->
+              <div class="doc-header">
+                <div class="doc-identity">
+                  <div class="doc-avatar">{{ getInitial(doctor.fullName) }}</div>
+                  <div>
+                    <p class="doc-name">{{ doctor.fullName }}</p>
+                    <p class="doc-spec">{{ doctor.specialization }}</p>
+                  </div>
+                </div>
+                <span class="badge-status" [class.badge-active]="doctor.isActive">
+                  {{ doctor.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+  
+              <!-- Card details -->
+              <div class="doc-details">
+                <div class="doc-detail-row">
+                  <mat-icon>local_hospital</mat-icon>
+                  <span>{{ doctor.hospital || '—' }}</span>
+                </div>
+                <div class="doc-detail-row">
+                  <mat-icon>mail_outline</mat-icon>
+                  <span>{{ doctor.email }}</span>
+                </div>
+                <div class="doc-detail-row">
+                  <mat-icon>phone</mat-icon>
+                  <span>{{ doctor.contactNumber || '—' }}</span>
+                </div>
+                <div class="doc-detail-row">
+                  <mat-icon>workspace_premium</mat-icon>
+                  <span>
+                    {{ doctor.yearsExperience ? doctor.yearsExperience + ' yrs exp' : '—' }}
+                    · License: {{ doctor.licenseNumber }}
+                  </span>
+                </div>
+              </div>
+  
+              <!-- Card footer -->
+              <div class="doc-footer">
+                <span class="patient-count">{{ doctor.assignedPatients }} patients assigned</span>
+                <div class="doc-actions">
+                  <button mat-stroked-button class="view-btn" (click)="openViewDialog(doctor)">
+                    <mat-icon>visibility</mat-icon> View
+                  </button>
+                  <button mat-stroked-button class="edit-btn-sm" (click)="openEditDialog(doctor)">
+                    <mat-icon>edit</mat-icon> Edit
+                  </button>
+                </div>
+              </div>
+  
+            </mat-card-content>
+          </mat-card>
+        }
+  
+        @empty {
+          <div class="empty-state">
+            <mat-icon>person_search</mat-icon>
+            <p>No doctors found.</p>
+          </div>
+        }
+      </div>
+    }
+  
+  </div>
+  
+  <!-- ════════════════════════════════════════════════════════
+       ADD DOCTOR DIALOG
+  ════════════════════════════════════════════════════════ -->
+  @if (showAddDialog()) {
+    <div class="overlay" (click)="closeAddDialog()">
+      <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+  
+        <div class="dialog-header">
+          <h3>Add New Doctor</h3>
+          <button mat-icon-button (click)="closeAddDialog()"><mat-icon>close</mat-icon></button>
+        </div>
+  
+        <mat-card-content>
+          <form [formGroup]="addForm" class="dialog-form">
+  
+            <!-- Full Name -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Full Name *</mat-label>
+              <input matInput formControlName="fullName" placeholder="Dr. John Smith"/>
+              <mat-error>Full name is required</mat-error>
+            </mat-form-field>
+  
+            <!-- Email + Phone row -->
+            <div class="form-row-2">
+              <mat-form-field appearance="outline">
+                <mat-label>Email *</mat-label>
+                <input matInput formControlName="email" type="email" placeholder="doctor@hospital.com"/>
+                <mat-error>Valid email required</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="contactNumber" placeholder="10-digit number" maxlength="10"/>
+              </mat-form-field>
+            </div>
+  
+            <!-- Specialty + Experience row -->
+            <div class="form-row-2">
+              <mat-form-field appearance="outline">
+                <mat-label>Specialty *</mat-label>
+                <mat-select formControlName="specialization">
+                  <mat-option value="" disabled>Select specialty</mat-option>
+                  @for (s of specializations; track s) {
+                    <mat-option [value]="s">{{ s }}</mat-option>
+                  }
+                </mat-select>
+                <mat-error>Specialty is required</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Experience (yrs)</mat-label>
+                <input matInput formControlName="yearsExperience" type="number" placeholder="10"/>
+              </mat-form-field>
+            </div>
+  
+            <!-- Hospital -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Hospital</mat-label>
+              <input matInput formControlName="hospital" placeholder="City Medical Center"/>
+            </mat-form-field>
+  
+            <!-- License Number -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>License Number *</mat-label>
+              <input matInput formControlName="licenseNumber" placeholder="LIC-2024-0001"/>
+              <mat-error>License number is required</mat-error>
+            </mat-form-field>
+  
+            <!-- Bio -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Bio</mat-label>
+              <textarea matInput formControlName="bio" rows="3"
+                        placeholder="Brief description of the doctor's background and expertise..."></textarea>
+            </mat-form-field>
+  
+          </form>
+        </mat-card-content>
+  
+        <div class="dialog-footer">
+          <button mat-stroked-button (click)="closeAddDialog()">Cancel</button>
+          <button mat-flat-button color="primary" (click)="submitAdd()" [disabled]="isSaving()">
+            @if (isSaving()) { <mat-spinner diameter="18"/> } @else { <mat-icon>person_add</mat-icon> }
+            {{ isSaving() ? 'Creating...' : 'Add Doctor' }}
+          </button>
+        </div>
+  
+      </mat-card>
+    </div>
+  }
+  
+  <!-- ════════════════════════════════════════════════════════
+       VIEW DOCTOR DIALOG
+  ════════════════════════════════════════════════════════ -->
+  @if (showViewDialog() && selectedDoctor()) {
+    <div class="overlay" (click)="closeViewDialog()">
+      <mat-card class="dialog-card dialog-card--view" (click)="$event.stopPropagation()">
+  
+        <div class="dialog-header">
+          <h3>Doctor Details</h3>
+          <button mat-icon-button (click)="closeViewDialog()"><mat-icon>close</mat-icon></button>
+        </div>
+  
+        <mat-card-content>
+  
+          <!-- Doctor header -->
+          <div class="view-doc-header">
+            <div class="doc-avatar doc-avatar--lg">{{ getInitial(selectedDoctor()!.fullName) }}</div>
+            <div>
+              <p class="doc-name">{{ selectedDoctor()!.fullName }}</p>
+              <p class="doc-spec">{{ selectedDoctor()!.specialization }}</p>
+              <span class="badge-status badge-active">
+                {{ selectedDoctor()!.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+  
+          <mat-divider/>
+  
+          <!-- Details table -->
+          <div class="view-details">
+            <div class="view-row">
+              <span class="view-label">Email</span>
+              <span class="view-value">{{ selectedDoctor()!.email }}</span>
+            </div>
+            <div class="view-row">
+              <span class="view-label">Phone</span>
+              <span class="view-value">{{ selectedDoctor()!.contactNumber || '—' }}</span>
+            </div>
+            <div class="view-row">
+              <span class="view-label">Hospital</span>
+              <span class="view-value">{{ selectedDoctor()!.hospital || '—' }}</span>
+            </div>
+            <div class="view-row">
+              <span class="view-label">Experience</span>
+              <span class="view-value">{{ selectedDoctor()!.yearsExperience ? selectedDoctor()!.yearsExperience + ' years' : '—' }}</span>
+            </div>
+            <div class="view-row">
+              <span class="view-label">License</span>
+              <span class="view-value">{{ selectedDoctor()!.licenseNumber }}</span>
+            </div>
+            <div class="view-row">
+              <span class="view-label">Patients</span>
+              <span class="view-value">{{ selectedDoctor()!.assignedPatients }} assigned</span>
+            </div>
+            <div class="view-row">
+              <span class="view-label">Joined</span>
+              <span class="view-value">{{ formatDate(selectedDoctor()!.registeredAt) }}</span>
+            </div>
+            @if (selectedDoctor()!.bio) {
+              <div class="view-row view-row--bio">
+                <span class="view-label">Bio</span>
+                <span class="view-value">{{ selectedDoctor()!.bio }}</span>
+              </div>
+            }
+          </div>
+  
+        </mat-card-content>
+  
+        <div class="dialog-footer">
+          <button mat-flat-button color="primary" (click)="closeViewDialog()">Close</button>
+        </div>
+  
+      </mat-card>
+    </div>
+  }
+  
+  <!-- ════════════════════════════════════════════════════════
+       EDIT DOCTOR DIALOG
+  ════════════════════════════════════════════════════════ -->
+  @if (showEditDialog() && selectedDoctor()) {
+    <div class="overlay" (click)="closeEditDialog()">
+      <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+  
+        <div class="dialog-header">
+          <h3>Edit Doctor — {{ selectedDoctor()!.fullName }}</h3>
+          <button mat-icon-button (click)="closeEditDialog()"><mat-icon>close</mat-icon></button>
+        </div>
+  
+        <mat-card-content>
+          <form [formGroup]="editForm" class="dialog-form">
+  
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Full Name *</mat-label>
+              <input matInput formControlName="fullName"/>
+              <mat-error>Required</mat-error>
+            </mat-form-field>
+  
+            <div class="form-row-2">
+              <mat-form-field appearance="outline">
+                <mat-label>Specialty</mat-label>
+                <mat-select formControlName="specialization">
+                  <mat-option value="">— Select —</mat-option>
+                  @for (s of specializations; track s) {
+                    <mat-option [value]="s">{{ s }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Experience (yrs)</mat-label>
+                <input matInput formControlName="yearsExperience" type="number"/>
+              </mat-form-field>
+            </div>
+  
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Hospital</mat-label>
+              <input matInput formControlName="hospital"/>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Phone</mat-label>
+              <input matInput formControlName="contactNumber" maxlength="10"/>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Bio</mat-label>
+              <textarea matInput formControlName="bio" rows="3"></textarea>
+            </mat-form-field>
+  
+          </form>
+        </mat-card-content>
+  
+        <div class="dialog-footer">
+          <button mat-stroked-button (click)="closeEditDialog()">Cancel</button>
+          <button mat-flat-button color="primary" (click)="submitEdit()" [disabled]="isSaving()">
+            @if (isSaving()) { <mat-spinner diameter="18"/> } @else { <mat-icon>save</mat-icon> }
+            {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+  
+      </mat-card>
+    </div>
+  }

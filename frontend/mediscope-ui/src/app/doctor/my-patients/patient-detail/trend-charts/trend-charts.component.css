@@ -1,0 +1,41 @@
+.metrics-dashboard-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(48%, 1fr));
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+  }
+  
+  .chart-visualizer-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid #f1f5f9;
+    background: #ffffff;
+  }
+  
+  mat-card-title {
+    font-size: 1.05rem !important;
+    font-weight: 600;
+    color: #1e293b;
+    padding: 1rem 0 0 1rem;
+  }
+  
+  .canvas-wrapper {
+    position: relative;
+    height: 280px;
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .charts-spinner-container, .empty-charts-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: #94a3b8;
+  }
+  
+  .empty-charts-fallback mat-icon {
+    transform: scale(2);
+    margin-bottom: 1rem;
+  }

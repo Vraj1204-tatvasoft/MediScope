@@ -1,0 +1,89 @@
+<div class="notification-dashboard-container">
+
+    <div class="notification-header-block">
+      <div class="header-title-zone">
+        <div class="bell-icon-badge-avatar">
+          <mat-icon>notifications_none</mat-icon>
+        </div>
+        <div>
+          <h2>Notifications</h2>
+          <p class="subtitle-unread-label">{{ unreadCount() }} unread updates pending review</p>
+        </div>
+      </div>
+  
+      <button mat-stroked-button class="mark-all-read-btn" 
+              [disabled]="unreadCount() === 0" 
+              (click)="markAllAsRead()">
+        <mat-icon>done_all</mat-icon> Mark all read
+      </button>
+      <button mat-flat-button color="warn" class="clear-all-btn" 
+            [disabled]="rawNotifications().length === 0" 
+            (click)="clearAllNotifications()">
+        <mat-icon>delete_sweep</mat-icon> Clear All
+      </button>
+    </div>
+  
+    <div class="filter-chips-action-row">
+      <button mat-flat-button class="custom-filter-chip" 
+              [class.active-segment]="activeFilter() === 'ALL'" 
+              (click)="setFilter('ALL')">
+        All ({{ totalCount() }})
+      </button>
+      
+      <button mat-flat-button class="custom-filter-chip" 
+              [class.active-segment]="activeFilter() === 'UNREAD'" 
+              (click)="setFilter('UNREAD')">
+        Unread ({{ unreadCount() }})
+      </button>
+      
+      <button mat-flat-button class="custom-filter-chip" 
+              [class.active-segment]="activeFilter() === 'ALERTS'" 
+              (click)="setFilter('ALERTS')">
+        Alerts @if(alertCount() > 0) { <span>({{ alertCount() }})</span> }
+      </button>
+    </div>
+  
+    @if (isLoading()) {
+      <div class="fallback-loading-zone">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Synchronizing real-time healthcare medical event cards...</p>
+      </div>
+    } @else {
+      <div class="notifications-feed-vertical-stack">
+        
+        @for (notification of filteredNotifications(); track notification.id) {
+            <div class="notification-item-card clickable-row" 
+                 [ngClass]="notification.type.toLowerCase()"
+                 [class.unread-vitals-card]="!notification.isRead"
+                 (click)="readSingleNotification(notification)"> <div class="card-left-icon-wrapper">
+                <mat-icon class="status-indicator-icon">{{ getIconName(notification.type) }}</mat-icon>
+              </div>
+          
+              <div class="card-center-message-content">
+                <p class="notification-body-text">{{ notification.message }}</p>
+                <span class="timestamp-elapsed-subtext">
+                  {{ getRelativeTime(notification.createdAt) }}
+                </span>
+              </div>
+          
+              <div class="card-right-status-badge-zone">
+                <span class="status-text-pill-tag">{{ notification.type.toLowerCase() }}</span>
+                
+                @if (!notification.isRead) {
+                  <span class="blue-unread-pulse-dot"></span>
+                }
+              </div>
+          
+            </div>
+        } @empty {
+          <div class="fallback-empty-notifications-card">
+            <mat-icon class="giant-empty-state-icon">notifications_off</mat-icon>
+            <h4>Your medical notification inbox is clear</h4>
+            <p>No logged health alerts or doctor assignment sync requests match this selected criteria segment view.</p>
+          </div>
+        }
+  
+      </div>
+    }
+  
+  </div>

@@ -1,0 +1,339 @@
+.admin-patients-dashboard-container {
+    padding: 1.5rem;
+    margin: 0 auto;
+    background-color: #f8fafc;
+  }
+  
+  /* ══ 1. BANNER METRICS SCORECARDS GRID ══ */
+  .analytics-metrics-grid-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .stat-scorecard-card {
+    border-radius: 12px !important;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  }
+  
+  
+  .metric-numeric-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+  }
+  
+  .metric-descriptor-text {
+    font-size: 0.88rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-top: 0.35rem;
+  }
+  
+  /* Color palettes syncing directly with application branding layouts */
+  .stat-scorecard-card.total { background: #ffffff; }
+  .stat-scorecard-card.male { background-color: #f0fdfa; border-color: #ccfbf1; .metric-numeric-value { color: #0d9488; } }
+  .stat-scorecard-card.female { background-color: #eff6ff; border-color: #dbeafe; .metric-numeric-value { color: #1d4ed8; } }
+  .stat-scorecard-card.critical { background-color: #fff5f5; border-color: #fecaca; .metric-numeric-value { color: #dc2626; } }
+  
+  /* ══ 2. CENTRAL DIRECTORY TABLE WORKSPACE ══ */
+  .audit-table-master-surface {
+    border-radius: 14px !important;
+    border: 1px solid #e2e8f0;
+    background: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.01) !important;
+  }
+  
+  .no-padding { padding: 0 !important; }
+  
+  .workspace-filtering-actions-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.75rem 1rem 1.75rem;
+    gap: 1.5rem;
+  }
+  
+  .search-input-field-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 450px;
+  }
+  
+  .search-inner-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .search-input-field-wrapper input {
+    width: 100%;
+    padding: 0.65rem 1rem 0.65rem 2.65rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background-color: #f8fafc;
+    color: #334155;
+    outline: none;
+    transition: all 0.15s ease-in-out;
+  }
+  
+  .search-input-field-wrapper input:focus {
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+  }
+  
+  .dropdown-selectors-wrapper select {
+    padding: 0.65rem 2.25rem 0.65rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+    background-color: #ffffff;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+  }
+  
+  .table-section-title-tag {
+    padding: 0.5rem 1.75rem 1rem 1.75rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .table-section-title-tag h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .counter-ghost-badge {
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  
+  /* GRID DIRECTORY RENDER HOOKS */
+  .responsive-table-scroll-frame {
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .clinical-directory-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .clinical-directory-grid-table th {
+    background: #ffffff;
+    padding: 1rem 1.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #edf2f7;
+  }
+  
+  .clinical-directory-grid-table td {
+    padding: 1.1rem 1.75rem;
+    font-size: 0.94rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  
+  /* Left Align Structural Identity Items Profiler */
+  .identity-profile-cell-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  
+  .avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+.table-loading-inline-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem;
+    color: #64748b;
+    font-size: 0.92rem;
+    gap: 1rem;
+    background: #ffffff;
+  }
+  .patient-avatar-bg { background-color: #2563eb; }
+  
+  .text-identity-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profile-bold-name {
+    font-weight: 600;
+    color: #0f172a;
+  }
+  
+  .profile-subtext-email {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-top: 0.05rem;
+  }
+  
+  .text-muted-dim { color: #94a3b8; font-weight: 500; }
+  .text-secondary-label { color: #475569; font-weight: 500; }
+  .tabular-numeric-cell { font-variant-numeric: tabular-nums; font-weight: 500; color: #1e293b; }
+  
+  /* Blood Group Badging */
+  .blood-group-tag-pill {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background-color: #fff5f5;
+    color: #e11d48;
+  }
+  
+  .blood-group-tag-pill.is-positive {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+  }
+  
+  /* Vitals Evaluation Badges (Matches Status Grid Mockups) */
+  .badge-vitals-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  
+  .status-indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  
+  .badge-vitals-status-pill.normal { background-color: #e6fdf4; color: #10b981; .status-indicator-dot { background-color: #10b981; } }
+  .badge-vitals-status-pill.warning { background-color: #fffbeb; color: #f59e0b; .status-indicator-dot { background-color: #f59e0b; } }
+  .badge-vitals-status-pill.critical { background-color: #fff5f5; color: #ef4444; .status-indicator-dot { background-color: #ef4444; } }
+  
+  /* ══ 3. CUSTOM BOTTOM SERVER-DRIVEN PAGINATION BAR ══ */
+  .custom-grid-pagination-control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.75rem;
+    border-top: 1px solid #edf2f7;
+  }
+  
+  .pagination-records-summary-label {
+    font-size: 0.88rem;
+    color: #64748b;
+  }
+  
+  .divider-dot {
+    padding: 0 0.4rem;
+    color: #cbd5e1;
+  }
+  
+  .pagination-buttons-nav-cluster {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  
+  .nav-arrow-btn {
+    color: #64748b !important;
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .page-number-selector-btn {
+    background: none;
+    border: none;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  
+  .page-number-selector-btn:hover {
+    background-color: #f1f5f9;
+  }
+  
+  .page-number-selector-btn.active-page-btn {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+  
+  /* Fallback Screens Placeholders */
+  .empty-results-fallback-row {
+    text-align: center;
+    padding: 5rem !important;
+    color: #94a3b8;
+  }
+  
+  .empty-state-icon {
+    transform: scale(2.2);
+    color: #cbd5e1;
+    margin-bottom: 0.85rem;
+  }
+  
+  .master-loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10rem 2rem;
+    color: #64748b;
+    font-size: 0.95rem;
+    gap: 1.25rem;
+  }
+  
+  /* RESPONSIVE COLLAPSE OVERRIDES CODE */
+  @media (max-width: 1024px) {
+    .analytics-metrics-grid-row { grid-template-columns: repeat(2, 1fr); }
+    .workspace-filtering-actions-strip { flex-direction: column; align-items: stretch; gap: 1rem; }
+    .search-input-field-wrapper { max-width: 100%; }
+  }
+  
+  @media (max-width: 640px) {
+    .analytics-metrics-grid-row { grid-template-columns: 1fr; }
+    .custom-grid-pagination-control-row { flex-direction: column; gap: 1rem; text-align: center; }
+  }

@@ -1,0 +1,336 @@
+<div class="register-wrapper">
+ 
+    <!-- ══════════════════════════════════════════════════════
+         LEFT SIDEBAR
+    ══════════════════════════════════════════════════════ -->
+    <div class="sidebar">
+      <div class="sidebar-content">
+   
+        <!-- Logo -->
+        <div class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <span>MediScope</span>
+        </div>
+   
+        <!-- Heading -->
+        <h2 class="sidebar-title">Join MediScope</h2>
+        <p class="sidebar-desc">
+          Create your patient account to start tracking your health metrics
+          and connecting with your doctors.
+        </p>
+   
+        <!-- Step indicators -->
+        <div class="steps">
+   
+          <!-- Step 1 -->
+          <div class="step" [class.active]="currentStep() === 1" [class.done]="currentStep() === 2">
+            <div class="step-circle">
+              @if (currentStep() === 2) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              } @else {
+                1
+              }
+            </div>
+            <div class="step-info">
+              <span class="step-title">Personal Information</span>
+              <span class="step-sub">Basic details &amp; contact info</span>
+            </div>
+          </div>
+   
+          <!-- Connector -->
+          <div class="step-connector"></div>
+   
+          <!-- Step 2 -->
+          <div class="step" [class.active]="currentStep() === 2">
+            <div class="step-circle">2</div>
+            <div class="step-info">
+              <span class="step-title">Health &amp; Security</span>
+              <span class="step-sub">Medical details &amp; password setup</span>
+            </div>
+          </div>
+   
+        </div>
+   
+        <!-- Note box -->
+        <div class="note-box">
+          <strong>Note:</strong> Doctor accounts are created by the system administrator.
+          If you are a doctor, please contact your hospital administrator.
+        </div>
+   
+      </div>
+    </div>
+   
+    <!-- ══════════════════════════════════════════════════════
+         MAIN CONTENT
+    ══════════════════════════════════════════════════════ -->
+    <div class="main">
+   
+      <!-- Back to login -->
+      <a routerLink="/login" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to Login
+      </a>
+   
+      <!-- Error banner -->
+      @if (errorMessage()) {
+        <div class="error-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          {{ errorMessage() }}
+        </div>
+      }
+   
+      <!-- ════════════════════════════════════════
+           STEP 1 — Personal Information
+      ════════════════════════════════════════ -->
+      @if (currentStep() === 1) {
+        <div class="form-card">
+   
+          <div class="form-header">
+            <h2>Personal Information</h2>
+            <p>Step 1 of 2 — Fill in the required details</p>
+            <div class="progress-bar">
+              <div class="progress-fill half"></div>
+            </div>
+          </div>
+   
+          <form [formGroup]="step1Form" (ngSubmit)="goToStep2()">
+   
+            <!-- First + Last Name -->
+            <div class="row-2">
+              <div class="field">
+                <label>First Name <span class="req">*</span></label>
+                <input type="text" formControlName="firstName"
+                       [class.invalid]="firstName.invalid && firstName.touched"/>
+                @if (firstName.invalid && firstName.touched) {
+                  <span class="field-error">First name is required</span>
+                }
+              </div>
+              <div class="field">
+                <label>Last Name <span class="req">*</span></label>
+                <input type="text" formControlName="lastName" 
+                       [class.invalid]="lastName.invalid && lastName.touched"/>
+                @if (lastName.invalid && lastName.touched) {
+                  <span class="field-error">Last name is required</span>
+                }
+              </div>
+            </div>
+   
+            <!-- Email -->
+            <div class="field">
+              <label>Email Address <span class="req">*</span></label>
+              <input type="email" formControlName="email"
+                     [class.invalid]="email.invalid && email.touched"/>
+              @if (email.invalid && email.touched) {
+                <span class="field-error">
+                  {{ email.errors?.['required'] ? 'Email is required' : 'Enter a valid email' }}
+                </span>
+              }
+            </div>
+   
+            <!-- Phone Number -->
+            <div class="field">
+              <label>Phone Number</label>
+              <input type="tel" formControlName="contactNumber" placeholder="10-digit number"
+                     [class.invalid]="contactNumber.invalid && contactNumber.touched"
+                     maxlength="10"/>
+              @if (contactNumber.invalid && contactNumber.touched) {
+                <span class="field-error">Enter a valid 10-digit number</span>
+              }
+            </div>
+   
+            <!-- Date of Birth + Gender -->
+            <div class="row-2">
+              <div class="field">
+                <label>Date of Birth <span class="req">*</span></label>
+                <input
+                  type="date"
+                  formControlName="dateOfBirth"
+                  [max]="maxDate"
+                  [class.invalid]="dateOfBirth.invalid && dateOfBirth.touched"
+                />
+                @if (dateOfBirth.invalid && dateOfBirth.touched) {
+                  <span class="field-error">Date of birth is required</span>
+                }
+              </div>
+              <div class="field">
+                <label>Gender <span class="req">*</span></label>
+                <div class="select-wrapper">
+                  <select formControlName="gender"
+                          [class.invalid]="gender.invalid && gender.touched">
+                    <option value="" disabled selected>Select gender</option>
+                    @for (g of GENDERS; track g) {
+                      <option [value]="g">{{ g }}</option>
+                    }
+                  </select>
+                  <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+                @if (gender.invalid && gender.touched) {
+                  <span class="field-error">Gender is required</span>
+                }
+              </div>
+            </div>
+   
+            <!-- Address -->
+            <div class="field">
+              <label>Address</label>
+              <input type="text" formControlName="address" placeholder="Your address (optional)"/>
+            </div>
+   
+            <!-- Continue button -->
+            <button type="submit" class="btn-primary">
+              Continue →
+            </button>
+   
+            <p class="signin-link">
+              Already have an account? <a routerLink="/login">Sign in</a>
+            </p>
+   
+          </form>
+        </div>
+      }
+   
+      <!-- ════════════════════════════════════════
+           STEP 2 — Health & Security
+      ════════════════════════════════════════ -->
+      @if (currentStep() === 2) {
+        <div class="form-card">
+   
+          <div class="form-header">
+            <h2>Health &amp; Security Setup</h2>
+            <p>Step 2 of 2 — Fill in the required details</p>
+            <div class="progress-bar">
+              <div class="progress-fill full"></div>
+            </div>
+          </div>
+   
+          <form [formGroup]="step2Form" (ngSubmit)="onSubmit()">
+   
+            <!-- Blood Group -->
+            <div class="field">
+              <label>Blood Group</label>
+              <div class="select-wrapper">
+                <select formControlName="bloodGroup">
+                  <option value="" selected>Select blood group</option>
+                  @for (bg of BLOOD_GROUPS; track bg) {
+                    <option [value]="bg">{{ bg }}</option>
+                  }
+                </select>
+                <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+            </div>
+   
+            <!-- Password -->
+            <div class="field">
+              <label>Password <span class="req">*</span></label>
+              <div class="input-icon-right">
+                <input [type]="showPassword() ? 'text' : 'password'"
+                       formControlName="password"
+                       placeholder="Min. 8 characters"
+                       [class.invalid]="password.invalid && password.touched"/>
+                <button type="button" class="icon-btn" (click)="togglePassword()">
+                  @if (showPassword()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+              @if (password.invalid && password.touched) {
+                <span class="field-error">
+              
+                  @if (password.errors?.['required']) {
+                    Password is required
+                  }
+              
+                  @if (password.errors?.['pattern']) {
+                    Password must contain at least 8 characters,
+                    including uppercase, lowercase, number,
+                    and special character
+                  }
+              
+                </span>
+              }
+            </div>
+   
+            <!-- Confirm Password -->
+            <div class="field">
+              <label>Confirm Password <span class="req">*</span></label>
+              <div class="input-icon-right">
+                <input [type]="showConfirmPw() ? 'text' : 'password'"
+                       formControlName="confirmPassword"
+                       placeholder="Re-enter password"
+                       [class.invalid]="confirmPassword.invalid && confirmPassword.touched"/>
+                <button type="button" class="icon-btn" (click)="toggleConfirmPw()">
+                  @if (showConfirmPw()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+              @if (confirmPassword.touched && confirmPassword.errors?.['mismatch']) {
+                <span class="field-error">Passwords do not match</span>
+              }
+            </div>
+   
+            <!-- Terms -->
+            <div class="terms-box">
+              By creating an account, you agree to MediScope's
+              <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+              Your health data is stored securely and shared only with your consented doctors.
+            </div>
+   
+            <!-- Buttons -->
+            <div class="row-2 btn-row">
+              <button type="button" class="btn-secondary" (click)="goToStep1()">
+                ← Back
+              </button>
+              <button type="submit" class="btn-primary" [disabled]="isLoading()">
+                @if (isLoading()) {
+                  <span class="spinner"></span> Creating...
+                } @else {
+                  Create Account
+                }
+              </button>
+            </div>
+   
+            <p class="signin-link">
+              Already have an account? <a routerLink="/login">Sign in</a>
+            </p>
+   
+          </form>
+        </div>
+      }
+   
+    </div>
+  </div>

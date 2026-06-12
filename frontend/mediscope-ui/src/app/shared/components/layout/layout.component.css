@@ -1,0 +1,47 @@
+
+.app-shell {
+    display: flex;
+    height: 100vh;      /* Force layout to match the exact screen height */
+    width: 100vw;       /* Prevent horizontal viewport stretching */
+    overflow: hidden;   /* Strict rule preventing the outer frame from scrolling */
+    background: #f3f4f6;
+  }
+  
+  .sidebar {
+    width: 240px;
+    height: 100%;       /* Altered from 100vh to fit within app-shell gracefully */
+    background: #0d1b3e;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+    flex-shrink: 0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;       /* Matches structural parent framework */
+    overflow: hidden;   /* Keeps inner wrapper strictly isolated */
+  }
+  
+  .header {
+    height: 60px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    font-family: 'Segoe UI', sans-serif;
+    flex-shrink: 0;    /* Critically prevents the header from shrinking when content grows */
+  }
+  
+  .page-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;   /* ← This activates scrolling ONLY within this container */
+    overflow-x: hidden; /* Prevents weird horizontal clipping hitches */
+  }

@@ -1,0 +1,215 @@
+.notification-dashboard-container {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+  }
+  
+  /* Header actions bar layouts configuration */
+  .notification-header-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .header-title-zone {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  
+  .bell-icon-badge-avatar {
+    background-color: #eff6ff;
+    color: #2563eb;
+    padding: 0.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .header-title-zone h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+  
+  .subtitle-unread-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0.15rem 0 0 0;
+  }
+  
+  .mark-all-read-btn {
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+  }
+  
+  /* Custom chips control block */
+  .filter-chips-action-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1rem;
+  }
+  
+  .custom-filter-chip {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-radius: 20px !important;
+    font-weight: 500 !important;
+    padding: 0.2rem 1.2rem !important;
+    box-shadow: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .active-segment {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+  
+  /* Master list custom layout row view containers */
+  .notifications-feed-vertical-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .notification-item-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  
+  .notification-item-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  }
+  
+  /* Border tracking status indicator logic highlights */
+  .notification-item-card.unread-border-highlight {
+    border-left: 4px solid #2563eb;
+  }
+  
+  /* Contextual role background card overrides */
+  .notification-item-card.alert { background-color: #fff5f5; border-color: #fee2e2; }
+  .notification-item-card.success { background-color: #f0fdf4; border-color: #dcfce7; }
+  .notification-item-card.info { background-color: #f8fafc; border-color: #f1f5f9; }
+  .notification-item-card.reminder { background-color: #fefce8; border-color: #fef9c3; }
+  
+  /* Left icons layout configuration */
+  .card-left-icon-wrapper {
+    margin-right: 1.25rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .status-indicator-icon {
+    transform: scale(1.15);
+  }
+  
+  .alert .status-indicator-icon { color: #ef4444; }
+  .success .status-indicator-icon { color: #22c55e; }
+  .info .status-indicator-icon { color: #64748b; }
+  .reminder .status-indicator-icon { color: #eab308; }
+  
+  /* Center context messages text alignments */
+  .card-center-message-content {
+    flex: 1;
+    padding-right: 1.5rem;
+  }
+  
+  .notification-body-text {
+    font-size: 0.98rem;
+    color: #1e293b;
+    margin: 0 0 0.4rem 0;
+    line-height: 1.45;
+    font-weight: 500;
+  }
+  
+  .timestamp-elapsed-subtext {
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+  
+  /* Right layout chip pill elements badges */
+  .card-right-status-badge-zone {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .status-text-pill-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+  }
+  
+  .alert .status-text-pill-tag { background-color: #ffeeec; color: #ef4444; }
+  .success .status-text-pill-tag { background-color: #e6f9ed; color: #22c55e; }
+  .info .status-text-pill-tag { background-color: #f1f5f9; color: #475569; }
+  .reminder .status-text-pill-tag { background-color: #fef9c3; color: #a16207; }
+  
+  /* Pulse unread indicators blue dots layout configuration */
+  .blue-unread-pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #2563eb;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  
+  /* Fallback empty placeholders */
+  .fallback-loading-zone, .fallback-empty-notifications-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 2rem;
+    text-align: center;
+    color: #94a3b8;
+    background: #fafafa;
+    border: 1px dashed #e2e8f0;
+    border-radius: 16px;
+  }
+  
+  .giant-empty-state-icon {
+    transform: scale(2.5);
+    margin-bottom: 1.5rem;
+    color: #cbd5e1;
+  }
+  
+  .fallback-empty-notifications-card h4 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #475569;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .fallback-empty-notifications-card p {
+    font-size: 0.9rem;
+    max-width: 420px;
+    margin: 0;
+  }
+
+.clickable-row {
+    cursor: pointer;
+    user-select: none;
+  }
+  
+.clickable-row:not(.isRead):hover {
+    background-color: rgba(37, 99, 235, 0.02);
+  }

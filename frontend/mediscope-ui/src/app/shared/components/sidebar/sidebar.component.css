@@ -1,0 +1,209 @@
+.sidebar {
+    width: 240px;
+    height: 100%;
+    background: #0d1b3e;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1.25rem 0.75rem 1.25rem; 
+    flex-shrink: 0;
+    font-family: 'Segoe UI', sans-serif;
+    box-sizing: border-box; 
+  }
+
+  /* Logo */
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .logo-icon {
+    width: 34px; height: 34px;
+    background: #3b82f6;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-icon svg { width: 18px; height: 18px; color: white; }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .logo-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .logo-portal {
+    font-size: 0.72rem;
+    color: #3b82f6;
+    font-weight: 500;
+  }
+
+  /* Access badge */
+  .access-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 1.5rem;
+  }
+
+  .access-badge svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    overflow-y: auto; 
+    margin-bottom: 1rem;
+  }
+
+  .nav-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+    padding-left: 0.5rem;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0.75rem 1rem;
+    color: #94a3b8;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+  .nav-item:hover {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.85);
+  }
+
+  .nav-item.active {
+    background: rgba(59,130,246,0.2);
+    color: white;
+    font-weight: 600;
+  }
+
+  /* Notification badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    border-radius: 10px;
+    margin-left: auto; 
+  }
+
+  /* Footer */
+  .sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.75rem; 
+    margin-top: auto;   
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;       
+    flex-shrink: 0;      
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .user-row:hover { background: rgba(255,255,255,0.06); }
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .user-name {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-role {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .chevron { width: 14px; height: 14px; color: rgba(255,255,255,0.35); flex-shrink: 0; }
+
+  /* Sign out */
+  .signout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #ef4444;
+    padding: 0.4rem 0.5rem;
+    border-radius: 8px;
+    transition: background 0.15s;
+    width: 100%;
+  }
+
+  .signout-btn:hover { background: rgba(239,68,68,0.1); }
+  .signout-btn svg { width: 16px; height: 16px; }
+
+  .alert-badge {
+    background-color: #ef4444;
+    color: #ffffff;
+  }
+
+  .pending-badge {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+
+  

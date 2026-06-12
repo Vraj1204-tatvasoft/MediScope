@@ -1,0 +1,83 @@
+<div class="dialog-header-layout">
+    <h2 mat-dialog-title>Documents shared with Dr. {{ data.doctorName }}</h2>
+    <button mat-icon-button mat-dialog-close class="close-btn"><mat-icon>close</mat-icon></button>
+  </div>
+  
+  <mat-dialog-content class="dialog-scroll-content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Retrieving your document history...</p>
+      </div>
+    } @else {
+      
+      <div class="document-list-container">
+        @for (doc of documents(); track doc.id) {
+          <div class="document-card">
+            
+            <div class="doc-header">
+                <div class="doc-title-row clickable-file" (click)="viewFile(doc.id, doc.fileName)">
+            
+                    <div class="file-icon-wrapper">
+                      @if (downloadingId() === doc.id) {
+                        <mat-spinner diameter="24"></mat-spinner>
+                      } @else {
+                        <mat-icon class="file-icon">description</mat-icon>
+                      }
+                    </div>
+                    
+                    <div class="file-meta-content">
+                      <h4 class="file-name">{{ doc.fileName }}</h4>
+                      <p class="file-meta">{{ doc.category }} &bull; Uploaded on {{ formatDate(doc.uploadedAt) }}</p>
+                    </div>
+                    
+                </div>
+              
+              <div class="doc-status-badge">
+                @if (doc.isReviewed) {
+                  <span class="status-pill reviewed"><mat-icon>check_circle</mat-icon> Reviewed</span>
+                } @else if (doc.isViewedByDoctor) {
+                  <span class="status-pill viewed"><mat-icon>visibility</mat-icon> Viewed</span>
+                } @else {
+                  <span class="status-pill unread"><mat-icon>mark_email_unread</mat-icon> Unread</span>
+                }
+              </div>
+            </div>
+  
+            @if (doc.description) {
+              <div class="doc-description">
+                <strong>Your Note:</strong> {{ doc.description }}
+              </div>
+            }
+            <!-- Doctor's Feedback Section -->
+            <div class="doctor-feedback-section" [class.is-reviewed]="doc.isReviewed">
+                @if (doc.isReviewed) {
+                  <div class="feedback-header">
+                    <span class="feedback-title">Doctor's Feedback</span>
+                    <div class="feedback-meta-group">
+                      <span class="review-date">Reviewed: {{ formatDate(doc.reviewedAt) }}</span>
+                      <span class="severity-badge" [ngClass]="getSeverityClass(doc.severity)">
+                        {{ doc.severity || 'Normal' }}
+                      </span>
+                    </div>
+                  </div>
+                  <p class="feedback-text">{{ doc.feedback || 'No written feedback provided.' }}</p>
+                } @else {
+                  <p class="pending-text">
+                    <mat-icon>schedule</mat-icon> Pending review by Dr. {{ data.doctorName }}.
+                  </p>
+                }
+              </div>
+          </div>
+        } @empty {
+          <div class="empty-state">
+            <mat-icon class="empty-icon">folder_off</mat-icon>
+            <h3>No Documents Found</h3>
+            <p>You haven't shared any medical documents with this doctor yet.</p>
+          </div>
+        }
+      </div>
+  
+    }
+    
+  </mat-dialog-content>

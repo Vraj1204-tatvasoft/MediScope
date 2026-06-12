@@ -1,0 +1,255 @@
+.admin-dashboard-root-container {
+    margin: 0 auto;
+    background-color: #f8fafc;
+  }
+  
+  /* ADMINISTRATIVE HEADER COMPONENT BANNER */
+  .dashboard-administrative-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .title-meta-zone h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  
+  .shield-badge-icon {
+    color: #2563eb;
+    font-size: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+  }
+  
+  .subtitle-timeline-label {
+    margin: 0.2rem 0 0 0;
+    font-size: 0.92rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  .care-alert-counter-indicator-badge {
+    background-color: #fee2e2;
+    color: #ef4444;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+  }
+  
+  /* SCORECARDS RENDER TRACKS GRID */
+  .primary-analytics-scorecards-grid-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .analytical-card-node {
+    border-radius: 12px !important;
+    border: 1px solid #edf2f7;
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02) !important;
+  }
+  
+  .analytical-card-node mat-card-content {
+    padding: 1.25rem !important;
+  }
+  
+  .card-metric-flex-align {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .icon-avatar-container {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .icon-avatar-container mat-icon { font-size: 22px; width: 22px; height: 22px; }
+  
+  .icon-avatar-container.blue-tint { background-color: #eff6ff; color: #2563eb; }
+  .icon-avatar-container.green-tint { background-color: #ecfdf5; color: #10b981; }
+  .icon-avatar-container.purple-tint { background-color: #faf5ff; color: #a855f7; }
+  .icon-avatar-container.red-tint { background-color: #fff5f5; color: #ef4444; }
+  
+  .metric-readings-details h2 { margin: 0; font-size: 1.75rem; font-weight: 700; color: #1e293b; line-height: 1.2; }
+  .metric-caption-label { margin: 0; font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; }
+  .sub-informational-text { font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
+  
+  /* HORIZONTAL RATIO TILES PILLS */
+  .percentage-summary-banner-grid-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  
+  .ratio-pill-banner-box {
+    background-color: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .ratio-main-numerical-line { display: flex; align-items: baseline; gap: 0.5rem; }
+  .ratio-main-numerical-line h2 { margin: 0; font-size: 1.85rem; font-weight: 700; color: #0f172a; }
+  
+  .ratio-percentage-badge {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+  }
+  
+  .ratio-descriptor-label { margin: 0.25rem 0 0 0; font-size: 0.88rem; font-weight: 600; color: #475569; }
+  .ratio-sub-info-text { font-size: 0.78rem; color: #94a3b8; font-weight: 500; }
+  
+  .ratio-pill-banner-box.green-strip { border-left: 4px solid #10b981; .ratio-percentage-badge { background-color: #dcfce7; color: #15803d; } h2 { color: #166534; } }
+  .ratio-pill-banner-box.amber-strip { border-left: 4px solid #f59e0b; .ratio-percentage-badge { background-color: #fef3c7; color: #b45309; } h2 { color: #9a3412; } }
+  .ratio-pill-banner-box.red-strip { border-left: 4px solid #ef4444; .ratio-percentage-badge { background-color: #fee2e2; color: #b91c1c; } h2 { color: #991b1b; } }
+  
+  /* ANALYTICS WORKSPACE GRAPH WRAPPERS */
+  .analytics-charts-workspace-split-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .analytics-charts-workspace-split-grid:nth-of-type(2) {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .graphics-chart-card-wrapper {
+    border-radius: 14px !important;
+    border: 1px solid #edf2f7;
+    background-color: #ffffff !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01) !important;
+  }
+  
+  .graphic-chart-header-line h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+  .graphic-chart-header-line p { margin: 0.15rem 0 1.25rem 0; font-size: 0.82rem; color: #94a3b8; font-weight: 500; }
+  .canvas-chart-frame-container { width: 100%; height: 240px; position: relative; }
+  .canvas-chart-frame-container.doughnut-canvas-override { height: 210px; margin-top: 1rem; }
+  
+  /* AUDIT MASTER ACTIVITY TABLE FEED CONTAINER */
+  .clinical-activity-table-master-card {
+    border-radius: 14px !important;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01) !important;
+    overflow: hidden;
+    margin-top: 0.5rem;
+  }
+  
+  .no-padding { padding: 0 !important; }
+  
+  .table-header-panel-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .table-header-panel-strip h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+  
+  .view-patients-redirect-btn {
+    height: 36px !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    border-color: #cbd5e1 !important;
+  }
+  
+  .responsive-table-scroll-frame { width: 100%; overflow-x: auto; }
+  
+  .clinical-audit-stream-grid-table { width: 100%; border-collapse: collapse; text-align: left; }
+  
+  .clinical-audit-stream-grid-table th {
+    background-color: #f8fafc;
+    padding: 0.85rem 1.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #edf2f7;
+  }
+  
+  .clinical-audit-stream-grid-table td {
+    padding: 0.95rem 1.75rem;
+    font-size: 0.9rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  
+  .bold-patient-identity-name { font-weight: 600; color: #0f172a; }
+  .tabular-numeric-cell-style { font-variant-numeric: tabular-nums; color: #64748b; }
+  
+  .user-logged-source-pill-tag {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 600;
+  }
+  .user-logged-source-pill-tag.doctor { background-color: #eff6ff; color: #1d4ed8; }
+  .user-logged-source-pill-tag.patient { background-color: #ecfdf5; color: #065f46; }
+  
+  .emphasized-vitals-cell-text { font-weight: 700; color: #1e293b; font-variant-numeric: tabular-nums; }
+  
+  .badge-vitals-row-pills {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+  .badge-vitals-row-pills.normal { background-color: #dcfce7; color: #15803d; }
+  .badge-vitals-row-pills.elevated { background-color: #fef3c7; color: #b45309; }
+  .badge-vitals-row-pills.critical { background-color: #fee2e2; color: #b91c1c; }
+  
+  /* System Loading Fallbacks Screen States Overrides */
+  .master-loading-fallback-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12rem 2rem;
+    color: #64748b;
+    font-size: 0.95rem;
+    gap: 1.25rem;
+  }
+  
+  .empty-fallback-table-row { text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 3rem !important; }
+  
+  /* RESPONSIVE DESIGN ADJUSTMENT SCRIPT SCREEN OVERRIDES */
+  @media (max-width: 1200px) {
+    .primary-analytics-scorecards-grid-row { grid-template-columns: repeat(2, 1fr); }
+    .percentage-summary-banner-grid-row { grid-template-columns: 1fr; gap: 0.75rem; }
+    .analytics-charts-workspace-split-grid, .analytics-charts-workspace-split-grid:nth-of-type(2) { grid-template-columns: 1fr; }
+  }
+  
+  @media (max-width: 640px) {
+    .primary-analytics-scorecards-grid-row { grid-template-columns: 1fr; }
+    .dashboard-administrative-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  }

@@ -1,0 +1,153 @@
+<div class="admin-patients-dashboard-container">
+
+    <div class="analytics-metrics-grid-row">
+      <mat-card class="stat-scorecard-card total">
+        <mat-card-content>
+          <div class="metric-numeric-value">{{ dashboardData()?.totalPatients ?? 0 }}</div>
+          <div class="metric-descriptor-text">Total Patients</div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="stat-scorecard-card male">
+        <mat-card-content>
+          <div class="metric-numeric-value">{{ dashboardData()?.malePatients ?? 0 }}</div>
+          <div class="metric-descriptor-text">Male</div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="stat-scorecard-card female">
+        <mat-card-content>
+          <div class="metric-numeric-value">{{ dashboardData()?.femalePatients ?? 0 }}</div>
+          <div class="metric-descriptor-text">Female</div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="stat-scorecard-card critical">
+        <mat-card-content>
+          <div class="metric-numeric-value">{{ dashboardData()?.criticalPatients ?? 0 }}</div>
+          <div class="metric-descriptor-text">Critical Status</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <mat-card class="audit-table-master-surface">
+      <mat-card-content class="no-padding">
+  
+        <div class="workspace-filtering-actions-strip">
+          <div class="search-input-field-wrapper">
+            <mat-icon class="search-inner-icon">search</mat-icon>
+            <input type="text" 
+                   placeholder="Search patients by name, email, or condition..."
+                   [value]="searchQuery()"
+                   (input)="onSearchInput($event)" />
+          </div>
+  
+          <div class="dropdown-selectors-wrapper">
+            <select [value]="selectedGender()" (change)="selectedGender.set($any($event.target).value); onGenderFilterChange()">
+              <option value="ALL">All Genders</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+        </div>
+  
+        <div class="table-section-title-tag">
+          <h3>All Patients <span class="counter-ghost-badge">({{ totalRecordsCount() }})</span></h3>
+        </div>
+  
+        @if (isLoading()) {
+          <div class="table-loading-inline-zone">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Filtering patient records...</p>
+          </div>
+        } @else {
+          <div class="responsive-table-scroll-frame">
+            <table class="clinical-directory-grid-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Age / Gender</th>
+                  <th>Blood Group</th>
+                  <th>Doctors</th>
+                  <th>Records</th>
+                  <th>Latest Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of patientsList(); track p.patientId) {
+                  <tr>
+                    <td>
+                      <div class="identity-profile-cell-wrapper">
+                        <div class="avatar-circle patient-avatar-bg">{{ getInitial(p.fullName) }}</div>
+                        <div class="text-identity-details">
+                          <span class="profile-bold-name">{{ p.fullName }}</span>
+                          <span class="profile-subtext-email">{{ p.email }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="demographics-cell">
+                        {{ p.age > 0 ? p.age + ' yrs' : '—' }} &middot; <span class="text-muted-dim">{{ p.gender }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="blood-group-tag-pill" [class.is-positive]="p.bloodGroup.includes('+')">
+                        {{ p.bloodGroup || '—' }}
+                      </span>
+                    </td>
+                    <td class="text-secondary-label">{{ getDoctorsList(p.doctors) }}</td>
+                    <td class="tabular-numeric-cell">{{ p.totalRecords }}</td>
+                    <td>
+                      <span class="badge-vitals-status-pill" [ngClass]="p.latestStatus.toLowerCase()">
+                        <span class="status-indicator-dot"></span>
+                        {{ p.latestStatus }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="empty-results-fallback-row">
+                      <mat-icon class="empty-state-icon">find_in_page</mat-icon>
+                      <p>No logged clinical patient records match your active query filters.</p>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+  
+          @if (totalRecordsCount() > 0) {
+            <div class="custom-grid-pagination-control-row">
+              <span class="pagination-records-summary-label">
+                Showing Page <strong>{{ currentPage() }}</strong> of <strong>{{ totalPagesCount() }}</strong>
+                <span class="divider-dot">&middot;</span> Total Records: {{ totalRecordsCount() }}
+              </span>
+  
+              <div class="pagination-buttons-nav-cluster">
+                <button mat-icon-button class="nav-arrow-btn"
+                        [disabled]="currentPage() === 1"
+                        (click)="onPageChange(currentPage() - 1)">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+  
+                @for (pageIdx of [].constructor(totalPagesCount()); track idx; let idx = $index) {
+                  <button class="page-number-selector-btn"
+                          [class.active-page-btn]="currentPage() === (idx + 1)"
+                          (click)="onPageChange(idx + 1)">
+                    {{ idx + 1 }}
+                  </button>
+                }
+  
+                <button mat-icon-button class="nav-arrow-btn"
+                        [disabled]="currentPage() === totalPagesCount()"
+                        (click)="onPageChange(currentPage() + 1)">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        }
+  
+      </mat-card-content>
+    </mat-card>
+  </div>

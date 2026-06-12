@@ -1,0 +1,381 @@
+
+@if (isLoading()) {
+    <div class="loading-center">
+      <mat-spinner diameter="48" />
+    </div>
+  }
+  
+  @if (!isLoading() && profile()) {
+    <div class="profile-page">
+  
+      <!-- ══════════════════════════════════════════════
+           PROFILE HEADER CARD
+      ══════════════════════════════════════════════ -->
+      <mat-card class="header-card">
+        <mat-card-content>
+          <div class="header-inner">
+  
+            <!-- Avatar + Info -->
+            <div class="user-identity">
+              <div class="avatar-circle">
+                {{ getUserInitial() }}
+              </div>
+              <div class="user-details">
+                <h2 class="user-name">{{ profile()!.fullName }}</h2>
+                <p class="user-email">{{ profile()!.email }}</p>
+                <div class="user-badges">
+                  @if (profile()!.gender) {
+                    <span class="badge badge-gender">{{ profile()!.gender }}</span>
+                  }
+                  @if (profile()!.age) {
+                    <span class="badge badge-age">{{ profile()!.age }} years old</span>
+                  }
+                  @if (profile()!.bloodGroup) {
+                    <span class="badge badge-blood">{{ profile()!.bloodGroup }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+  
+            <!-- Edit / Cancel button -->
+            @if (!isEditMode()) {
+              <button mat-stroked-button class="edit-btn" (click)="enterEditMode()">
+                <mat-icon>edit</mat-icon>
+                Edit Profile
+              </button>
+            } @else {
+              <button mat-stroked-button class="cancel-btn" (click)="cancelEdit()">
+                <mat-icon>close</mat-icon>
+                Cancel
+              </button>
+            }
+  
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <!-- ══════════════════════════════════════════════
+           MAIN CONTENT ROW
+      ══════════════════════════════════════════════ -->
+      <div class="content-row">
+  
+        <!-- ── LEFT: Personal Information ── -->
+        <mat-card class="info-card">
+          <mat-card-header>
+            <div class="card-title">
+              <mat-icon class="title-icon">person_outline</mat-icon>
+              <span>Personal Information</span>
+            </div>
+          </mat-card-header>
+  
+          <mat-divider />
+  
+          <mat-card-content>
+  
+            <!-- VIEW MODE -->
+            @if (!isEditMode()) {
+              <div class="info-list">
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>person_outline</mat-icon>
+                    Full Name
+                  </div>
+                  <span class="info-value">{{ profile()!.fullName }}</span>
+                </div>
+                <mat-divider />
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>mail_outline</mat-icon>
+                    Email
+                  </div>
+                  <span class="info-value">{{ profile()!.email }}</span>
+                </div>
+                <mat-divider />
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>phone_outlined</mat-icon>
+                    Phone
+                  </div>
+                  <span class="info-value">{{ profile()!.contactNumber || '—' }}</span>
+                </div>
+                <mat-divider />
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>calendar_today</mat-icon>
+                    Date of Birth
+                  </div>
+                  <span class="info-value">
+                    {{ formatDate(profile()!.dateOfBirth) }}
+                    @if (profile()!.age) {
+                      <span class="muted">({{ profile()!.age }} yrs)</span>
+                    }
+                  </span>
+                </div>
+                <mat-divider />
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>person_outline</mat-icon>
+                    Gender
+                  </div>
+                  <span class="info-value">{{ profile()!.gender || '—' }}</span>
+                </div>
+                <mat-divider />
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>location_on</mat-icon>
+                    Address
+                  </div>
+                  <span class="info-value">{{ profile()!.address || '—' }}</span>
+                </div>
+  
+              </div>
+            }
+  
+            <!-- EDIT MODE -->
+            @if (isEditMode()) {
+              <form [formGroup]="editForm" class="edit-form">
+  
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Full Name</mat-label>
+                  <input matInput formControlName="fullName" placeholder="Full name"/>
+                  <mat-error>Full name is required</mat-error>
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Email</mat-label>
+                  
+                    <input
+                      matInput
+                      formControlName="email"
+                      type="email"
+                      placeholder="Email"
+                    />
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Phone</mat-label>
+                  <input matInput formControlName="contactNumber"
+                         placeholder="10-digit number" maxlength="10"/>
+                  @if (contactNumber.hasError('pattern')) {
+                    <mat-error>Must be exactly 10 digits</mat-error>
+                  }
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Date of Birth</mat-label>
+                  <input matInput [matDatepicker]="picker" formControlName="dateOfBirth" [max]="maxDate"/>
+                  <mat-datepicker-toggle matIconSuffix [for]="picker"/>
+                  <mat-datepicker #picker />
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Gender</mat-label>
+                  <mat-select formControlName="gender">
+                    <mat-option value="">— Select —</mat-option>
+                    @for (g of genders; track g) {
+                      <mat-option [value]="g">{{ g }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Blood Group</mat-label>
+                  <mat-select formControlName="bloodGroup">
+                    <mat-option value="">— Select —</mat-option>
+                    @for (bg of bloodGroups; track bg) {
+                      <mat-option [value]="bg">{{ bg }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Address</mat-label>
+                  <textarea matInput formControlName="address"
+                            placeholder="Your address" rows="2"></textarea>
+                </mat-form-field>
+  
+                <!-- Save button -->
+                <button mat-flat-button color="primary" class="save-btn"
+                        (click)="saveProfile()" [disabled]="isSaving()">
+                  @if (isSaving()) {
+                    <mat-spinner diameter="18" class="btn-spinner" />
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                  }
+                  {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+                </button>
+  
+              </form>
+            }
+  
+          </mat-card-content>
+        </mat-card>
+  
+        <!-- ── RIGHT COLUMN ── -->
+        <div class="right-col">
+  
+          <!-- Medical Information -->
+          <mat-card class="info-card">
+            <mat-card-header>
+              <div class="card-title">
+                <mat-icon class="title-icon title-icon--red">favorite_border</mat-icon>
+                <span>Medical Information</span>
+              </div>
+            </mat-card-header>
+  
+            <mat-divider />
+  
+            <mat-card-content>
+              <div class="info-list">
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>water_drop</mat-icon>
+                    Blood Group
+                  </div>
+                  <span class="info-value">{{ profile()!.bloodGroup || '—' }}</span>
+                </div>
+                <mat-divider />
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>tag</mat-icon>
+                    Patient ID
+                  </div>
+                  <span class="info-value muted-sm">
+                    {{ profile()!.patientId | slice:0:8 }}...
+                  </span>
+                </div>
+                <mat-divider />
+  
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>calendar_today</mat-icon>
+                    Registered
+                  </div>
+                  <span class="info-value">{{ formatDate(profile()!.registeredAt) }}</span>
+                </div>
+  
+              </div>
+            </mat-card-content>
+          </mat-card>
+  
+          <!-- Account Security -->
+          <mat-card class="info-card security-card">
+            <mat-card-header>
+              <div class="card-title">
+                <mat-icon class="title-icon title-icon--purple">shield_outlined</mat-icon>
+                <span>Account Security</span>
+              </div>
+            </mat-card-header>
+  
+            <mat-divider />
+  
+            <mat-card-content>
+  
+              <!-- Password row -->
+              <div class="security-row">
+                <div class="security-info">
+                  <span class="security-label">Password</span>
+                  <span class="security-sub">Click Change to update</span>
+                </div>
+                <button mat-stroked-button class="action-btn"
+                        (click)="toggleSection('password')">
+                  {{ showPwSection() ? 'Cancel' : 'Change' }}
+                </button>
+              </div>
+  
+              <!-- Change password form -->
+              @if (showPwSection()) {
+                <form [formGroup]="passwordForm" class="pw-form">
+  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Current Password</mat-label>
+                    <input matInput formControlName="currentPassword"
+                           [type]="showCurrentPw() ? 'text' : 'password'"/>
+                    <button mat-icon-button matSuffix type="button"
+                            (click)="toggleCurrentPassword()">
+                      <mat-icon>{{ showCurrentPw() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <mat-error>Current password is required</mat-error>
+                  </mat-form-field>
+  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>New Password</mat-label>
+                    <input matInput formControlName="newPassword"
+                           [type]="showNewPw() ? 'text' : 'password'"/>
+                    <button mat-icon-button matSuffix type="button"
+                            (click)="toggleNewPassword()">
+                      <mat-icon>{{ showNewPw() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    @if (newPassword.hasError('minlength')) {
+                      <mat-error>Minimum 8 characters</mat-error>
+                    }
+                  </mat-form-field>
+  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Confirm New Password</mat-label>
+                    <input matInput formControlName="confirmNewPassword"
+                           [type]="showConfirmPw() ? 'text' : 'password'"/>
+                    <button mat-icon-button matSuffix type="button"
+                            (click)="toggleConfirmPassword()">
+                      <mat-icon>{{ showConfirmPw() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    @if (confirmNewPassword.hasError('mismatch')) {
+                      <mat-error>Passwords do not match</mat-error>
+                    }
+                  </mat-form-field>
+  
+                  <button mat-flat-button color="primary" class="save-btn"
+                          (click)="changePassword()" [disabled]="isSaving()">
+                    @if (isSaving()) {
+                      <mat-spinner diameter="18" class="btn-spinner" />
+                    } @else {
+                      <mat-icon>lock</mat-icon>
+                    }
+                    {{ isSaving() ? 'Saving...' : 'Update Password' }}
+                  </button>
+  
+                </form>
+              }
+  
+              <mat-divider />
+  
+              <!-- Two-Factor Auth row -->
+              <div class="security-row">
+                <div class="security-info">
+                  <span class="security-label">Two-Factor Auth</span>
+                  <span class="security-sub">Not enabled</span>
+                </div>
+                <button mat-stroked-button class="action-btn"
+                        matTooltip="Coming soon" disabled>
+                  Enable
+                </button>
+              </div>
+  
+              <mat-divider />
+  
+              <!-- Data Privacy row -->
+              <div class="security-row">
+                <div class="security-info">
+                  <span class="security-label">Data Privacy</span>
+                  <span class="security-sub">Manage what doctors can see</span>
+                </div>
+                <button mat-stroked-button class="action-btn">
+                  Manage
+                </button>
+              </div>
+  
+            </mat-card-content>
+          </mat-card>
+  
+        </div>
+      </div>
+    </div>
+  }

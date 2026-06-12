@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>Share Document with Dr. {{ data.doctorName }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="uploadForm" class="upload-form-layout">
+    
+    <div class="file-upload-zone" [class.has-file]="selectedFile() !== null">
+      @if (!selectedFile()) {
+        <mat-icon class="upload-cloud-icon">cloud_upload</mat-icon>
+        <p>Click to browse or drag a file here.</p>
+        <span class="file-limits">Supported: PDF, JPG, PNG (Max 10MB)</span>
+        <input type="file" class="hidden-file-input" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png">
+      } @else {
+        <div class="selected-file-card">
+          <mat-icon class="file-type-icon">description</mat-icon>
+          <div class="file-meta">
+            <span class="file-name">{{ selectedFile()?.name }}</span>
+            <span class="file-size">{{ (selectedFile()!.size / 1024 / 1024).toFixed(2) }} MB</span>
+          </div>
+          <button mat-icon-button type="button" color="warn" (click)="removeFile()"><mat-icon>close</mat-icon></button>
+        </div>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Document Category</mat-label>
+      <mat-select formControlName="category">
+        @for (cat of documentCategories; track cat) {
+          <mat-option [value]="cat">{{ cat }}</mat-option>
+        }
+      </mat-select>
+      <mat-error *ngIf="uploadForm.get('category')?.invalid">Please select a category.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Optional Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" placeholder="Add context for your doctor..."></textarea>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="isUploading()">Cancel</button>
+  <button mat-flat-button color="primary" [disabled]="uploadForm.invalid || !selectedFile() || isUploading()" (click)="onSubmit()">
+    @if (isUploading()) {
+      <mat-spinner diameter="18" class="inline-spinner"></mat-spinner> Uploading...
+    } @else {
+      Upload Document
+    }
+  </button>
+</mat-dialog-actions>

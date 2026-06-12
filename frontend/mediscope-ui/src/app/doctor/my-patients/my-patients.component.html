@@ -1,0 +1,90 @@
+<div class="directory-page-wrapper">
+
+    <div class="stats-row-container">
+      <mat-card class="analytics-card total">
+        <mat-card-content class="stat-inner-flex">
+          <div class="circle-icon-box total-blue">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div>
+            <h3 class="stat-count-value">{{ totalCount() }}</h3>
+            <p class="stat-count-label">Total Patients</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="analytics-card attention">
+        <mat-card-content class="stat-inner-flex">
+          <div class="circle-icon-box amber-warn">
+            <mat-icon>assignment_late</mat-icon>
+          </div>
+          <div>
+            <h3 class="stat-count-value warning">1</h3>
+            <p class="stat-count-label">Need Attention</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="analytics-card critical-red">
+        <mat-card-content class="stat-inner-flex">
+          <div class="circle-icon-box soft-red">
+            <mat-icon>error</mat-icon>
+          </div>
+          <div>
+            <h3 class="stat-count-value danger">0</h3>
+            <p class="stat-count-label">Critical Alerts</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <mat-card class="filter-controls-card">
+      <mat-card-content class="toolbar-flex-content">
+        <div class="search-input-field-box">
+          <mat-icon>search</mat-icon>
+          <input 
+            type="text" 
+            placeholder="Search by name or email" 
+            [ngModel]="searchQuery()" 
+            (input)="searchQuery.set($any($event.target).value)"
+          />
+        </div>
+      </mat-card-content>
+    </mat-card>
+  
+    @if (isLoading()) {
+      <div class="loading-fallback-spinner-zone">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Retrieving assigned medical profiles...</p>
+      </div>
+    } @else {
+      <div class="patient-directory-stack">
+        @for (patient of filteredPatients(); track patient.patientId) {
+          <div class="patient-profile-strip-card" (click)="viewPatientDetails(patient.patientId)">
+            <div class="profile-strip-left-cluster">
+              <div class="patient-circle-avatar">{{ getInitial(patient.fullName) }}</div>
+              <div>
+                <h4 class="strip-patient-name">
+                  {{ patient.fullName }} 
+                  <span class="strip-patient-demographics">
+                    &middot; {{ patient.age ?? '—' }} yrs &middot; {{ patient.gender || '—' }} &middot; {{ patient.bloodGroup || '—' }}
+                  </span>
+                </h4>
+                <p class="strip-patient-subtext">{{ patient.email }} &middot; {{ patient.contactNumber || 'No Phone' }}</p>
+              </div>
+            </div>
+  
+            <div class="profile-strip-right-cluster">
+              <mat-icon class="arrow-navigation-chevron">chevron_right</mat-icon>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-directory-state">
+            <mat-icon>people_outline</mat-icon>
+            <h3>No Patients Found</h3>
+            <p>There are no active assigned profiles matching your search parameters.</p>
+          </div>
+        }
+      </div>
+    }
+  </div>

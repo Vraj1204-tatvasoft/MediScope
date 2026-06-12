@@ -1,0 +1,159 @@
+<div class="patient-dashboard-master-viewport">
+
+    @if (isLoading()) {
+      <div class="master-loading-overlay-zone">
+        <mat-spinner diameter="45"></mat-spinner>
+        <p>Synchronizing operational medical timeline charts...</p>
+      </div>
+    } @else {
+  
+      <div class="dashboard-user-greeting-strip">
+        <div class="greeting-text-cluster">
+          <h1>{{ dashboard()?.greeting }}, {{ dashboard()?.patientName }} 👋</h1>
+          <p>Here's an overview of your health profile matrix today.</p>
+        </div>
+        @if (dashboard()?.doctorsConnected ?? 0 > 0) {
+          <span class="care-team-badge-pill">
+            <mat-icon>verified_user</mat-icon>
+            {{ dashboard()?.doctorsConnected }} Doctors Connected
+          </span>
+        }
+      </div>
+  
+      @if (dashboard()?.hasHealthAlert) {
+        <div class="critical-alert-banner-bar">
+          <mat-icon class="alert-beacon-icon">error_outline</mat-icon>
+          <div class="alert-message-text">
+            <strong>Health Alert:</strong> Recent vital entries show abnormal parameters. Please review metrics or coordinate a consultation loop with your physician team.
+          </div>
+        </div>
+      }
+  
+      <div class="vitals-scorecards-grid-row">
+        @for (card of processedVitalsCards(); track card.displayName) {
+          <mat-card class="vitals-metric-card-node" [ngClass]="card.status.toLowerCase()">
+            <mat-card-content>
+              <div class="card-metric-header-line">
+                <span class="metric-label-tag">{{ card.displayName }}</span>
+                <span class="status-badge-pill" [ngClass]="card.status.toLowerCase()">
+                  {{ formatStatusLabel(card.status) }}
+                </span>
+              </div>
+              
+              <div class="card-metric-main-value-group">
+                <h2 class="metric-numeric-reading">{{ card.displayValue }}</h2>
+                <span class="metric-unit-label">{{ card.unit }}</span>
+              </div>
+  
+              <div class="card-metric-footer-trend">
+                <mat-icon [class.trend-up]="card.trendDirection === 'up'" [class.trend-down]="card.trendDirection === 'down'">
+                  {{ card.trendDirection === 'up' ? 'arrow_upward' : 'arrow_downward' }}
+                </mat-icon>
+                <span class="trend-percentage-text">
+                  {{ card.trendPercent > 0 ? card.trendPercent + '%' : '0%' }} vs last reading
+                </span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+  
+      <div class="dashboard-charts-workspace-split-row">
+        <mat-card class="analytics-chart-card-wrapper">
+          <div class="chart-header-title-zone">
+            <h3>Blood Pressure Trend</h3>
+            <p class="chart-sub-label-caption">Last 10 historical readings metric maps</p>
+          </div>
+          <div class="canvas-chart-frame-box">
+            <canvas #bpChartCanvas></canvas>
+          </div>
+        </mat-card>
+  
+        <mat-card class="analytics-chart-card-wrapper">
+          <div class="chart-header-title-zone">
+            <h3>Heart Rate & Glucose</h3>
+            <p class="chart-sub-label-caption">Last 10 historical readings metric maps</p>
+          </div>
+          <div class="canvas-chart-frame-box">
+            <canvas #vitalsChartCanvas></canvas>
+          </div>
+        </mat-card>
+      </div>
+  
+      <div class="dashboard-bottom-flex-layout-grid">
+        
+        <mat-card class="recent-records-log-panel-card">
+           <div class="panel-header-action-row">
+             <h3>Recent Records</h3>
+             <button mat-button color="primary" routerLink="/patient/health-history" class="view-all-redirect-link-btn">
+               View all &rarr;
+             </button>
+           </div>
+  
+           <div class="table-responsive-scroll-frame">
+             <table class="dashboard-vitals-inline-table">
+               <thead>
+                 <tr>
+                   <th>Date</th>
+                   <th>Added By</th>
+                   <th>BP</th>
+                   <th>HR</th>
+                   <th>Glucose</th>
+                   <th>Status</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 @for (row of dashboard()?.recentRecords; track row.submissionId) {
+                   <tr>
+                     <td class="bold-date-string">{{ formatDateString(row.recordedAt) }}</td>
+                     <td class="text-secondary-label-dim">{{ row.addedBy }}</td>
+                     <td class="emphasized-vitals-cell">{{ getCombinedBPValue(row.metricValues) }}</td>
+                     <td>{{ getCleanMetricRowValue(row.metricValues, 'heart_rate') }}</td>
+                     <td>{{ getCleanMetricRowValue(row.metricValues, 'blood_sugar') }}</td>
+                     <td>
+                       <span class="badge-vitals-row-pills" [ngClass]="row.status.toLowerCase()">
+                         {{ formatStatusLabel(row.status) }}
+                       </span>
+                     </td>
+                   </tr>
+                 } @empty {
+                   <tr>
+                     <td colspan="6" class="empty-fallback-table-row">No recorded metric history files found.</td>
+                   </tr>
+                 }
+               </tbody>
+             </table>
+           </div>
+         </mat-card>
+  
+         <mat-card class="connected-doctors-sidebar-roster-card">
+          <div class="panel-header-action-row">
+            <h3>My Doctors</h3>
+            <button mat-button color="primary" routerLink="/patient/my-doctors" class="view-all-redirect-link-btn">
+              Manage &rarr;
+            </button>
+          </div>
+  
+          <div class="physicians-vertical-stack-list">
+            @for (doc of dashboard()?.myDoctors; track doc.doctorId) {
+              <div class="physician-profile-row-item">
+                <div class="physician-avatar-badge">{{ getInitial(doc.fullName) }}</div>
+                <div class="physician-identity-meta">
+                  <h4>Dr. {{ doc.fullName }}</h4>
+                  <p>{{ doc.specialization }}</p>
+                </div>
+                <span class="active-pulse-beacon-indicator" [class.is-live]="doc.isActive"></span>
+              </div>
+            } @empty {
+              <div class="empty-physicians-fallback-box">
+                <mat-icon>person_add_disabled</mat-icon>
+                <p>You haven't established connections with any healthcare providers yet.</p>
+              </div>
+            }
+          </div>
+         </mat-card>
+  
+      </div>
+  
+    }
+  </div>

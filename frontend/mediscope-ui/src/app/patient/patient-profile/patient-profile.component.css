@@ -1,0 +1,273 @@
+
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  
+  /* ── Loading ──────────────────────────────────────────────── */
+  .loading-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+  }
+  
+  /* ── Header card ──────────────────────────────────────────── */
+  .header-card {
+    border-radius: 12px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+  }
+  
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+  }
+  
+  .user-identity {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  
+  /* Avatar */
+  .avatar-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .user-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 0.2rem;
+  }
+  
+  .user-email {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem;
+  }
+  
+  .user-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .badge-gender { background: #dbeafe; color: #1d4ed8; }
+  .badge-age    { background: #f3f4f6; color: #374151; }
+  .badge-blood  { background: #dcfce7; color: #166534; }
+  
+  /* Edit / Cancel buttons */
+  .edit-btn {
+    color: #374151 !important;
+    border-color: #d1d5db !important;
+    border-radius: 8px !important;
+  }
+  
+  .cancel-btn {
+    color: #ef4444 !important;
+    border-color: #fca5a5 !important;
+    border-radius: 8px !important;
+  }
+  
+  /* ── Content row ──────────────────────────────────────────── */
+  .content-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  
+  /* ── Info cards ───────────────────────────────────────────── */
+  .info-card {
+    border-radius: 12px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+  }
+  
+  /* Card title */
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.975rem;
+    font-weight: 600;
+    color: #374151;
+    padding: 0.25rem 0;
+  }
+  
+  .title-icon {
+    color: #6b7280;
+    font-size: 1.1rem;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .title-icon--red    { color: #ef4444; }
+  .title-icon--purple { color: #7c3aed; }
+  
+  /* Info rows — view mode */
+  .info-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0.25rem 0;
+  }
+  
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    gap: 1rem;
+  }
+  
+  .info-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+    min-width: 130px;
+  }
+  
+  .info-label mat-icon {
+    font-size: 1rem;
+    width: 18px;
+    height: 18px;
+    color: #9ca3af;
+  }
+  
+  .info-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111;
+    text-align: right;
+  }
+  
+  .muted     { color: #9ca3af; font-size: 0.8rem; margin-left: 0.25rem; }
+  .muted-sm  { font-size: 0.8rem; color: #9ca3af; font-family: monospace; }
+  
+  /* ── Edit form ────────────────────────────────────────────── */
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-top: 0.75rem;
+  }
+  
+  .full-width { width: 100%; }
+  
+  /* Save button */
+  .save-btn {
+    margin-top: 0.5rem;
+    border-radius: 8px !important;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-spinner {
+    display: inline-block;
+  }
+  
+  /* ── Right column ─────────────────────────────────────────── */
+  .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  /* ── Security rows ────────────────────────────────────────── */
+  .security-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 0;
+  }
+  
+  .security-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .security-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111;
+  }
+  
+  .security-sub {
+    font-size: 0.775rem;
+    color: #9ca3af;
+  }
+  
+  .action-btn {
+    font-size: 0.825rem !important;
+    border-radius: 6px !important;
+    min-width: 80px !important;
+    height: 34px !important;
+    color: #374151 !important;
+    border-color: #d1d5db !important;
+  }
+  
+  /* ── Password form ────────────────────────────────────────── */
+  .pw-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 0;
+  }
+  
+  /* ── Snackbar overrides ───────────────────────────────────── */
+  ::ng-deep .snack-success .mdc-snackbar__surface {
+    background: #166534 !important;
+  }
+  
+  ::ng-deep .snack-error .mdc-snackbar__surface {
+    background: #991b1b !important;
+  }
+  
+  /* ── mat-card spacing fix ─────────────────────────────────── */
+  ::ng-deep .mat-mdc-card-header {
+    padding: 1rem 1rem 0.75rem !important;
+  }
+  
+  ::ng-deep .mat-mdc-card-content {
+    padding: 0 1rem 1rem !important;
+  }
+  
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .content-row {
+      grid-template-columns: 1fr;
+    }
+  
+    .header-inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }

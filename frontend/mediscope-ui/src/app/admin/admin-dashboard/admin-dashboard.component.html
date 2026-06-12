@@ -1,0 +1,198 @@
+<div class="admin-dashboard-root-container">
+
+    @if (isLoading()) {
+      <div class="master-loading-fallback-container">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Compiling system-wide clinical analytics intelligence channels...</p>
+      </div>
+    } @else {
+  
+      <div class="dashboard-administrative-header">
+        <div class="title-meta-zone">
+          <h1>Admin Dashboard <mat-icon class="shield-badge-icon">verified_user</mat-icon></h1>
+          <p class="subtitle-timeline-label">System overview & analytics &mdash; {{ todayDateString() }}</p>
+        </div>
+        @if (dashboardData()?.unreadAlertCount ?? 0 > 0) {
+          <span class="care-alert-counter-indicator-badge">
+            {{ dashboardData()?.unreadAlertCount }} unread alerts
+          </span>
+        }
+      </div>
+  
+      <div class="primary-analytics-scorecards-grid-row">
+        <mat-card class="analytical-card-node">
+          <mat-card-content class="card-metric-flex-align">
+            <div class="icon-avatar-container blue-tint"><mat-icon>group</mat-icon></div>
+            <div class="metric-readings-details">
+              <p class="metric-caption-label">Total Patients</p>
+              <h2>{{ stats()?.totalPatients }}</h2>
+              <span class="sub-informational-text">Registered users</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+  
+        <mat-card class="analytical-card-node">
+          <mat-card-content class="card-metric-flex-align">
+            <div class="icon-avatar-container green-tint"><mat-icon>local_hospital</mat-icon></div>
+            <div class="metric-readings-details">
+              <p class="metric-caption-label">Total Doctors</p>
+              <h2>{{ stats()?.totalDoctors }}</h2>
+              <span class="sub-informational-text">Active providers</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+  
+        <mat-card class="analytical-card-node">
+          <mat-card-content class="card-metric-flex-align">
+            <div class="icon-avatar-container purple-tint"><mat-icon>assignment</mat-icon></div>
+            <div class="metric-readings-details">
+              <p class="metric-caption-label">Health Records</p>
+              <h2>{{ stats()?.totalRecords }}</h2>
+              <span class="sub-informational-text">Total entries</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+  
+        <mat-card class="analytical-card-node">
+          <mat-card-content class="card-metric-flex-align">
+            <div class="icon-avatar-container red-tint"><mat-icon>error_outline</mat-icon></div>
+            <div class="metric-readings-details">
+              <p class="metric-caption-label">Active Alerts</p>
+              <h2>{{ stats()?.activeAlerts }}</h2>
+              <span class="sub-informational-text">Critical readings</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+  
+      <div class="percentage-summary-banner-grid-row">
+        <div class="ratio-pill-banner-box green-strip">
+          <div class="ratio-main-numerical-line">
+            <h2>{{ summary()?.normalCount }}</h2>
+            <span class="ratio-percentage-badge">{{ summary()?.normalPct }}%</span>
+          </div>
+          <p class="ratio-descriptor-label">Normal Readings</p>
+          <span class="ratio-sub-info-text">of total entries</span>
+        </div>
+  
+        <div class="ratio-pill-banner-box amber-strip">
+          <div class="ratio-main-numerical-line">
+            <h2>{{ summary()?.elevatedCount }}</h2>
+            <span class="ratio-percentage-badge">{{ summary()?.elevatedPct }}%</span>
+          </div>
+          <p class="ratio-descriptor-label">Elevated Readings</p>
+          <span class="ratio-sub-info-text">of total entries</span>
+        </div>
+  
+        <div class="ratio-pill-banner-box red-strip">
+          <div class="ratio-main-numerical-line">
+            <h2>{{ summary()?.criticalCount }}</h2>
+            <span class="ratio-percentage-badge">{{ summary()?.criticalPct }}%</span>
+          </div>
+          <p class="ratio-descriptor-label">Critical Readings</p>
+          <span class="ratio-sub-info-text">of total entries</span>
+        </div>
+      </div>
+  
+      <div class="analytics-charts-workspace-split-grid">
+        <mat-card class="graphics-chart-card-wrapper">
+          <div class="graphic-chart-header-line">
+            <h3>Platform Growth</h3>
+            <p>Patient & doctor registrations over time</p>
+          </div>
+          <div class="canvas-chart-frame-container">
+            <canvas #growthChartCanvas></canvas>
+          </div>
+        </mat-card>
+  
+        <mat-card class="graphics-chart-card-wrapper">
+          <div class="graphic-chart-header-line">
+            <h3>Reading Severity</h3>
+            <p>All systemic health records ratio index</p>
+          </div>
+          <div class="canvas-chart-frame-container doughnut-canvas-override">
+            <canvas #severityChartCanvas></canvas>
+          </div>
+        </mat-card>
+      </div>
+  
+      <div class="analytics-charts-workspace-split-grid">
+        <mat-card class="graphics-chart-card-wrapper">
+          <div class="graphic-chart-header-line">
+            <h3>Alerts by Metric Type</h3>
+            <p>Total abnormal diagnostic logs per clinical category</p>
+          </div>
+          <div class="canvas-chart-frame-container">
+            <canvas #alertsMetricChartCanvas></canvas>
+          </div>
+        </mat-card>
+  
+        <mat-card class="graphics-chart-card-wrapper">
+          <div class="graphic-chart-header-line">
+            <h3>Doctor Patient Load</h3>
+            <p>Assigned active monitoring cases per registered doctor</p>
+          </div>
+          <div class="canvas-chart-frame-container">
+            <canvas #doctorLoadChartCanvas></canvas>
+          </div>
+        </mat-card>
+      </div>
+  
+      <mat-card class="clinical-activity-table-master-card">
+        <mat-card-content class="no-padding">
+          
+          <div class="table-header-panel-strip">
+            <h3>Recent Health Activity</h3>
+            <button mat-stroked-button class="view-patients-redirect-btn" routerLink="/admin/manage-patients">
+              View Patients
+            </button>
+          </div>
+  
+          <div class="responsive-table-scroll-frame">
+            <table class="clinical-audit-stream-grid-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>Added By</th>
+                  <th>BP</th>
+                  <th>HR</th>
+                  <th>Glucose</th>
+                  <th>O2</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of recentActivities(); track row.submissionId) {
+                  <tr>
+                    <td class="bold-patient-identity-name">{{ row.patientName }}</td>
+                    <td class="tabular-numeric-cell-style">{{ formatDateString(row.recordedAt) }}</td>
+                    <td>
+                      <span class="user-logged-source-pill-tag" [ngClass]="row.addedBy.toLowerCase()">
+                        {{ row.addedBy }}
+                      </span>
+                    </td>
+                    <td class="emphasized-vitals-cell-text">{{ getBPValueDisplay(row.metricValues) }}</td>
+                    <td>{{ getCleanCellValue(row.metricValues, 'heart_rate') }}</td>
+                    <td>{{ getCleanCellValue(row.metricValues, 'blood_sugar') }}</td>
+                    <td>{{ row.metricValues['o2'] || '—' }}</td>
+                    <td>
+                      <span class="badge-vitals-row-pills" [ngClass]="row.status.toLowerCase()">
+                        {{ formatStatusLabel(row.status) }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="8" class="empty-fallback-table-row">No live system entries logged inside active databases.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+  
+        </mat-card-content>
+      </mat-card>
+  
+    }
+  </div>

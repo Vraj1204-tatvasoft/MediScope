@@ -1,0 +1,171 @@
+<div class="pending-page-wrapper">
+
+    <div class="stats-row">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-inner">
+            <div class="stat-icon stat-icon--amber">
+              <mat-icon>notification_important</mat-icon>
+            </div>
+            <div>
+              <p class="stat-value">{{ pendingCount() }}</p>
+              <p class="stat-label">Pending Requests</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <div class="section-title">
+      <mat-icon class="section-icon section-icon--amber">schedule</mat-icon>
+      <span>Incoming Connection Queue</span>
+    </div>
+  
+    @if (isLoading()) {
+      <div class="loading-center">
+        <mat-spinner diameter="44"></mat-spinner>
+      </div>
+    } @else {
+      
+      <div class="request-vertical-stack">
+        @for (req of requests(); track req.doctorPatientId) {
+          
+          <mat-card class="request-container-card" [class.active-shadow]="expandedPatientId() === req.doctorPatientId">
+            <mat-card-content class="no-padding">
+              
+              <div class="request-main-row">
+                <div class="patient-identity-cluster">
+                  <div class="patient-avatar">{{ getInitial(req.fullName) }}</div>
+                  <div>
+                    <h3 class="patient-name">{{ req.fullName }}</h3>
+                    <p class="patient-meta-details">
+                      Age: <strong>{{ req.age || '—' }}</strong> &middot; 
+                      Gender: <strong>{{ req.gender || '—' }}</strong> &middot; 
+                      Blood Group: <strong class="blood-group-tag">{{ req.bloodGroup || '—' }}</strong>
+                    </p>
+                  </div>
+                </div>
+  
+                <div class="contact-details-cluster">
+                  <div class="detail-item">
+                    <mat-icon>mail_outline</mat-icon>
+                    <span>{{ req.email }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>phone</mat-icon>
+                    <span>{{ req.contactNumber || '—' }}</span>
+                  </div>
+                </div>
+  
+                <div class="action-buttons-cluster">
+                  <button mat-button class="view-history-btn" 
+                          (click)="toggleRecordsPreview(req.doctorPatientId, req.patientId)"
+                          [disabled]="processingId() !== null">
+                    <mat-icon>{{ expandedPatientId() === req.doctorPatientId ? 'expand_less' : 'analytics' }}</mat-icon>
+                    {{ expandedPatientId() === req.doctorPatientId ? 'Close History' : 'Review History' }}
+                  </button>
+  
+                  <button mat-flat-button class="accept-action-btn"
+                          (click)="handleResponse(req.doctorPatientId, true)"
+                          [disabled]="processingId() !== null">
+                    @if (processingId() === req.doctorPatientId) { 
+                      <mat-spinner diameter="16"></mat-spinner> 
+                    } @else { 
+                      <span class="button-text-custom">Accept</span> 
+                    }
+                  </button>
+
+                  <button mat-stroked-button color="warn" class="decline-action-btn"
+                          (click)="handleResponse(req.doctorPatientId, false)"
+                          [disabled]="processingId() !== null">
+                    <span class="button-text-label">Decline</span>
+                  </button>
+                </div>
+              </div>
+  
+              @if (expandedPatientId() === req.doctorPatientId) {
+                <div class="history-drawer-expansion-pane">
+                  <mat-divider></mat-divider>
+                  
+                  <div class="drawer-inner-padding">
+                    <h4 class="drawer-section-heading">
+                      <mat-icon>history</mat-icon> Recent Patient Logs <span class="light-text">(Pre-Connection Sandbox View)</span>
+                    </h4>
+  
+                    @if (isLoadingRecords()) {
+                      <div class="drawer-spinner-fallback">
+                        <mat-spinner diameter="28"></mat-spinner>
+                        <p>Pulling encrypted data streams...</p>
+                      </div>
+                    } @else {
+                      
+                      <div class="preview-table-container">
+                        <table class="history-preview-mini-table">
+                          <thead>
+                            <tr>
+                              <th>DATE</th>
+                              <th>LOGGED BY</th>
+                              <th>SYS BP</th>
+                              <th>DIA BP</th>
+                              <th>HEART RATE</th>
+                              <th>CHOLESTEROL</th>
+                              <th>SLEEP</th>
+                              <th>STATUS</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (row of previewRecords(); track row.date) {
+                              <tr>
+                                <td class="bold-date">{{ row.date }}</td>
+                                <td>{{ row.addedBy }}</td>
+                                <td class="numeric-cell">{{ row.metrics['systolic_blood_pressure']?.displayValue || '—' }}</td>
+                                <td class="numeric-cell">{{ row.metrics['dialostic_blood_pressure']?.displayValue || '—' }}</td>
+                                <td class="numeric-cell">{{ row.metrics['heart_rate']?.displayValue || '—' }}</td>
+                                <td class="numeric-cell">{{ row.metrics['cholestrol']?.displayValue || '—' }}</td>
+                                <td>{{ row.metrics['sleep']?.displayValue || '—' }}</td>
+                                <td>
+                                  <span class="badge-evaluation" [ngClass]="row.status.toLowerCase()">
+                                    {{ row.status }}
+                                  </span>
+                                </td>
+                              </tr>
+                              @if (row.notes) {
+                                <tr class="mini-table-note-row">
+                                  <td colspan="8">
+                                    <div class="note-box-container">
+                                      <strong>Context Notes:</strong> {{ row.notes }}
+                                    </div>
+                                  </td>
+                                </tr>
+                              }
+                            } @empty {
+                              <tr>
+                                <td colspan="8" class="center-empty-text">
+                                  <mat-icon>help_outline</mat-icon>
+                                  <p>No existing health history metrics recorded by this patient profile yet.</p>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+  
+                    }
+                  </div>
+                </div>
+              }
+  
+            </mat-card-content>
+          </mat-card>
+  
+        } @empty {
+          <div class="empty-state-queue-box">
+            <mat-icon class="huge-icon">assignment_turned_in</mat-icon>
+            <h3>Your Queue is Empty</h3>
+            <p>There are no active incoming patient access requests pending review at this time.</p>
+          </div>
+        }
+      </div>
+  
+    }
+  </div>

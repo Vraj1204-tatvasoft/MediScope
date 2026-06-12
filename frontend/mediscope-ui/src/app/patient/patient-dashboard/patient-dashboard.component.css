@@ -1,0 +1,366 @@
+.patient-dashboard-master-viewport {
+    padding: 1.5rem;
+    max-width: 1440px;
+    margin: 0 auto;
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  
+  /* HEADER USER GREETINGS ROW BAR */
+  .dashboard-user-greeting-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .greeting-text-cluster h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .greeting-text-cluster p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.92rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  .care-team-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: #e2fbe8;
+    color: #15803d;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    border: 1px solid #bbf7d0;
+  }
+  
+  .care-team-badge-pill mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+  }
+  
+  /* HEALTH ALERT NOTIFICATIONS AREA */
+  .critical-alert-banner-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-left: 4px solid #ef4444;
+    padding: 0.85rem 1.25rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    color: #991b1b;
+    font-size: 0.88rem;
+  }
+  
+  .alert-beacon-icon {
+    color: #ef4444;
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0;
+  }
+  
+  /* VITALS SCORECARDS CONTAINER GRID ROW */
+  .vitals-scorecards-grid-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  
+  .vitals-metric-card-node {
+    border-radius: 14px !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02) !important;
+    background: #ffffff !important;
+  }
+  
+  .vitals-metric-card-node mat-card-content {
+    padding: 1.25rem !important;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .card-metric-header-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .metric-label-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.05em;
+  }
+  
+  .status-badge-pill {
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+  }
+  
+  .status-badge-pill.normal { background-color: #dcfce7; color: #15803d; }
+  .status-badge-pill.elevated, .status-badge-pill.warning { background-color: #fef3c7; color: #b45309; }
+  .status-badge-pill.critical { background-color: #fee2e2; color: #b91c1c; }
+  
+  .card-metric-main-value-group {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin: 1rem 0 0.5rem 0;
+  }
+  
+  .metric-numeric-reading {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+  
+  .metric-unit-label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+  
+  .card-metric-footer-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+  
+  .card-metric-footer-trend mat-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+  
+  .card-metric-footer-trend mat-icon.trend-up { color: #ef4444; }
+  .card-metric-footer-trend mat-icon.trend-down { color: #10b981; }
+  
+  /* Dynamic Vital Outline Accent Indicators */
+  .vitals-metric-card-node.elevated { border-top: 4px solid #f59e0b; }
+  .vitals-metric-card-node.critical { border-top: 4px solid #ef4444; }
+  
+  /* LINE CHART GRAPH PANELS ROW */
+  .dashboard-charts-workspace-split-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .analytics-chart-card-wrapper {
+    border-radius: 14px !important;
+    border: 1px solid #edf2f7;
+    background-color: #ffffff !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01) !important;
+  }
+  
+  .chart-header-title-zone h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .chart-sub-label-caption {
+    margin: 0.15rem 0 1.25rem 0;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  
+  .canvas-chart-frame-box {
+    width: 100%;
+    height: 260px;
+    position: relative;
+  }
+  
+  /* BOTTOM SECTION RECENT LOGS & CARE ROSTERS SPLIT */
+  .dashboard-bottom-flex-layout-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  
+  .recent-records-log-panel-card, .connected-doctors-sidebar-roster-card {
+    border-radius: 14px !important;
+    border: 1px solid #edf2f7;
+    background-color: #ffffff !important;
+    padding: 1.25rem 1.5rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01) !important;
+  }
+  
+  .panel-header-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .panel-header-action-row h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .view-all-redirect-link-btn {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 0 0.5rem !important;
+  }
+  
+  /* DATA INLINE SUMMARY GRID TABLES */
+  .table-responsive-scroll-frame {
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .dashboard-vitals-inline-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .dashboard-vitals-inline-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .dashboard-vitals-inline-table td {
+    padding: 0.9rem 1rem;
+    font-size: 0.88rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  
+  .bold-date-string { font-weight: 600; color: #0f172a; font-variant-numeric: tabular-nums; }
+  .text-secondary-label-dim { color: #64748b; font-weight: 500; }
+  .emphasized-vitals-cell { font-weight: 700; color: #1e293b; font-variant-numeric: tabular-nums; }
+  
+  .badge-vitals-row-pills {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+  
+  .badge-vitals-row-pills.normal { background-color: #e6fdf4; color: #10b981; }
+  .badge-vitals-row-pills.elevated, .badge-vitals-row-pills.warning { background-color: #fffbeb; color: #d97706; }
+  .badge-vitals-row-pills.critical { background-color: #fff5f5; color: #ef4444; }
+  
+  /* RIGHT PANEL SIDEBAR PHYSICIANS CARD LISTS */
+  .physicians-vertical-stack-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .physician-profile-row-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid #f1f5f9;
+    background-color: #f8fafc;
+    border-radius: 10px;
+  }
+  
+  .physician-avatar-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #3b82f6;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+  }
+  
+  .physician-identity-meta h4 {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .physician-identity-meta p {
+    margin: 0.1rem 0 0 0;
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  .active-pulse-beacon-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #cbd5e1;
+    margin-left: auto;
+  }
+  
+  .active-pulse-beacon-indicator.is-live {
+    background-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+  
+  /* Fallbacks & Overlays states templates selectors */
+  .master-loading-overlay-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12rem 2rem;
+    color: #64748b;
+    font-size: 0.95rem;
+    gap: 1.25rem;
+  }
+  
+  .empty-fallback-table-row, .empty-physicians-fallback-box {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    padding: 2rem !important;
+  }
+  
+  /* RESPONSIVE COLLAPSIBLE VIEWPORTS SCREEN BREAKPOINTS */
+  @media (max-width: 1200px) {
+    .vitals-scorecards-grid-row { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-charts-workspace-split-row { grid-template-columns: 1fr; }
+    .dashboard-bottom-flex-layout-grid { grid-template-columns: 1fr; }
+  }
+  
+  @media (max-width: 680px) {
+    .vitals-scorecards-grid-row { grid-template-columns: 1fr; }
+    .dashboard-user-greeting-strip { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  }

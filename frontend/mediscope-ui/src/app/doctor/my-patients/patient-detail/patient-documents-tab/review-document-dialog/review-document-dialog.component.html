@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>Review Document</h2>
+    <mat-dialog-content>
+      <form [formGroup]="reviewForm" class="review-form">
+        <p class="doc-context">Providing feedback for: <strong>{{ data.fileName }}</strong></p>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Severity / Status</mat-label>
+          <mat-select formControlName="severity">
+            <mat-option value="Normal">Normal</mat-option>
+            <mat-option value="Elevated">Elevated (Warning)</mat-option>
+            <mat-option value="Critical">Critical</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Medical Feedback</mat-label>
+          <textarea matInput formControlName="feedback" rows="4" placeholder="Enter clinical notes or instructions for the patient..."></textarea>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close [disabled]="isSubmitting()">Cancel</button>
+      <button mat-flat-button color="primary" [disabled]="reviewForm.invalid || isSubmitting()" (click)="submitReview()">
+        @if (isSubmitting()) { <mat-spinner diameter="18"></mat-spinner> } 
+        @else { Submit Review }
+      </button>
+    </mat-dialog-actions>

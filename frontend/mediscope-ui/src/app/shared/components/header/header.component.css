@@ -1,0 +1,121 @@
+.header {
+    height: 60px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    font-family: 'Segoe UI', sans-serif;
+    flex-shrink: 0;
+  }
+
+  /* Left */
+  .header-left { display: flex; flex-direction: column; justify-content: center; }
+
+  .page-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.2;
+  }
+
+  .page-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+
+  /* Right */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Search */
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+    width: 200px;
+  }
+
+  .search-box svg {
+    width: 15px; height: 15px;
+    color: #9ca3af;
+    flex-shrink: 0;
+  }
+
+  .search-box input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 0.825rem;
+    color: #374151;
+    width: 100%;
+  }
+
+  .search-box input::placeholder { color: #9ca3af; }
+
+  /* Icon buttons */
+  .icon-btn {
+    position: relative;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #6b7280;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .icon-btn:hover { background: #f3f4f6; color: #111; }
+  .icon-btn svg { width: 18px; height: 18px; }
+
+  /* Notification badge */
+  .notif-badge {
+    position: absolute;
+    top: 4px; right: 4px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .clickable-avatar {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    user-select: none;
+  }
+  
+  .clickable-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .icon-btn {
+    cursor: pointer;
+  }
+
+  

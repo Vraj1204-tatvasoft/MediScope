@@ -1,0 +1,397 @@
+<!-- File: src/app/admin/doctor-patient-links/doctor-patient-links.component.html -->
+
+@if (isLoading()) {
+    <div class="loading-center"><mat-spinner diameter="48"/></div>
+  }
+  
+  @if (!isLoading()) {
+  <div class="page">
+  
+    <!-- ══ STATS ROW ══ -->
+    <div class="stats-row">
+  
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-inner">
+            <div class="stat-icon stat-icon--amber"><mat-icon>hourglass_empty</mat-icon></div>
+            <div>
+              <p class="stat-value">{{ pendingAdminCount() }}</p>
+              <p class="stat-label">Awaiting Your Review</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-inner">
+            <div class="stat-icon stat-icon--blue"><mat-icon>schedule</mat-icon></div>
+            <div>
+              <p class="stat-value">{{ pendingDoctorCount() }}</p>
+              <p class="stat-label">Awaiting Doctor</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-inner">
+            <div class="stat-icon stat-icon--green"><mat-icon>check_circle_outline</mat-icon></div>
+            <div>
+              <p class="stat-value">{{ activeCount() }}</p>
+              <p class="stat-label">Active Links</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-inner">
+            <div class="stat-icon stat-icon--gray"><mat-icon>link</mat-icon></div>
+            <div>
+              <p class="stat-value">{{ totalCount() }}</p>
+              <p class="stat-label">Total Requests</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+    </div>
+  
+    <!-- ══ FILTERS ══ -->
+    <mat-card class="filter-card">
+      <mat-card-content>
+        <div class="filter-row">
+  
+          <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input type="text"
+                   placeholder="Search patient or doctor..."
+                   [value]="searchQuery()"
+                   (input)="searchQuery.set($any($event.target).value)"/>
+          </div>
+  
+          <mat-form-field appearance="outline" class="filter-select">
+            <mat-label>All Doctors</mat-label>
+            <mat-select [value]="filterDoctor()"
+                        (selectionChange)="filterDoctor.set($event.value)">
+              <mat-option value="ALL">All Doctors</mat-option>
+              @for (doc of doctorFilterOptions; track doc.id) {
+                <mat-option [value]="doc.id">{{ doc.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline" class="filter-select">
+            <mat-label>All Status</mat-label>
+            <mat-select [value]="filterStatus()"
+                        (selectionChange)="filterStatus.set($event.value)">
+              <mat-option value="ALL">All Status</mat-option>
+              <mat-option value="pending_admin">Pending Admin</mat-option>
+              <mat-option value="pending_doctor">Pending Doctor</mat-option>
+              <mat-option value="active">Connected</mat-option>
+              <mat-option value="declined_doctor">Declined</mat-option>
+              <mat-option value="rejected_admin">Rejected</mat-option>
+              <mat-option value="revoked">Revoked</mat-option>
+            </mat-select>
+          </mat-form-field>
+  
+        </div>
+      </mat-card-content>
+    </mat-card>
+  
+    <!-- ══ TABS ══ -->
+    <mat-card class="table-card">
+      <mat-card-content class="no-pad">
+  
+        <mat-tab-group animationDuration="150ms" class="links-tabs">
+  
+          <!-- TAB 1: Pending Admin Review -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">hourglass_empty</mat-icon>
+              Needs Review
+              @if (pendingAdminCount() > 0) {
+                <span class="tab-badge">{{ pendingAdminCount() }}</span>
+              }
+            </ng-template>
+  
+            @if (pendingRequests().length === 0) {
+              <div class="empty-state">
+                <mat-icon>check_circle_outline</mat-icon>
+                <p>No pending requests — all caught up!</p>
+              </div>
+            } @else {
+              <div class="request-list">
+                @for (req of pendingRequests(); track req.doctorPatientId) {
+                  <div class="request-row" [class.request-row--highlight]="req.status === 'pending_admin'">
+  
+                    <div class="req-left">
+  
+                      <!-- Patient -->
+                      <div class="person-cell">
+                        <div class="person-avatar avatar-patient">{{ getInitial(req.patientName) }}</div>
+                        <div>
+                          <p class="person-name">{{ req.patientName }}</p>
+                          <p class="person-sub">Patient</p>
+                        </div>
+                      </div>
+  
+                      <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+  
+                      <!-- Doctor (or "To be assigned") -->
+                      <div class="person-cell">
+                        @if (req.doctorId) {
+                          <div class="person-avatar avatar-doctor">{{ getInitial(req.doctorName) }}</div>
+                          <div>
+                            <p class="person-name">{{ req.doctorName }}</p>
+                            <p class="person-sub">{{ req.specialization ?? 'Doctor' }}</p>
+                          </div>
+                        } @else {
+                          <div class="person-avatar avatar-unassigned">
+                            <mat-icon>person_search</mat-icon>
+                          </div>
+                          <div>
+                            <p class="person-name unassigned-text">No Preference</p>
+                            <p class="person-sub">Admin will assign</p>
+                          </div>
+                        }
+                      </div>
+  
+                    </div>
+  
+                    <div class="req-right">
+  
+                      <div class="req-meta">
+                        <p class="req-date">{{ formatDate(req.requestedAt) }}</p>
+                      </div>
+  
+                      <span class="status-chip" [ngClass]="getStatusClass(req.status)">
+                        {{ getStatusLabel(req.status) }}
+                      </span>
+  
+                      <div class="req-actions">
+                        <!-- Approve button — opens assign dialog -->
+                        <button mat-flat-button color="primary" class="action-btn action-approve"
+                                (click)="openApproveDialog(req)">
+                          <mat-icon>check</mat-icon>
+                          {{ req.doctorId ? 'Forward' : 'Assign & Approve' }}
+                        </button>
+  
+                        <!-- Reject button -->
+                        <button mat-stroked-button class="action-btn action-reject"
+                                (click)="openRejectDialog(req)">
+                          <mat-icon>close</mat-icon> Reject
+                        </button>
+                      </div>
+  
+                    </div>
+                  </div>
+  
+                  <mat-divider/>
+                }
+              </div>
+            }
+  
+          </mat-tab>
+  
+          <!-- TAB 2: All Requests -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">list_alt</mat-icon>
+              All Requests
+              <span class="tab-badge tab-badge--gray">{{ totalCount() }}</span>
+            </ng-template>
+  
+            @if (allFilteredRequests().length === 0) {
+              <div class="empty-state">
+                <mat-icon>search_off</mat-icon>
+                <p>No requests match your filters.</p>
+              </div>
+            } @else {
+              <div class="table-wrapper">
+                <table class="links-table">
+                  <thead>
+                    <tr>
+                      <th>PATIENT</th>
+                      <th>DOCTOR</th>
+                      <th>SPECIALTY</th>
+                      <th>SENT ON</th>
+                      <th>STATUS</th>
+                      <th>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (req of allFilteredRequests(); track req.doctorPatientId) {
+                      <tr>
+                        <td>
+                          <div class="table-person">
+                            <div class="table-avatar avatar-patient">{{ getInitial(req.patientName) }}</div>
+                            <span>{{ req.patientName }}</span>
+                          </div>
+                        </td>
+  
+                        <td>
+                          @if (req.doctorName) {
+                            <div class="table-person">
+                              <div class="table-avatar avatar-doctor">{{ getInitial(req.doctorName) }}</div>
+                              <span>{{ req.doctorName }}</span>
+                            </div>
+                          } @else {
+                            <span class="unassigned-text">Not assigned</span>
+                          }
+                        </td>
+  
+                        <td class="muted">{{ req.specialization ?? '—' }}</td>
+                        <td class="muted">{{ formatDate(req.requestedAt) }}</td>
+  
+                        <td>
+                          <span class="status-chip" [ngClass]="getStatusClass(req.status)">
+                            {{ getStatusLabel(req.status) }}
+                          </span>
+                        </td>
+  
+                        <td>
+                          @if (req.status === 'pending_admin') {
+                            <div class="table-actions">
+                              <button mat-icon-button color="primary"
+                                      matTooltip="Approve / Assign"
+                                      (click)="openApproveDialog(req)">
+                                <mat-icon>check_circle</mat-icon>
+                              </button>
+                              <button mat-icon-button color="warn"
+                                      matTooltip="Reject"
+                                      (click)="openRejectDialog(req)">
+                                <mat-icon>cancel</mat-icon>
+                              </button>
+                            </div>
+                          } @else {
+                            <span class="muted">—</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+  
+          </mat-tab>
+  
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  
+  </div>
+  }
+  
+  <!-- ══ APPROVE / ASSIGN DIALOG ══ -->
+  @if (showApproveDialog() && selectedRequest()) {
+    <div class="overlay" (click)="closeApproveDialog()">
+      <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+  
+        <div class="dialog-header">
+          <div class="dialog-header-icon icon-green"><mat-icon>how_to_reg</mat-icon></div>
+          <div>
+            <h3>
+              {{ selectedRequest()!.doctorId ? 'Forward Request' : 'Assign Doctor & Approve' }}
+            </h3>
+            <p class="dialog-sub">Patient: {{ selectedRequest()!.patientName }}</p>
+          </div>
+          <button mat-icon-button (click)="closeApproveDialog()" class="close-btn">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+  
+        <mat-divider/>
+  
+        <div class="dialog-body">
+  
+          <!-- Doctor assignment -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Assign Doctor *</mat-label>
+            <mat-select [value]="selectedDoctorId()"
+                        (selectionChange)="selectedDoctorId.set($event.value)">
+              <mat-option value="" disabled>Select a doctor</mat-option>
+              @for (doc of assignableDoctors; track doc.doctorId) {
+                <mat-option [value]="doc.doctorId">
+                  {{ doc.fullName }}
+                  @if (doc.specialization) { — {{ doc.specialization }} }
+                  @if (doc.hospital) { · {{ doc.hospital }} }
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Admin Note (optional)</mat-label>
+            <textarea matInput rows="2" placeholder="Any note for the patient or doctor..."
+                      [value]="approveNote()"
+                      (input)="approveNote.set($any($event.target).value)">
+            </textarea>
+          </mat-form-field>
+  
+        </div>
+  
+        <div class="dialog-footer">
+          <button mat-stroked-button (click)="closeApproveDialog()">Cancel</button>
+          <button mat-flat-button color="primary"
+                  (click)="submitApprove()"
+                  [disabled]="!selectedDoctorId() || isSubmitting()">
+            @if (isSubmitting()) { <mat-spinner diameter="18"/> } @else { <mat-icon>send</mat-icon> }
+            {{ isSubmitting() ? 'Sending...' : 'Approve & Assign' }}
+          </button>
+        </div>
+  
+      </mat-card>
+    </div>
+  }
+  
+  <!-- ══ REJECT DIALOG ══ -->
+  @if (showRejectDialog() && selectedRequest()) {
+    <div class="overlay" (click)="closeRejectDialog()">
+      <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+  
+        <div class="dialog-header">
+          <div class="dialog-header-icon icon-red"><mat-icon>cancel</mat-icon></div>
+          <div>
+            <h3>Reject Request</h3>
+            <p class="dialog-sub">Patient: {{ selectedRequest()!.patientName }}</p>
+          </div>
+          <button mat-icon-button (click)="closeRejectDialog()" class="close-btn">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+  
+        <mat-divider/>
+  
+        <div class="dialog-body">
+          <p class="reject-warning">
+            The patient will be notified that their request was not approved.
+          </p>
+  
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Reason (optional)</mat-label>
+            <textarea matInput rows="3"
+                      placeholder="e.g. No available doctors for this specialty at the moment..."
+                      [value]="rejectNote()"
+                      (input)="rejectNote.set($any($event.target).value)">
+            </textarea>
+          </mat-form-field>
+        </div>
+  
+        <div class="dialog-footer">
+          <button mat-stroked-button (click)="closeRejectDialog()">Cancel</button>
+          <button mat-flat-button color="warn"
+                  (click)="submitReject()"
+                  [disabled]="isSubmitting()">
+            @if (isSubmitting()) { <mat-spinner diameter="18"/> } @else { <mat-icon>close</mat-icon> }
+            {{ isSubmitting() ? 'Rejecting...' : 'Reject Request' }}
+          </button>
+        </div>
+  
+      </mat-card>
+    </div>
+  }

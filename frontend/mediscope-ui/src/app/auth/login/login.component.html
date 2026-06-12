@@ -1,0 +1,165 @@
+<div class="login-wrapper">
+ 
+    <!-- ── LEFT PANEL ─────────────────────────────────────── -->
+    <div class="left-panel">
+      <div class="left-content">
+   
+        <!-- Logo -->
+        <div class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <span class="logo-text">MediScope</span>
+        </div>
+   
+        <!-- Hero text -->
+        <div class="hero">
+          <h1>Your Health,<br><span class="accent">Monitored Smartly.</span></h1>
+          <p class="hero-desc">
+            A unified platform for patients, doctors, and administrators
+            to track vital health metrics and enable better care decisions.
+          </p>
+        </div>
+   
+        <!-- Feature list -->
+        <ul class="features">
+          <li>
+            <span class="feature-dot"></span>
+            Track BP, Heart Rate, Glucose &amp; more
+          </li>
+          <li>
+            <span class="feature-dot"></span>
+            Connect with your doctors securely
+          </li>
+          <li>
+            <span class="feature-dot"></span>
+            Real-time alerts for abnormal readings
+          </li>
+          <li>
+            <span class="feature-dot"></span>
+            Comprehensive health trend analytics
+          </li>
+        </ul>
+   
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-number">45+</span>
+            <span class="stat-label">Active Patients</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">3</span>
+            <span class="stat-label">Doctors</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">400+</span>
+            <span class="stat-label">Health Records</span>
+          </div>
+        </div>
+   
+      </div>
+    </div>
+   
+    <!-- ── RIGHT PANEL ────────────────────────────────────── -->
+    <div class="right-panel">
+      <div class="form-container">
+   
+        <div class="form-header">
+          <h2>Welcome back</h2>
+          <p>Sign in to your MediScope account</p>
+        </div>
+   
+        <!-- Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+   
+          <!-- Error message -->
+          @if (errorMessage()) {
+            <div class="error-banner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              {{ errorMessage() }}
+            </div>
+          }
+   
+          <!-- Email -->
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              [class.invalid]="email.invalid && email.touched"
+              autocomplete="email"/>
+            @if (email.invalid && email.touched) {
+              <span class="field-error">
+                {{ email.errors?.['required'] ? 'Email is required' : 'Enter a valid email address' }}
+              </span>
+            }
+          </div>
+   
+          <!-- Password -->
+          <div class="field">
+            <div class="label-row">
+              <label for="password">Password</label>
+            </div>
+            <div class="password-wrapper">
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                [class.invalid]="password.invalid && password.touched"
+                autocomplete="current-password"/>
+              <button type="button" class="toggle-pw" (click)="togglePassword()">
+                @if (showPassword()) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (password.invalid && password.touched) {
+              <span class="field-error">
+                {{ password.errors?.['required'] ? 'Password is required' : 'Minimum 8 characters' }}
+              </span>
+            }
+          </div>
+   
+          <!-- Submit -->
+          <button type="submit" class="submit-btn" [disabled]="isLoading()">
+            @if (isLoading()) {
+              <span class="spinner"></span>
+              Signing in...
+            } @else {
+              Sign In
+            }
+          </button>
+   
+        </form>
+   
+        <!-- Register link -->
+        <p class="register-link">
+          New patient? <a routerLink="/register">Create an account</a>
+        </p>
+        <p class="register-link"> <a routerLink="/forgot-password">Forgot Password</a>
+        </p>
+        <!-- Disclaimer -->
+        <p class="disclaimer">
+          This is a design prototype. All data shown is mock data for demonstration purposes.
+        </p>
+   
+      </div>
+    </div>
+   
+  </div>

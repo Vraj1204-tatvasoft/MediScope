@@ -1,0 +1,246 @@
+<!-- File: src/app/doctor/profile/doctor-profile.component.html -->
+
+@if (isLoading()) {
+    <div class="loading-center"><mat-spinner diameter="48"/></div>
+  }
+  
+  @if (!isLoading() && profile()) {
+  <div class="profile-page">
+  
+    <!-- HEADER CARD -->
+    <mat-card class="header-card">
+      <mat-card-content>
+        <div class="header-inner">
+          <div class="user-identity">
+            <div class="avatar-circle">{{ getUserInitial() }}</div>
+            <div class="user-details">
+              <h2 class="user-name">{{ profile()!.fullName }}</h2>
+              <p class="user-spec">{{ profile()!.specialization }}</p>
+              <div class="badges">
+                @if (profile()!.specialization) {
+                  <span class="badge badge-spec">{{ profile()!.specialization }}</span>
+                }
+                @if (profile()!.yearsExperience) {
+                  <span class="badge badge-exp">{{ profile()!.yearsExperience }} yrs exp</span>
+                }
+              </div>
+            </div>
+          </div>
+          @if (!isEditMode()) {
+            <button mat-stroked-button class="edit-btn" (click)="enterEditMode()">
+              <mat-icon>edit</mat-icon> Edit Profile
+            </button>
+          } @else {
+            <button mat-stroked-button class="cancel-btn" (click)="cancelEdit()">
+              <mat-icon>close</mat-icon> Cancel
+            </button>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  
+    <!-- CONTENT ROW -->
+    <div class="content-row">
+  
+      <!-- LEFT: Professional Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <div class="card-title">
+            <mat-icon class="title-icon">settings_suggest</mat-icon>
+            <span>Professional Information</span>
+          </div>
+        </mat-card-header>
+        <mat-divider/>
+        <mat-card-content>
+  
+          <!-- VIEW MODE -->
+          @if (!isEditMode()) {
+            <div class="info-list">
+              <div class="info-row">
+                <div class="info-label"><mat-icon>person_outline</mat-icon> Full Name</div>
+                <span class="info-value">{{ profile()!.fullName }}</span>
+              </div><mat-divider/>
+              <div class="info-row">
+                <div class="info-label"><mat-icon>medical_services</mat-icon> Specialty</div>
+                <span class="info-value">{{ profile()!.specialization || '—' }}</span>
+              </div><mat-divider/>
+              <div class="info-row">
+                <div class="info-label"><mat-icon>local_hospital</mat-icon> Hospital</div>
+                <span class="info-value">{{ profile()!.hospital || '—' }}</span>
+              </div><mat-divider/>
+              <div class="info-row">
+                <div class="info-label"><mat-icon>workspace_premium</mat-icon> Experience</div>
+                <span class="info-value">{{ profile()!.yearsExperience ? profile()!.yearsExperience + ' years' : '—' }}</span>
+              </div><mat-divider/>
+              <div class="info-row">
+                <div class="info-label"><mat-icon>badge</mat-icon> License No.</div>
+                <span class="info-value">{{ profile()!.licenseNumber }}</span>
+              </div><mat-divider/>
+              <div class="info-row">
+                <div class="info-label"><mat-icon>mail_outline</mat-icon> Email</div>
+                <span class="info-value">{{ profile()!.email }}</span>
+              </div><mat-divider/>
+              <div class="info-row">
+                <div class="info-label"><mat-icon>phone</mat-icon> Phone</div>
+                <span class="info-value">{{ profile()!.contactNumber || '—' }}</span>
+              </div>
+            </div>
+          }
+  
+          <!-- EDIT MODE -->
+          @if (isEditMode()) {
+            <form [formGroup]="editForm" class="edit-form">
+  
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Full Name</mat-label>
+                <input matInput formControlName="fullName"/>
+                <mat-error>Full name is required</mat-error>
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Specialty</mat-label>
+                <mat-select formControlName="specialization">
+                  <mat-option value="">— Select —</mat-option>
+                  @for (s of specializations; track s) {
+                    <mat-option [value]="s">{{ s }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Hospital</mat-label>
+                <input matInput formControlName="hospital" placeholder="Hospital name"/>
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="contactNumber" maxlength="10" placeholder="10-digit number"/>
+                @if (contactNumber.hasError('pattern')) {
+                  <mat-error>Must be exactly 10 digits</mat-error>
+                }
+              </mat-form-field>
+  
+              <button mat-flat-button color="primary" class="save-btn"
+                      (click)="saveProfile()" [disabled]="isSaving()">
+                @if (isSaving()) { <mat-spinner diameter="18"/> } @else { <mat-icon>save</mat-icon> }
+                {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+              </button>
+  
+            </form>
+          }
+  
+        </mat-card-content>
+      </mat-card>
+  
+      <!-- RIGHT COLUMN -->
+      <div class="right-col">
+  
+        <!-- Practice Summary -->
+        <mat-card class="info-card">
+          <mat-card-header>
+            <div class="card-title">
+              <mat-icon class="title-icon title-icon--green">local_hospital</mat-icon>
+              <span>Practice Summary</span>
+            </div>
+          </mat-card-header>
+          <mat-divider/>
+          <mat-card-content>
+            <div class="summary-grid">
+              <div class="summary-tile tile-blue">
+                <span class="tile-value">{{ profile()!.assignedPatients }}</span>
+                <span class="tile-label">Assigned Patients</span>
+              </div>
+              <div class="summary-tile tile-green">
+                <span class="tile-value">{{ profile()!.yearsExperience ?? '—' }}</span>
+                <span class="tile-label">Years Experience</span>
+              </div>
+              <div class="summary-tile tile-active">
+                <span class="tile-value status-active">{{ profile()!.isActive ? 'Active' : 'Inactive' }}</span>
+                <span class="tile-label">License Status</span>
+              </div>
+              <div class="summary-tile tile-plain">
+                <span class="tile-value tile-date">{{ formatDate(profile()!.registeredAt) }}</span>
+                <span class="tile-label">Joined Platform</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+  
+        <!-- Account Security -->
+        <mat-card class="info-card">
+          <mat-card-header>
+            <div class="card-title">
+              <mat-icon class="title-icon title-icon--purple">shield_outlined</mat-icon>
+              <span>Account Security</span>
+            </div>
+          </mat-card-header>
+          <mat-divider/>
+          <mat-card-content>
+  
+            <!-- Password -->
+            <div class="security-row">
+              <div class="security-info">
+                <span class="security-label">Password</span>
+                <span class="security-sub">Click Change to update</span>
+              </div>
+              <button mat-stroked-button class="action-btn" (click)="togglePwSection()">
+                {{ showPwSection() ? 'Cancel' : 'Change' }}
+              </button>
+            </div>
+  
+            @if (showPwSection()) {
+              <form [formGroup]="passwordForm" class="pw-form">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Current Password</mat-label>
+                  <input matInput formControlName="currentPassword" [type]="showCurrentPw() ? 'text' : 'password'"/>
+                  <button mat-icon-button matSuffix type="button" (click)="toggleCurrentPw()">
+                    <mat-icon>{{ showCurrentPw() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <mat-error>Required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>New Password</mat-label>
+                  <input matInput formControlName="newPassword" [type]="showNewPw() ? 'text' : 'password'"/>
+                  <button mat-icon-button matSuffix type="button" (click)="toggleNewPw()">
+                    <mat-icon>{{ showNewPw() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if (newPassword.hasError('minlength')) { <mat-error>Min 8 characters</mat-error> }
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Confirm New Password</mat-label>
+                  <input matInput formControlName="confirmNewPassword" [type]="showConfirmPw() ? 'text' : 'password'"/>
+                  <button mat-icon-button matSuffix type="button" (click)="toggleConfirmPw()">
+                    <mat-icon>{{ showConfirmPw() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if (confirmNewPassword.hasError('mismatch')) { <mat-error>Passwords do not match</mat-error> }
+                </mat-form-field>
+                <button mat-flat-button color="primary" class="save-btn" (click)="changePassword()">
+                  <mat-icon>lock</mat-icon> Update Password
+                </button>
+              </form>
+            }
+  
+            <mat-divider/>
+            <div class="security-row">
+              <div class="security-info">
+                <span class="security-label">Two-Factor Auth</span>
+                <span class="security-sub status-active">Enabled</span>
+              </div>
+              <button mat-stroked-button class="action-btn">Manage</button>
+            </div>
+            <mat-divider/>
+            <div class="security-row">
+              <div class="security-info">
+                <span class="security-label">Session</span>
+                <span class="security-sub">Active — this device</span>
+              </div>
+              <span class="badge-active-sm">Active</span>
+            </div>
+  
+          </mat-card-content>
+        </mat-card>
+  
+      </div>
+    </div>
+  </div>
+  }

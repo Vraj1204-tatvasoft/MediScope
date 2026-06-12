@@ -1,0 +1,574 @@
+.history-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     TOP METRIC COUNT ANALYTICS BLOCKS
+  ═════════════════════════════════════════════════════════════ */
+  .stats-row-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .analytics-card {
+    border-radius: 14px !important;
+    border: 1px solid #edf0f5;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  }
+  
+  .analytics-card.total { border-bottom: 4px solid #64748b; }
+  .analytics-card.normal { border-bottom: 4px solid #10b981; background: #f0fdf4 !important; }
+  .analytics-card.elevated { border-bottom: 4px solid #f59e0b; background: #fffbeb !important; }
+  .analytics-card.critical { border-bottom: 4px solid #ef4444; background: #fef2f2 !important; }
+  
+  .analytics-card mat-card-content {
+    padding: 1.25rem !important;
+    text-align: center;
+  }
+  
+  .stat-count-value {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .stat-count-value.success { color: #047857; }
+  .stat-count-value.warning { color: #b45309; }
+  .stat-count-value.danger { color: #b91c1c; }
+  
+  .stat-count-label {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     TOOLBAR FILTERS CONTROL LAYOUT
+  ═════════════════════════════════════════════════════════════ */
+  .filter-controls-card {
+    border-radius: 12px !important;
+    border: 1px solid #edf0f5;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  }
+  
+  .toolbar-flex-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem !important;
+  }
+  
+  .search-input-field-box {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 0.85rem;
+    height: 40px;
+    max-width: 380px;
+    width: 100%;
+  }
+  
+  .search-input-field-box mat-icon {
+    color: #94a3b8;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .search-input-field-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 0.88rem;
+    color: #334155;
+  }
+  
+  .select-dropdowns-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .toolbar-dropdown {
+    width: 150px;
+  }
+  
+  ::ng-deep .toolbar-dropdown .mat-mdc-text-field-wrapper {
+    height: 40px !important;
+    padding: 0 0.75rem !important;
+    background-color: #f8fafc !important;
+  }
+  
+  ::ng-deep .toolbar-dropdown .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  
+  ::ng-deep .toolbar-dropdown .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+  
+  .csv-export-action-btn {
+    height: 40px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     TABULAR HEALTH HISTORIES CONTAINER
+  ═════════════════════════════════════════════════════════════ */
+  .records-display-main-card {
+    border-radius: 12px !important;
+    border: 1px solid #edf0f5;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+    overflow: hidden;
+  }
+  
+  .no-padding { padding: 0 !important; }
+  
+  .records-card-header-label {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .records-card-header-label h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .records-sub-count {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  
+  .table-responsive-scroll-pane {
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .health-history-custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .health-history-custom-table th {
+    background: #f8fafc;
+    padding: 0.85rem 1.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid #edf0f5;
+  }
+  
+  .sort-icon-inline {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    color: #475569;
+  }
+  
+  .health-history-custom-table td {
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  
+  .core-data-row:hover {
+    background-color: #fafbfc;
+  }
+  
+  .bold-date-text {
+    font-weight: 600;
+    color: #0f172a;
+  }
+  
+  /* Update the drawer styles to display multiple hidden metrics cleanly side-by-side */
+.overflow-metrics-subgroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-content: flex-start;
+  }
+  
+  .drawer-inner-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Splits space evenly between extra metrics and user notes */
+    gap: 2rem;
+  }
+  
+  .drawer-metric-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 100px;
+  }
+  /* User identity Dot indications */
+  .user-source-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981; /* Patient logged default green */
+    margin-right: 0.4rem;
+  }
+  
+  .user-source-dot.doctor-dot {
+    background: #3b82f6; /* Doctor logged cyan indicator blue */
+  }
+  
+  .warning-text-bold {
+    font-weight: 700;
+    color: #d97706; /* Matches precise image hex orange emphasis layout values */
+  }
+  
+  /* Status evaluation badges */
+  .status-chip-badge {
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  
+/* ═════════════════════════════════════════════════════════════
+   UPDATED STATUS BADGE COLORS (FIXES YELLOW CHIP)
+═════════════════════════════════════════════════════════════ */
+.status-chip-badge.normal {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+    border: 1px solid #bbf7d0;
+  }
+  
+  .status-chip-badge.elevated {
+    background: #fef3c7 !important; /* Soft gold yellow background */
+    color: #d97706 !important; /* Rich amber contrast text */
+    border: 1px solid #fde68a;
+  }
+  
+  .status-chip-badge.critical {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    border: 1px solid #fca5a5;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     VITAL CELLS HIGHLIGHTING (INDICATES REASON)
+  ═════════════════════════════════════════════════════════════ */
+  .health-history-custom-table td.highlighted-warning {
+    background-color: #fffbeb !important; /* Light amber highlight cell */
+    color: #b45309 !important;
+    font-weight: 700;
+    border-left: 2px solid #f59e0b;
+  }
+  
+  .health-history-custom-table td.highlighted-danger {
+    background-color: #fef2f2 !important; /* Light red highlight cell */
+    color: #b91c1c !important;
+    font-weight: 700;
+    border-left: 2px solid #ef4444;
+  }
+  
+  .cell-alert-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  
+  /* Inside Drawer Drawer-Metric Highlights */
+  .drawer-metric-cell.drawer-cell-warning {
+    background: #fef3c7;
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: 1px dashed #f59e0b;
+  }
+  
+  .drawer-metric-cell.drawer-cell-danger {
+    background: #fee2e2;
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: 1px dashed #ef4444;
+  }
+  
+  .row-toggle-text-link {
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+  }
+  
+  .center-text { text-align: center; }
+  
+  /* ═════════════════════════════════════════════════════════════
+     EXPANDABLE DRAWER SECTION LAYOUTS
+  ═════════════════════════════════════════════════════════════ */
+  .expanded-drawer-row td {
+    padding: 0 !important;
+    background-color: #f8fafc;
+  }
+  
+  .expanded-drawer-content-box {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #edf0f5;
+    animation: slideDown 0.15s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .drawer-inner-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.5rem;
+  }
+  
+  .drawer-metric-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  
+  .drawer-field-label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #94a3b8;
+  }
+  
+  .drawer-field-value {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .notes-text-style {
+    font-weight: 500;
+    color: #475569;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     PAGINATION FOOTER INTERNALS
+  ═════════════════════════════════════════════════════════════ */
+  .history-table-pagination-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: #ffffff;
+  }
+  
+  .pagination-range-indicator-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  .pagination-navigation-button-cluster {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  
+  .pag-nav-btn {
+    height: 36px !important;
+    border-radius: 6px !important;
+    border-color: #cbd5e1 !important;
+    font-size: 0.85rem !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
+  }
+  
+  .pag-index-btn {
+    min-width: 36px !important;
+    width: 36px;
+    height: 36px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+    border-color: #cbd5e1 !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+  }
+  
+  .pag-index-btn.active {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+  
+  .table-empty-state-fallback-cell {
+    text-align: center;
+    padding: 3.5rem !important;
+    color: #94a3b8;
+  }
+  
+  .table-empty-state-fallback-cell mat-icon {
+    transform: scale(2);
+    margin-bottom: 0.75rem;
+  }
+  
+  .loading-fallback-spinner-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    color: #64748b;
+    gap: 1rem;
+  }
+.health-history-custom-table th.center-text,
+.health-history-custom-table td.center-text {
+  text-align: center;
+  justify-content: center;
+}
+
+.row-action-delete-btn {
+  color: #ef4444 !important; /* Medical system default crimson text warning */
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease-in-out;
+}
+
+.row-action-delete-btn:hover:not(:disabled) {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+
+.row-action-delete-btn:disabled {
+  color: #cbd5e1 !important;
+  cursor: not-allowed;
+}
+
+/* Explicit layout adjustments for internal mat-spinners inside buttons */
+.inline-btn-spinner {
+  display: inline-block;
+  margin: 0 auto;
+}
+ /* ── 🛠️ NEW: CUSTOM ALERTS MODAL LAYOUT ARCHITECTURE ── */
+.modal-backdrop-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.4); /* Smooth dark slate veil backdrop tint */
+  backdrop-filter: blur(4px); /* Modern frosted-glass aesthetic filter */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* Layer above standard navigation bars and layouts */
+  animation: fadeInEffect 0.15s ease-out;
+}
+
+.custom-alert-confirmation-box {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  padding: 1.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  animation: scaleUpEffect 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.alert-icon-header-avatar {
+  width: 48px;
+  height: 48px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem auto;
+}
+
+.alert-icon-header-avatar mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.alert-text-body h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.alert-text-body p {
+  margin: 0 0 1.75rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.alert-actions-layout-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.alert-actions-layout-row button {
+  height: 42px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  font-size: 0.88rem !important;
+}
+
+.cancel-modal-btn {
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+.cancel-modal-btn:hover {
+  background-color: #f8fafc !important;
+}
+
+.confirm-delete-modal-btn {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+/* Modal Animations */
+@keyframes fadeInEffect {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUpEffect {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+} 
+  /* RESPONSIVE DESIGN ADJUSTMENTS */
+  @media (max-width: 992px) {
+    .stats-row-container { grid-template-columns: repeat(2, 1fr); }
+    .toolbar-flex-content { flex-direction: column; align-items: stretch; }
+    .search-input-field-box { max-width: 100%; }
+    .select-dropdowns-group { grid-template-columns: 1fr; width: 100%; }
+    .toolbar-dropdown { width: 100%; }
+  }

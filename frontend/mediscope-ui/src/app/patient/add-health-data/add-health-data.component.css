@@ -1,0 +1,301 @@
+.metrics-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     INFO BANNER ALIGNMENT
+  ═════════════════════════════════════════════════════════════ */
+  .info-banner {
+    background-color: #eecfef;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .banner-icon {
+    color: #2563eb;
+    flex-shrink: 0;
+  }
+  
+  .banner-text {
+    color: #1e40af;
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     FORM MAIN CARDS
+  ═════════════════════════════════════════════════════════════ */
+  .form-main-card {
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    border: 1px solid #edf0f5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .form-main-card mat-card-content {
+    padding: 1.5rem !important;
+  }
+  
+  .form-card-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-card-title-row mat-icon {
+    transform: scale(1.3);
+    width: 24px;
+    height: 24px;
+  }
+  
+  .card-main-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .card-subtitle {
+    margin: 0.15rem 0 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     MEASUREMENT DATE CONTAINER
+  ═════════════════════════════════════════════════════════════ */
+  .measurement-date-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .section-input-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .datepicker-field {
+    max-width: 240px;
+    width: 100%;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     METRIC SECTIONS TYPE HEADERS
+  ═════════════════════════════════════════════════════════════ */
+  .metric-section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .metric-section-header.borderless {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 1.25rem;
+  }
+  
+  .metric-group-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .metric-range-helper {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  
+  .metric-range-helper.greyed {
+    color: #64748b;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     BLOOD PRESSURE INPUT PAIR FIELDS
+  ═════════════════════════════════════════════════════════════ */
+  .form-grid-row.dual-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  .input-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .field-entry-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .unit-text {
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     VITALS INPUT CARDS GRID (LOOP CONTAINER)
+  ═════════════════════════════════════════════════════════════ */
+  .vitals-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .vital-input-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: #fafbfc;
+    transition: border-color 0.15s ease;
+  }
+  
+  /* Distinct card left borders based on vital type grouping variations */
+  .vital-input-card:nth-child(1) { border-left: 4px solid #fecaca; } /* Red accent */
+  .vital-input-card:nth-child(2) { border-left: 4px solid #fef08a; } /* Yellow accent */
+  .vital-input-card:nth-child(3) { border-left: 4px solid #fed7aa; } /* Orange accent */
+  .vital-input-card:nth-child(4) { border-left: 4px solid #ccfbf1; } /* Teal accent */
+  .vital-input-card:nth-child(5) { border-left: 4px solid #f3e8ff; } /* Purple accent */
+  .vital-input-card:nth-child(6) { border-left: 4px solid #e0e7ff; } /* Indigo accent */
+  
+  .vital-input-card:focus-within {
+    border-color: #3b82f6;
+  }
+  
+  .vital-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .vital-label-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .vital-range-tag {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     MATERIAL STRUCTURE FORM INTERNALS COMPRESSION 
+  ═════════════════════════════════════════════════════════════ */
+  .full-width-field {
+    width: 100%;
+  }
+  
+  .vital-form-field-wrapper {
+    width: 100%;
+  }
+  
+  .suffix-unit-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #94a3b8;
+    padding-right: 0.25rem;
+  }
+  
+  /* Material Override density compressions */
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: #ffffff !important;
+    border-radius: 8px !important;
+  }
+  
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none !important; /* Strips empty validation helper margins underneath input */
+  }
+  
+  .text-area-fix ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  /* ═════════════════════════════════════════════════════════════
+     ACTION BUTTONS BOTTOM SECTION
+  ═════════════════════════════════════════════════════════════ */
+  .form-submission-actions-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .clear-action-btn {
+    height: 44px !important;
+    padding: 0 1.5rem !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    border-radius: 8px !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  
+  .clear-action-btn:hover {
+    background-color: #f1f5f9 !important;
+  }
+  
+  .save-record-btn {
+    height: 44px !important;
+    padding: 0 1.75rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    background-color: #2563eb !important;
+  }
+  
+  .form-loader-spinner {
+    text-align: center;
+    padding: 3rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 768px) {
+    .form-grid-row.dual-inputs {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .vitals-grid-layout {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .form-submission-actions-row {
+      flex-direction: column-reverse;
+      align-items: stretch;
+    }
+    
+    .clear-action-btn, .save-record-btn {
+      width: 100%;
+    }
+  }

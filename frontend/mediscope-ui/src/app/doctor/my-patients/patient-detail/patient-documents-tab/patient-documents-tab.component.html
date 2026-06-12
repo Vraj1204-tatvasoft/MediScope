@@ -1,0 +1,70 @@
+<div class="documents-tab-wrapper">
+    @if (isLoading()) {
+      <div class="loading-zone"><mat-spinner diameter="32"></mat-spinner> Loading files...</div>
+    } @else {
+      
+      <div class="documents-grid">
+        @for (doc of documents(); track doc.id) {
+          <mat-card class="doc-card" [class.unreviewed]="!doc.isReviewed">
+            <mat-card-content>
+              
+              <div class="doc-header">
+                <div class="doc-identity">
+                  <mat-icon class="file-icon">description</mat-icon>
+                  <div class="meta">
+                    <h4>{{ doc.fileName }}</h4>
+                    <p>{{ doc.category }} &bull; Uploaded {{ formatDate(doc.uploadedAt) }}</p>
+                  </div>
+                </div>
+                <div class="status-zone">
+                  @if (doc.isReviewed) {
+                    <span class="status-badge reviewed"><mat-icon>check_circle</mat-icon> Reviewed</span>
+                  } @else {
+                    <span class="status-badge pending"><mat-icon>error_outline</mat-icon> Action Required</span>
+                  }
+                </div>
+              </div>
+  
+              @if (doc.description) {
+                <div class="patient-note">
+                  <strong>Patient Note:</strong> {{ doc.description }}
+                </div>
+              }
+  
+              @if (doc.isReviewed) {
+                <div class="feedback-zone" [ngClass]="doc.severity?.toLowerCase()">
+                  <div class="feedback-head">
+                    <strong>Your Feedback</strong>
+                    <span class="severity-tag">{{ doc.severity }}</span>
+                  </div>
+                  <p>{{ doc.feedback }}</p>
+                </div>
+              }
+  
+              <mat-divider></mat-divider>
+  
+              <div class="doc-actions">
+                <button mat-stroked-button color="primary" (click)="viewDocument(doc)" [disabled]="downloadingId() === doc.id">
+                  @if (downloadingId() === doc.id) { <mat-spinner diameter="16"></mat-spinner> }
+                  @else { <mat-icon>visibility</mat-icon> }
+                  View File
+                </button>
+                
+                <button mat-flat-button [color]="doc.isReviewed ? 'basic' : 'accent'" (click)="openReviewDialog(doc)">
+                  <mat-icon>{{ doc.isReviewed ? 'edit' : 'rate_review' }}</mat-icon>
+                  {{ doc.isReviewed ? 'Update Feedback' : 'Write Review' }}
+                </button>
+              </div>
+  
+            </mat-card-content>
+          </mat-card>
+        } @empty {
+          <div class="empty-state">
+            <mat-icon>folder_off</mat-icon>
+            <p>This patient has not uploaded any documents.</p>
+          </div>
+        }
+      </div>
+  
+    }
+  </div>

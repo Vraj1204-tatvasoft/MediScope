@@ -1,0 +1,168 @@
+<div class="history-page-wrapper">
+
+  <div class="stats-row-container">
+    <mat-card class="analytics-card total">
+      <mat-card-content>
+        <h3 class="stat-count-value">{{ summaryStats().totalRecords }}</h3>
+        <p class="stat-count-label">Total Records</p>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="analytics-card normal"><mat-card-content><h3 class="stat-count-value success">{{ summaryStats().normal }}</h3><p class="stat-count-label">Normal</p></mat-card-content></mat-card>
+    <mat-card class="analytics-card elevated"><mat-card-content><h3 class="stat-count-value warning">{{ summaryStats().elevated }}</h3><p class="stat-count-label">Elevated</p></mat-card-content></mat-card>
+    <mat-card class="analytics-card critical"><mat-card-content><h3 class="stat-count-value danger">{{ summaryStats().critical }}</h3><p class="stat-count-label">Critical</p></mat-card-content></mat-card>
+  </div>
+
+  <mat-card class="filter-controls-card">
+    <mat-card-content class="toolbar-flex-content">
+      <div class="search-input-field-box">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Search by date or name..." [ngModel]="searchQuery()" (input)="searchQuery.set($any($event.target).value); onFilterChange()"/>
+      </div>
+      <div class="select-dropdowns-group">
+        <mat-form-field appearance="outline" class="toolbar-dropdown">
+          <mat-select [ngModel]="selectedStatus()" (selectionChange)="selectedStatus.set($event.value); onFilterChange()">
+            <mat-option value="ALL">All Status</mat-option>
+            <mat-option value="NORMAL">Normal</mat-option>
+            <mat-option value="ELEVATED">Elevated</mat-option>
+            <mat-option value="CRITICAL">Critical</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="toolbar-dropdown">
+          <mat-select [ngModel]="selectedSource()" (selectionChange)="selectedSource.set($event.value); onFilterChange()">
+            <mat-option value="ALL">All Sources</mat-option>
+            <mat-option value="DOCTOR">Doctors Only</mat-option>
+            <mat-option value="PATIENT">Patient Self-Logged</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button class="csv-export-action-btn" (click)="exportCSV()"><mat-icon>file_download</mat-icon> Export CSV</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="records-display-main-card">
+    <mat-card-content class="no-padding">
+      <div class="records-card-header-label">
+        <h4>Health Records <span class="records-sub-count">({{ totalRecords() }} records matching criteria)</span></h4>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-fallback-spinner-zone"><mat-spinner diameter="40"></mat-spinner><p>Parsing health metric timelines...</p></div>
+      } @else {
+        <div class="table-responsive-scroll-pane">
+          <table class="health-history-custom-table">
+              <thead>
+                  <tr>
+                    <th (click)="onSort('date')" style="cursor: pointer; user-select: none;">DATE <mat-icon class="sort-icon-inline">{{ sortColumn() === 'date' ? (sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}</mat-icon></th>
+                    <th (click)="onSort('addedBy')" style="cursor: pointer; user-select: none;">ADDED BY <mat-icon class="sort-icon-inline">{{ sortColumn() === 'addedBy' ? (sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}</mat-icon></th>
+                    @for (col of dynamicColumns().main; track col) { <th>{{ formatHeaderLabel(col) }}</th> }
+                    <th (click)="onSort('status')" style="cursor: pointer; user-select: none;">STATUS <mat-icon class="sort-icon-inline">{{ sortColumn() === 'status' ? (sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}</mat-icon></th>
+                    <th class="center-text">ACTIONS</th>
+                    <th class="center-text">DETAILS</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  @for (row of rawHistoryRows(); track row.submissionId) {
+                    <tr class="core-data-row">
+                      <td class="bold-date-text">{{ row.date }}</td>
+                      <td><span class="user-source-dot" [class.doctor-dot]="row.isDoctor"></span>{{ row.addedBy }}</td>
+                      
+                      @for (col of dynamicColumns().main; track col) {
+                        <td [ngClass]="{
+                          'highlighted-danger': row.flaggedMetrics.includes(col) && row.status === 'Critical',
+                          'highlighted-warning': row.flaggedMetrics.includes(col) && (row.status === 'Elevated' || row.status === 'Warning'),
+                          'warning-text-bold': col === 'blood_pressure' && !row.flaggedMetrics.includes(col)
+                        }">
+                          {{ row.metrics[col]?.displayValue || '—' }}
+                          @if (row.flaggedMetrics.includes(col)) { <mat-icon class="cell-alert-icon">error_outline</mat-icon> }
+                        </td>
+                      }
+                      
+                      <td>
+                        <span class="status-chip-badge" [ngClass]="row.status.toLowerCase()">
+                          {{ row.status === 'Elevated' ? 'Warning' : row.status }}
+                        </span>
+                      </td>
+
+                      <td class="center-text">
+                        <button mat-icon-button color="warn" class="row-action-delete-btn"
+                                [disabled]="deletingId() === row.submissionId"
+                                (click)="openDeleteConfirmation(row.submissionId, $event)">
+                          @if (deletingId() === row.submissionId) {
+                            <mat-spinner diameter="16" class="inline-btn-spinner"></mat-spinner>
+                          } @else {
+                            <mat-icon>delete_outline</mat-icon>
+                          }
+                        </button>
+                      </td>
+                      
+                      <td class="center-text">
+                        <a mat-button color="primary" class="row-toggle-text-link" 
+                           [routerLink]="['/patient/health-history', row.submissionId]">
+                          Show
+                        </a>
+                      </td>
+                    </tr>
+                
+                    @if (row.isExpanded) {
+                      <tr class="expanded-drawer-row">
+                        <td [attr.colspan]="5 + dynamicColumns().main.length">
+                          <div class="expanded-drawer-content-box">
+                            <div class="drawer-inner-grid">
+                              <div class="overflow-metrics-subgroup">
+                                @for (extraCol of dynamicColumns().drawer; track extraCol) {
+                                  <div class="drawer-metric-cell" [ngClass]="{
+                                    'drawer-cell-danger': row.flaggedMetrics.includes(extraCol) && row.status === 'Critical',
+                                    'drawer-cell-warning': row.flaggedMetrics.includes(extraCol) && (row.status === 'Elevated' || row.status === 'Warning')
+                                  }">
+                                    <p class="drawer-field-label">{{ formatHeaderLabel(extraCol) }} @if (row.flaggedMetrics.includes(extraCol)) { <span>⚠️</span> }</p>
+                                    <p class="drawer-field-value">{{ row.metrics[extraCol]?.displayValue || '—' }}</p>
+                                  </div>
+                                } @empty {
+                                  <div class="drawer-metric-cell"><p class="drawer-field-label">Additional Metrics</p><p class="drawer-field-value" style="font-weight: 500; color: #94a3b8;">No overflow vitals</p></div>
+                                }
+                              </div>
+                              <div class="drawer-metric-cell note-span-column"><p class="drawer-field-label">Notes</p><p class="drawer-field-value notes-text-style">{{ row.notes || 'No notes accompanied this log entry.' }}</p></div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  } @empty {
+                    <tr><td [attr.colspan]="6 + dynamicColumns().main.length" class="center-text" style="padding: 3rem; color: #94a3b8;"><mat-icon style="transform: scale(1.5); margin-bottom: 0.5rem;">assignment_late</mat-icon><p>No health history records match your selected filtering choices.</p></td></tr>
+                  }
+              </tbody>
+          </table>
+        </div>
+
+        <div class="history-table-pagination-footer">
+          <span class="pagination-range-indicator-label">Showing {{ totalRecords() > 0 ? (currentPage() - 1) * pageSize() + 1 : 0 }}–{{ Math.min(currentPage() * pageSize(), totalRecords()) }} of {{ totalRecords() }}</span>
+          <div class="pagination-navigation-button-cluster">
+            <button mat-stroked-button class="pag-nav-btn" [disabled]="currentPage() === 1 || isLoading()" (click)="onPageChange(currentPage() - 1)">Previous</button>
+            <button mat-flat-button color="primary" class="pag-index-btn active">{{ currentPage() }}</button>
+            @if (currentPage() < totalPages()) { <button mat-stroked-button class="pag-index-btn" [disabled]="isLoading()" (click)="onPageChange(currentPage() + 1)">{{ currentPage() + 1 }}</button> }
+            <button mat-stroked-button class="pag-nav-btn" [disabled]="currentPage() === totalPages() || isLoading()" (click)="onPageChange(currentPage() + 1)">Next</button>
+          </div>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (showDeleteModal()) {
+    <div class="modal-backdrop-overlay" (click)="closeDeleteModal()">
+      <div class="custom-alert-confirmation-box" (click)="$event.stopPropagation()">
+        <div class="alert-icon-header-avatar">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <div class="alert-text-body">
+          <h3>Delete Health Record?</h3>
+          <p>This action is permanent. This submission entry and all individual diagnostic values tracked within it will be deleted from your clinical timeline.</p>
+        </div>
+        <div class="alert-actions-layout-row">
+          <button mat-button class="cancel-modal-btn" (click)="closeDeleteModal()">Cancel</button>
+          <button mat-flat-button color="warn" class="confirm-delete-modal-btn" (click)="confirmDeleteRecord()">Delete Record</button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

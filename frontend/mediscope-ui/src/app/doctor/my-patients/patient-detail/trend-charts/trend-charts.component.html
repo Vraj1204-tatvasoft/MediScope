@@ -1,0 +1,43 @@
+@if (isLoading()) {
+    <div class="charts-spinner-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Constructing visual baseline vital logs...</p>
+    </div>
+  } @else if (!hasData()) {
+    <div class="empty-charts-fallback">
+      <mat-icon>insights</mat-icon>
+      <p>Insufficient clinical data logs recorded to plot timeline trends.</p>
+    </div>
+  } @else {
+    <div class="metrics-dashboard-charts-grid">
+  
+      <mat-card class="chart-visualizer-card">
+        <mat-card-header><mat-card-title>Blood Pressure Trend</mat-card-title></mat-card-header>
+        <mat-card-content class="canvas-wrapper">
+          <canvas baseChart [data]="bpData" [options]="chartOptions" [type]="'line'"></canvas>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="chart-visualizer-card">
+        <mat-card-header><mat-card-title>Heart Rate</mat-card-title></mat-card-header>
+        <mat-card-content class="canvas-wrapper">
+          <canvas baseChart [data]="HrData" [options]="chartOptions" [type]="'line'"></canvas>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="chart-visualizer-card">
+        <mat-card-header><mat-card-title>Glucose</mat-card-title></mat-card-header>
+        <mat-card-content class="canvas-wrapper">
+          <canvas baseChart [data]="glucoseData" [options]="chartOptions" [type]="'line'"></canvas>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="chart-visualizer-card">
+        <mat-card-header><mat-card-title>Sleep Duration</mat-card-title></mat-card-header>
+        <mat-card-content class="canvas-wrapper">
+          <canvas baseChart [data]="sleepData" [options]="chartOptions" [type]="'line'"></canvas>
+        </mat-card-content>
+      </mat-card>
+  
+    </div>
+  }
