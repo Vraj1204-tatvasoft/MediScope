@@ -256,7 +256,6 @@ export class HealthHistoryComponent implements OnInit {
     const sortBy = this.sortColumn();
     const sortDir = this.sortDirection();
 
-    // ── 🛠️ FIXED: Choose the authorized data channel based on the viewer's role context
     // We pass a large page size (999999) to pull the full historical record set without page breaks
     const dataStream$ = this.patientId
       ? this.historyService.getHistoryByPatientId(this.patientId, 1, 999999, search, status, source, sortBy, sortDir)

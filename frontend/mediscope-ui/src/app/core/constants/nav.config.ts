@@ -60,10 +60,10 @@ export const NAV_CONFIG: Record<UserRole, NavConfig> = {
     accessLabel: 'Admin Access',
     items: [
       { label: 'Dashboard',     route: '/admin/dashboard',      icon: ICONS.dashboard },
-      { label: 'Manage Doctors',         route: '/admin/manage-doctors',          icon: ICONS.users     },
-      { label: 'Manage Patients',       route: '/admin/manage-patients',        icon: ICONS.users   },
-      { label: 'Manage Metrics',     route: '/admin/manage-metrics',    icon: ICONS.metrics},
-      { label: 'Doctor-Patient Links',     route: '/admin/doctor-patient-links',      icon: ICONS.analytics },
+      { label: 'Doctors',         route: '/admin/manage-doctors',          icon: ICONS.users     },
+      { label: 'Patients',       route: '/admin/manage-patients',        icon: ICONS.users   },
+      { label: 'Metrics',     route: '/admin/manage-metrics',    icon: ICONS.metrics},
+      { label: 'Doctor-Patient',     route: '/admin/doctor-patient-links',      icon: ICONS.analytics },
     ],
   },
 

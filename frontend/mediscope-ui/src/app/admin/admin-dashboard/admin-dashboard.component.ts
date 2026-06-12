@@ -138,7 +138,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           maintainAspectRatio: false, 
           plugins: { 
             legend: { display: false } 
-          } 
+          },
+          scales: {
+            x: {
+              ticks: {
+                stepSize: 1 // Forces whole numbers on the bottom axis
+              }
+            }
+          }
         }
       }));
     }
@@ -157,7 +164,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             maxBarThickness: 26
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            ticks: {
+              stepSize: 1 // Forces whole numbers on the left axis
+            }
+          }
+        } }
       }));
     }
   }

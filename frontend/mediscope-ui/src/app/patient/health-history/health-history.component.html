@@ -96,10 +96,10 @@
                       </td>
                       
                       <td class="center-text">
-                        <a mat-button color="primary" class="row-toggle-text-link" 
-                           [routerLink]="['/patient/health-history', row.submissionId]">
-                          Show
-                        </a>
+                        <button mat-icon-button color="primary" class="row-toggle-icon-btn"
+                                (click)="toggleRow(row)">
+                          <mat-icon>{{ row.isExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+                        </button>
                       </td>
                     </tr>
                 
