@@ -1,0 +1,17 @@
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\bin\Release\net10.0\MediScope.Business.deps.json
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\bin\Release\net10.0\MediScope.Business.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\bin\Release\net10.0\MediScope.Business.pdb
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\bin\Release\net10.0\MediScope.Common.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\bin\Release\net10.0\MediScope.Data.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\bin\Release\net10.0\MediScope.Common.pdb
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\bin\Release\net10.0\MediScope.Data.pdb
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScope.Business.csproj.AssemblyReference.cache
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScope.Business.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScope.Business.AssemblyInfoInputs.cache
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScope.Business.AssemblyInfo.cs
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScope.Business.csproj.CoreCompileInputs.cache
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScop.1ABFE6C0.Up2Date
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScope.Business.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\refint\MediScope.Business.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\MediScope.Business.pdb
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Business\obj\Release\net10.0\ref\MediScope.Business.dll

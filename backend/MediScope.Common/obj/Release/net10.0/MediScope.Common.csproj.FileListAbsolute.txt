@@ -1,0 +1,14 @@
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\bin\Release\net10.0\MediScope.Common.deps.json
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\bin\Release\net10.0\MediScope.Common.runtimeconfig.json
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\bin\Release\net10.0\MediScope.Common.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\bin\Release\net10.0\MediScope.Common.pdb
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.csproj.AssemblyReference.cache
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.AssemblyInfoInputs.cache
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.AssemblyInfo.cs
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.csproj.CoreCompileInputs.cache
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\refint\MediScope.Common.dll
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.pdb
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\MediScope.Common.genruntimeconfig.cache
+C:\Users\pci133\Desktop\MediScope\backend\MediScope.Common\obj\Release\net10.0\ref\MediScope.Common.dll

@@ -1,0 +1,6 @@
+@MediScope.API_HostAddress = http://localhost:5211
+
+GET {{MediScope.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
