@@ -32,7 +32,7 @@ export class ManageMetricsComponent implements OnInit {
 
   showAddModal = signal(false);
   showEditModal = signal(false);
-  showDeleteModal = signal(false);
+  showToggleModal = signal(false);
   selectedMetric = signal<MetricDefinition | null>(null);
 
   // Injecting Notification Service
@@ -102,15 +102,15 @@ export class ManageMetricsComponent implements OnInit {
     this.showEditModal.set(true);
   }
 
-  openDeleteModal(metric: MetricDefinition): void {
+  openToggleModal(metric: MetricDefinition): void {
     this.selectedMetric.set(metric);
-    this.showDeleteModal.set(true);
+    this.showToggleModal.set(true); 
   }
 
   closeModals(): void {
     this.showAddModal.set(false);
     this.showEditModal.set(false);
-    this.showDeleteModal.set(false);
+    this.showToggleModal.set(false);
   }
 
   createMetric(): void {
@@ -145,18 +145,20 @@ export class ManageMetricsComponent implements OnInit {
     });
   }
 
-  deleteMetric(): void {
+  toggleMetricStatus(): void {
     const metric = this.selectedMetric();
     if (!metric) return;
 
-    this.metricService.delete(metric.id).subscribe({
+    const actionText = metric.isActive ? 'deactivated' : 'activated';
+
+    this.metricService.toggleStatus(metric.id).subscribe({
       next: () => {
         this.closeModals();
         this.loadMetrics();
-        this.notify.success(`Metric "${metric.displayName}" was removed successfully.`);
+        this.notify.success(`Metric "${metric.displayName}" was ${actionText} successfully.`);
       },
       error: () => {
-        this.notify.error('Failed to delete selected metric definition.');
+        this.notify.error('Failed to change metric status.');
       }
     });
   }

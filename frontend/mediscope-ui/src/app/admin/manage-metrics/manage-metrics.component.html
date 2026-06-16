@@ -1,218 +1,228 @@
 <div class="page">
 
-    <mat-card class="search-card">
-      <mat-card-content>
-        <div class="search-row">
-          <div class="search-box">
-            <mat-icon>search</mat-icon>
-            <input 
-              type="text" 
-              placeholder="Search metric definitions..."
-              [value]="search()"
-              (input)="search.set($any($event.target).value)"/>
-          </div>
-          <button mat-flat-button color="primary" class="add-btn" (click)="openAddModal()">
-            <mat-icon>add</mat-icon> Add Metric
-          </button>
+  <mat-card class="search-card">
+    <mat-card-content>
+      <div class="search-row">
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input 
+            type="text" 
+            placeholder="Search metric definitions..."
+            [value]="search()"
+            (input)="search.set($any($event.target).value)"/>
         </div>
-      </mat-card-content>
-    </mat-card>
-  
-    <div class="doctor-grid">
-      @for (metric of filteredMetrics(); track metric.id) {
-        <mat-card class="doctor-card">
-          <mat-card-content>
-  
-            <div class="doc-header">
-              <div class="doc-identity">
-                <div class="doc-avatar">{{ (metric.displayName || 'M').charAt(0).toUpperCase() }}</div>
-                <div>
-                  <p class="doc-name">{{ metric.displayName }}</p>
-                  <p class="doc-spec">{{ metric.metricType }}</p>
-                </div>
+        <button mat-flat-button color="primary" class="add-btn" (click)="openAddModal()">
+          <mat-icon>add</mat-icon> Add Metric
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="doctor-grid">
+    @for (metric of filteredMetrics(); track metric.id) {
+      <mat-card class="doctor-card" [style.opacity]="metric.isActive ? '1' : '0.65'">
+        <mat-card-content>
+
+          <div class="doc-header">
+            <div class="doc-identity">
+              <div class="doc-avatar">{{ (metric.displayName || 'M').charAt(0).toUpperCase() }}</div>
+              <div>
+                <p class="doc-name">{{ metric.displayName }}</p>
+                <p class="doc-spec">{{ metric.metricType }}</p>
               </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge-status" [style.background-color]="metric.isActive ? '#dcfce7' : '#f1f5f9'" [style.color]="metric.isActive ? '#166534' : '#475569'">
+                  {{ metric.isActive ? 'Active' : 'Inactive' }}
+              </span>
               <span class="badge-status badge-active">
                 {{ metric.defaultUnit }}
               </span>
             </div>
-  
-            <div class="doc-details">
-              <div class="doc-detail-row">
-                <mat-icon>tune</mat-icon>
-                <span><strong>Range:</strong> {{ metric.normalRangeDisplay || 'N/A' }}</span>
-              </div>
-              <div class="doc-detail-row">
-                <mat-icon>description</mat-icon>
-                <span><strong>Description:</strong> {{ metric.description || '—' }}</span>
-              </div>
-            </div>
-  
-            <div class="doc-footer">
-              <span class="patient-count">Metric Definition Details</span>
-              <div class="doc-actions">
-                <button mat-stroked-button class="edit-btn-sm" (click)="openEditModal(metric)">
-                  <mat-icon>edit</mat-icon> Edit
-                </button>
-                <button mat-stroked-button color="warn" class="delete-btn-sm" (click)="openDeleteModal(metric)">
-                  <mat-icon>delete_outline</mat-icon> Delete
-                </button>
-              </div>
-            </div>
-  
-          </mat-card-content>
-        </mat-card>
-      }
-  
-      @empty {
-        <div class="empty-state">
-          <mat-icon>bar_chart</mat-icon>
-          <p>No metric definitions found.</p>
-        </div>
-      }
-    </div>
-  
-  </div>
-  
-  @if (showAddModal()) {
-    <div class="overlay" (click)="closeModals()">
-      <mat-card class="dialog-card" (click)="$event.stopPropagation()">
-  
-        <div class="dialog-header">
-          <h3>Add New Metric</h3>
-          <button mat-icon-button (click)="closeModals()"><mat-icon>close</mat-icon></button>
-        </div>
-  
-        <mat-card-content>
-          <form [formGroup]="metricForm" class="dialog-form">
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Metric Type *</mat-label>
-              <input matInput formControlName="metricType" placeholder="e.g. BLOOD_PRESSURE"/>
-            </mat-form-field>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Display Name *</mat-label>
-              <input matInput formControlName="displayName" placeholder="e.g. Blood Pressure"/>
-            </mat-form-field>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Default Unit *</mat-label>
-              <input matInput formControlName="defaultUnit" placeholder="e.g. mmHg or mg/dL"/>
-            </mat-form-field>
-  
-            <div class="form-row-2">
-              <mat-form-field appearance="outline">
-                <mat-label>Normal Min Value</mat-label>
-                <input matInput formControlName="normalMin" type="number" placeholder="Min"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Normal Max Value</mat-label>
-                <input matInput formControlName="normalMax" type="number" placeholder="Max"/>
-              </mat-form-field>
-            </div>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Description</mat-label>
-              <textarea matInput formControlName="description" rows="4" placeholder="Enter metric evaluation rules or description..."></textarea>
-            </mat-form-field>
-  
-          </form>
-        </mat-card-content>
-  
-        <div class="dialog-footer">
-          <button mat-stroked-button (click)="closeModals()">Cancel</button>
-          <button mat-flat-button color="primary" (click)="createMetric()">
-            <mat-icon>add</mat-icon> Add Metric
-          </button>
-        </div>
-  
-      </mat-card>
-    </div>
-  }
-  
-  @if (showEditModal() && selectedMetric()) {
-    <div class="overlay" (click)="closeModals()">
-      <mat-card class="dialog-card" (click)="$event.stopPropagation()">
-  
-        <div class="dialog-header">
-          <h3>Edit Metric — {{ selectedMetric()?.displayName }}</h3>
-          <button mat-icon-button (click)="closeModals()"><mat-icon>close</mat-icon></button>
-        </div>
-  
-        <mat-card-content>
-          <form [formGroup]="metricForm" class="dialog-form">
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Metric Type</mat-label>
-              <input matInput formControlName="metricType" [readonly]="true"/>
-            </mat-form-field>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Display Name *</mat-label>
-              <input matInput formControlName="displayName"/>
-            </mat-form-field>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Default Unit *</mat-label>
-              <input matInput formControlName="defaultUnit"/>
-            </mat-form-field>
-  
-            <div class="form-row-2">
-              <mat-form-field appearance="outline">
-                <mat-label>Min</mat-label>
-                <input matInput formControlName="normalMin" type="number"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Max</mat-label>
-                <input matInput formControlName="normalMax" type="number"/>
-              </mat-form-field>
-            </div>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Description</mat-label>
-              <textarea matInput formControlName="description" rows="4"></textarea>
-            </mat-form-field>
-  
-          </form>
-        </mat-card-content>
-  
-        <div class="dialog-footer">
-          <button mat-stroked-button (click)="closeModals()">Cancel</button>
-          <button mat-flat-button color="primary" (click)="updateMetric()">
-            <mat-icon>save</mat-icon> Save Changes
-          </button>
-        </div>
-  
-      </mat-card>
-    </div>
-  }
-  
-  @if (showDeleteModal() && selectedMetric()) {
-    <div class="overlay" (click)="closeModals()">
-      <mat-card class="dialog-card" style="max-width: 440px;" (click)="$event.stopPropagation()">
-        
-        <div class="dialog-header">
-          <h3>Delete Metric</h3>
-          <button mat-icon-button (click)="closeModals()"><mat-icon>close</mat-icon></button>
-        </div>
-  
-        <mat-card-content style="text-align: center; padding: 1.5rem 1rem !important;">
-          <div class="delete-icon-container">
-            <mat-icon color="warn" style="transform: scale(2.2); height: 24px; width: 24px;">error_outline</mat-icon>
           </div>
-          <p style="margin-top: 1.5rem; color: #64748b; font-size: 0.95rem; line-height: 1.5;">
-            Are you sure you want to remove <br>
-            <strong style="color: #111827;">{{ selectedMetric()?.displayName }}</strong>?
-          </p>
+
+          <div class="doc-details">
+            <div class="doc-detail-row">
+              <mat-icon>tune</mat-icon>
+              <span><strong>Range:</strong> {{ metric.normalRangeDisplay || 'N/A' }}</span>
+            </div>
+            <div class="doc-detail-row">
+              <mat-icon>description</mat-icon>
+              <span><strong>Description:</strong> {{ metric.description || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="doc-footer">
+            <span class="patient-count">Metric Definition Details</span>
+            <div class="doc-actions">
+              <button mat-stroked-button class="edit-btn-sm" [disabled]="!metric.isActive" (click)="openEditModal(metric)">
+                <mat-icon>edit</mat-icon> Edit
+              </button>
+              
+              <button mat-stroked-button [color]="metric.isActive ? 'warn' : 'primary'" class="delete-btn-sm" (click)="openToggleModal(metric)">
+                <mat-icon>{{ metric.isActive ? 'block' : 'check_circle' }}</mat-icon> 
+                {{ metric.isActive ? 'Deactivate' : 'Activate' }}
+              </button>
+            </div>
+          </div>
+
         </mat-card-content>
-  
-        <div class="dialog-footer" style="justify-content: center; gap: 1rem;">
-          <button mat-stroked-button (click)="closeModals()">Cancel</button>
-          <button mat-flat-button color="warn" (click)="deleteMetric()">
-            <mat-icon>delete</mat-icon> Delete
-          </button>
-        </div>
-  
       </mat-card>
-    </div>
-  }
+    }
+
+    @empty {
+      <div class="empty-state">
+        <mat-icon>bar_chart</mat-icon>
+        <p>No metric definitions found.</p>
+      </div>
+    }
+  </div>
+
+</div>
+
+@if (showAddModal()) {
+  <div class="overlay" (click)="closeModals()">
+    <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+
+      <div class="dialog-header">
+        <h3>Add New Metric</h3>
+        <button mat-icon-button (click)="closeModals()"><mat-icon>close</mat-icon></button>
+      </div>
+
+      <mat-card-content>
+        <form [formGroup]="metricForm" class="dialog-form">
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Metric Type *</mat-label>
+            <input matInput formControlName="metricType" placeholder="e.g. BLOOD_PRESSURE"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Display Name *</mat-label>
+            <input matInput formControlName="displayName" placeholder="e.g. Blood Pressure"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Default Unit *</mat-label>
+            <input matInput formControlName="defaultUnit" placeholder="e.g. mmHg or mg/dL"/>
+          </mat-form-field>
+
+          <div class="form-row-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Normal Min Value</mat-label>
+              <input matInput formControlName="normalMin" type="number" placeholder="Min"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Normal Max Value</mat-label>
+              <input matInput formControlName="normalMax" type="number" placeholder="Max"/>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="4" placeholder="Enter metric evaluation rules or description..."></textarea>
+          </mat-form-field>
+
+        </form>
+      </mat-card-content>
+
+      <div class="dialog-footer">
+        <button mat-stroked-button (click)="closeModals()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="createMetric()">
+          <mat-icon>add</mat-icon> Add Metric
+        </button>
+      </div>
+
+    </mat-card>
+  </div>
+}
+
+@if (showEditModal() && selectedMetric()) {
+  <div class="overlay" (click)="closeModals()">
+    <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+
+      <div class="dialog-header">
+        <h3>Edit Metric — {{ selectedMetric()?.displayName }}</h3>
+        <button mat-icon-button (click)="closeModals()"><mat-icon>close</mat-icon></button>
+      </div>
+
+      <mat-card-content>
+        <form [formGroup]="metricForm" class="dialog-form">
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Metric Type</mat-label>
+            <input matInput formControlName="metricType" [readonly]="true"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Display Name *</mat-label>
+            <input matInput formControlName="displayName"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Default Unit *</mat-label>
+            <input matInput formControlName="defaultUnit"/>
+          </mat-form-field>
+
+          <div class="form-row-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Min</mat-label>
+              <input matInput formControlName="normalMin" type="number"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Max</mat-label>
+              <input matInput formControlName="normalMax" type="number"/>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="4"></textarea>
+          </mat-form-field>
+
+        </form>
+      </mat-card-content>
+
+      <div class="dialog-footer">
+        <button mat-stroked-button (click)="closeModals()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="updateMetric()">
+          <mat-icon>save</mat-icon> Save Changes
+        </button>
+      </div>
+
+    </mat-card>
+  </div>
+}
+
+@if (showToggleModal() && selectedMetric()) {
+  <div class="overlay" (click)="closeModals()">
+    <mat-card class="dialog-card" style="max-width: 440px;" (click)="$event.stopPropagation()">
+      
+      <div class="dialog-header">
+        <h3>{{ selectedMetric()?.isActive ? 'Deactivate' : 'Activate' }} Metric</h3>
+        <button mat-icon-button (click)="closeModals()"><mat-icon>close</mat-icon></button>
+      </div>
+
+      <mat-card-content style="text-align: center; padding: 1.5rem 1rem !important;">
+        <div class="delete-icon-container">
+          <mat-icon [color]="selectedMetric()?.isActive ? 'warn' : 'primary'" style="transform: scale(2.2); height: 24px; width: 24px;">
+              {{ selectedMetric()?.isActive ? 'error_outline' : 'info_outline' }}
+          </mat-icon>
+        </div>
+        <p style="margin-top: 1.5rem; color: #64748b; font-size: 0.95rem; line-height: 1.5;">
+          Are you sure you want to {{ selectedMetric()?.isActive ? 'deactivate' : 'activate' }} <br>
+          <strong style="color: #111827;">{{ selectedMetric()?.displayName }}</strong>?
+        </p>
+      </mat-card-content>
+
+      <div class="dialog-footer" style="justify-content: center; gap: 1rem;">
+        <button mat-stroked-button (click)="closeModals()">Cancel</button>
+        <button mat-flat-button [color]="selectedMetric()?.isActive ? 'warn' : 'primary'" (click)="toggleMetricStatus()">
+          <mat-icon>{{ selectedMetric()?.isActive ? 'block' : 'check_circle' }}</mat-icon> 
+          {{ selectedMetric()?.isActive ? 'Deactivate' : 'Activate' }}
+        </button>
+      </div>
+
+    </mat-card>
+  </div>
+}

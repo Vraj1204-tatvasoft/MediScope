@@ -8,7 +8,7 @@ export interface MetricDefinition {
     description?: string;
     createdAt: string;
     updatedAt: string;
-  
+    isActive: boolean;
     normalRangeDisplay?: string;
   }
   

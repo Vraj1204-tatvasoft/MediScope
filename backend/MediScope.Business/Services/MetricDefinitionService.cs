@@ -25,8 +25,7 @@ namespace MediScope.Business.Services
             GetRepository()
             => _uow.MetricDefinitions;
 
-        protected override MetricDefinitionResponseDto
-            MapToResponseDto(MetricDefinition entity)
+        protected override MetricDefinitionResponseDto MapToResponseDto(MetricDefinition entity)
         {
             return new MetricDefinitionResponseDto
             {
@@ -38,8 +37,49 @@ namespace MediScope.Business.Services
                 NormalMax = entity.NormalMax,
                 Description = entity.Description,
                 CreatedAt = entity.CreatedAt,
-                UpdatedAt = entity.UpdatedAt
+                UpdatedAt = entity.UpdatedAt,
+                IsActive = !entity.IsDeleted
             };
+        }
+        public override async Task<IEnumerable<MetricDefinitionResponseDto>> GetAllAsync()
+        {
+            var entities = await _uow.MetricDefinitions.FindAsync(m => true);
+            return entities.Select(MapToResponseDto);
+        }
+
+        public override async Task<MetricDefinitionResponseDto> GetByIdAsync(Guid id)
+        {
+            var entity = await _uow.MetricDefinitions.GetFirstOrDefaultAsync(m => m.Id == id)
+                         ?? throw new KeyNotFoundException("Metric definition not found.");
+
+            return MapToResponseDto(entity);
+        }
+
+        public async Task<MetricDefinitionResponseDto> ToggleStatusAsync(Guid id)
+        {
+            var entity = await _uow.MetricDefinitions.GetFirstOrDefaultAsync(m => m.Id == id)
+                         ?? throw new KeyNotFoundException("Metric definition not found.");
+
+            entity.IsDeleted = !entity.IsDeleted;
+
+            if (entity.IsDeleted)
+            {
+                entity.DeletedAt = DateTime.UtcNow;
+                entity.DeletedBy = _currentUser.UserId;
+            }
+            else
+            {
+                entity.DeletedAt = null;
+                entity.DeletedBy = null;
+            }
+
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.UpdatedBy = _currentUser.UserId;
+
+            _uow.MetricDefinitions.Update(entity);
+            await _uow.SaveChangesAsync();
+
+            return MapToResponseDto(entity);
         }
 
         protected override MetricDefinition
@@ -60,6 +100,11 @@ namespace MediScope.Business.Services
             MetricDefinition entity,
             UpdateMetricDefinitionRequestDto dto)
         {
+            if (entity.IsDeleted)
+            {
+                throw new InvalidOperationException("Cannot update an inactive metric definition. Please activate it first.");
+            }
+
             if (dto.NormalMin.HasValue &&
             dto.NormalMax.HasValue &&
             dto.NormalMax < dto.NormalMin)

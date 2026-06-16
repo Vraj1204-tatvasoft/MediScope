@@ -78,15 +78,18 @@ namespace MediScope.API.Controllers
                 "Metric definition updated successfully.");
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpPatch("{id:guid}/toggle-status")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> ToggleStatus(Guid id)
         {
-            await _metricDefinitionService
-                .DeleteAsync(id);
+            var result = await _metricDefinitionService.ToggleStatusAsync(id);
 
-            return NoContent(
-                "Metric definition deleted successfully.");
+            // Dynamically set the success message based on the new status
+            string statusWord = result.IsActive ? "activated" : "deactivated";
+
+            return Success(
+                result,
+                $"Metric definition {statusWord} successfully.");
         }
     }
 }

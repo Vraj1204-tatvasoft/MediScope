@@ -5,11 +5,10 @@ using MediScope.Common.Models.Entities;
 namespace MediScope.Business.Services.Interfaces
 {
     public interface IMetricDefinitionService
-        : IGenericService<
-            MetricDefinition,
-            MetricDefinitionResponseDto,
-            CreateMetricDefinitionRequestDto,
-            UpdateMetricDefinitionRequestDto>
+        : IGenericService<MetricDefinition, MetricDefinitionResponseDto, CreateMetricDefinitionRequestDto, UpdateMetricDefinitionRequestDto>
     {
+        Task<MetricDefinitionResponseDto> ToggleStatusAsync(Guid id);
+        new Task<IEnumerable<MetricDefinitionResponseDto>> GetAllAsync();
+        new Task<MetricDefinitionResponseDto> GetByIdAsync(Guid id);
     }
 }

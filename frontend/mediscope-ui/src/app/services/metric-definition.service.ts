@@ -56,9 +56,9 @@ export class MetricDefinitionService {
       .pipe(map(res => res.data));
   }
 
-  delete(id: string): Observable<void> {
+  toggleStatus(id: string): Observable<MetricDefinition> {
     return this.http
-      .delete<void>(`${this.endpoint}/${id}`)
-      .pipe(map(() => void 0));
+      .patch<MetricDefinition>(`${this.endpoint}/${id}/toggle-status`, {})
+      .pipe(map(res => res.data));
   }
 }
