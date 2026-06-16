@@ -4,6 +4,7 @@ using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 using MediScope.Common.Models.Pagination;
 using MediScope.Data.Repositories;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -92,7 +93,7 @@ namespace MediScope.Business.Services
             }
 
             // 4. APPLY OVERALL STATUS TO ALL ROWS IN THE BATCH
-            string finalStatus = critical ? "CRITICAL" : elevated ? "ELEVATED" : "NORMAL";
+            Severity finalStatus = critical ? Severity.Critical : elevated ? Severity.Elevated : Severity.Normal;
             foreach (var m in metricsToInsert)
             {
                 m.Status = finalStatus;
@@ -103,14 +104,14 @@ namespace MediScope.Business.Services
 
             // 5. ALERT NOTIFICATIONS
             if (critical)
-                await _notificationService.CreateAsync(targetPatient.UserId, "alert", "Critical health readings detected. Please consult your doctor immediately.");
+                await _notificationService.CreateAsync(targetPatient.UserId, NotificationType.Alert, "Critical health readings detected. Please consult your doctor immediately.");
             else if (elevated)
-                await _notificationService.CreateAsync(targetPatient.UserId, "alert", "Some health readings are outside the normal range.");
+                await _notificationService.CreateAsync(targetPatient.UserId, NotificationType.Alert, "Some health readings are outside the normal range.");
 
             if (callerRole.Equals("Doctor", StringComparison.OrdinalIgnoreCase))
             {
                 var doctorUser = await _uow.Users.GetByIdAsync(callerUserId);
-                await _notificationService.CreateAsync(targetPatient.UserId, "info", $"Dr. {doctorUser?.FullName ?? "Doctor"} added a health record on your behalf.");
+                await _notificationService.CreateAsync(targetPatient.UserId, NotificationType.Info, $"Dr. {doctorUser?.FullName ?? "Doctor"} added a health record on your behalf.");
             }
 
             // Return the newly mapped object directly
@@ -229,7 +230,7 @@ namespace MediScope.Business.Services
                         ?? throw new UnauthorizedAccessException("Doctor profile not found.");
                     var isAssigned = await _uow.DoctorPatients.AnyAsync(dp => dp.DoctorId == doctor.Id
                         && dp.PatientId == patientId
-                        && (dp.Status == "active" || dp.Status == "pending_doctor")
+                        && (dp.Status == ConnectionStatus.Active || dp.Status == ConnectionStatus.PendingDoctor)
                         && !dp.IsDeleted);
                     if (!isAssigned) throw new UnauthorizedAccessException("Doctor not assigned.");
                     break;

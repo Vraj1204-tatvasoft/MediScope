@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MediScope.Common.Models.Entities;
 using MediScope.Common.Models.Pagination;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Data.Repositories
 {
@@ -53,8 +54,10 @@ namespace MediScope.Data.Repositories
             // ── STATUS FILTER ────────────────────────────────────────
             if (!string.IsNullOrWhiteSpace(pagination.Status) && pagination.Status != "ALL")
             {
-                var statusUpper = pagination.Status.ToUpper();
-                baseQuery = baseQuery.Where(m => m.Status == statusUpper);
+                if (Enum.TryParse<Severity>(pagination.Status, true, out var parsedStatus))
+                {
+                    baseQuery = baseQuery.Where(m => m.Status == parsedStatus);
+                }
             }
 
             // ── SOURCE FILTER ────────────────────────────────────────
@@ -81,9 +84,9 @@ namespace MediScope.Data.Repositories
             var allMatchingStatuses = await distinctBatchesQuery.Select(b => b.Status).ToListAsync();
 
             int totalRecordsCount = allMatchingStatuses.Count;
-            int normalCount = allMatchingStatuses.Count(s => s.ToUpper() == "NORMAL");
-            int elevatedCount = allMatchingStatuses.Count(s => s.ToUpper() == "ELEVATED");
-            int criticalCount = allMatchingStatuses.Count(s => s.ToUpper() == "CRITICAL");
+            int normalCount = allMatchingStatuses.Count(s => s == Severity.Normal);
+            int elevatedCount = allMatchingStatuses.Count(s => s == Severity.Elevated);
+            int criticalCount = allMatchingStatuses.Count(s => s == Severity.Critical);
 
             // ── SORTING ──────────────────────────────────────────────
             var isAsc = pagination.SortDir?.ToLower() == "asc";

@@ -1,3 +1,4 @@
+using MediScope.Common.Models.Enums;
 namespace MediScope.Common.Models.DTOs.Response
 {
     public class NotificationResponseDto

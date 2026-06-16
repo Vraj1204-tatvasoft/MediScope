@@ -6,6 +6,7 @@ using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
 using MediScope.Common.Models.Pagination;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -288,7 +289,7 @@ namespace MediScope.Business.Services
                     BloodGroup = p.BloodGroup,
                     Doctors = p.DoctorPatients
                         .Where(dp =>
-                            dp.Status == "active" &&
+                            dp.Status == ConnectionStatus.Active &&
                             dp.Doctor != null &&
                             dp.Doctor.User != null)
                         .Select(dp =>

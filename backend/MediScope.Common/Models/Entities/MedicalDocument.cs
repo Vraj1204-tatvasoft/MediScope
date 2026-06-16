@@ -1,3 +1,5 @@
+using MediScope.Common.Models.Enums;
+
 namespace MediScope.Common.Models.Entities
 {
     public class MedicalDocument : BaseEntity
@@ -20,7 +22,7 @@ namespace MediScope.Common.Models.Entities
 
         public string? Feedback { get; set; }
 
-        public string? Severity { get; set; }
+        public Severity? Severity { get; set; }
 
         public DateTime? ReviewedAt { get; set; }
 

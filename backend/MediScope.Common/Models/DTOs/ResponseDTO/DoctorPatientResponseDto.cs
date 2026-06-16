@@ -1,3 +1,5 @@
+using MediScope.Common.Models.Enums;
+
 public class DoctorPatientResponseDto
 {
     public Guid DoctorPatientId { get; set; }

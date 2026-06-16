@@ -1,3 +1,5 @@
+using MediScope.Common.Models.Enums;
+
 namespace MediScope.Common.Models.Entities
 {
     /// <summary>
@@ -10,7 +12,7 @@ namespace MediScope.Common.Models.Entities
         public Guid UserId { get; set; }
 
         /// <summary>alert | info | success | reminder</summary>
-        public string Type { get; set; } = "info";
+        public NotificationType Type { get; set; } = NotificationType.Info;
 
         /// <summary>The notification message text</summary>
         public string Message { get; set; } = null!;

@@ -5,6 +5,7 @@ using MediScope.Business.Services.Interfaces;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -38,7 +39,7 @@ namespace MediScope.Business.Services
 
             // ── 3. Stat cards (Using grouped batches) ──────────────────
             var activeAlerts = groupedSubmissions.Count(g =>
-                g.First().Status == "ELEVATED" || g.First().Status == "CRITICAL");
+                g.First().Status == Severity.Elevated || g.First().Status == Severity.Critical);
 
             var stats = new AdminStatsDto
             {
@@ -49,16 +50,16 @@ namespace MediScope.Business.Services
             };
 
             // ── 4. Reading summary (Using grouped batches) ─────────────
-            var normalCount = groupedSubmissions.Count(g => g.First().Status == "NORMAL");
-            var elevatedCount = groupedSubmissions.Count(g => g.First().Status == "ELEVATED");
-            var criticalCount = groupedSubmissions.Count(g => g.First().Status == "CRITICAL");
+            var normalCount = groupedSubmissions.Count(g => g.First().Status == Severity.Normal);
+            var elevatedCount = groupedSubmissions.Count(g => g.First().Status == Severity.Elevated);
+            var criticalCount = groupedSubmissions.Count(g => g.First().Status == Severity.Critical);
 
             var readingSummary = new ReadingSummaryDto
             {
                 NormalCount = normalCount,
                 ElevatedCount = elevatedCount,
                 CriticalCount = criticalCount,
-                Total = groupedSubmissions.Count, // ── 🛠️ FIX: Count batches
+                Total = groupedSubmissions.Count,
             };
 
             // ── 5. Reading severity donut ──────────────────────────────
@@ -86,7 +87,7 @@ namespace MediScope.Business.Services
                     Specialization = d.Specialization,
                     ActivePatients = doctorPatients.Count(dp =>
                         dp.DoctorId == d.Id &&
-                        dp.Status == "active" &&
+                        dp.Status == ConnectionStatus.Active &&
                         !dp.IsDeleted),
                 })
                 .OrderByDescending(d => d.ActivePatients)
@@ -106,7 +107,7 @@ namespace MediScope.Business.Services
                         PatientName = first.Patient?.User?.FullName ?? "Unknown",
                         RecordedAt = first.RecordedAt,
                         AddedBy = first.RecordedByRole == "Patient" ? "Patient" : "Doctor",
-                        Status = first.Status,
+                        Status = first.Status.ToString(),
                         MetricValues = BuildMetricValues(g.ToList()),
                     };
                 })
@@ -161,7 +162,7 @@ namespace MediScope.Business.Services
             List<HealthMetric> metrics)
         {
             return metrics
-                .Where(m => m.Status != "NORMAL")
+                .Where(m => m.Status != Severity.Normal)
                 .Where(m => m.MetricDefinition != null)
                 .Where(m =>
                     (m.MetricDefinition!.NormalMax.HasValue && m.Value > m.MetricDefinition.NormalMax) ||

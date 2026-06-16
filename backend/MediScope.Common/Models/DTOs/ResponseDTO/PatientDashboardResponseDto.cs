@@ -1,5 +1,5 @@
 // File: MediScope.Common/Models/DTOs/Response/PatientDashboardResponseDto.cs
-
+using MediScope.Common.Models.Enums;
 namespace MediScope.Common.Models.DTOs.Response
 {
     /// <summary>
@@ -39,7 +39,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public string Unit { get; set; } = null!;   // "mmHg", "bpm"
 
         /// <summary>Normal | Elevated | Critical</summary>
-        public string Status { get; set; } = "Normal";
+        public Severity Status { get; set; } = Severity.Normal;
 
         /// <summary>Percentage change vs previous reading — null if no previous</summary>
         public decimal? TrendPercent { get; set; }

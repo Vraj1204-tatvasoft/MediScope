@@ -6,6 +6,7 @@ using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -60,20 +61,20 @@ namespace MediScope.Business.Services
 
             if (existing != null)
             {
-                if (existing.Status == "pending_admin")
+                if (existing.Status == ConnectionStatus.PendingAdmin)
                     throw new InvalidOperationException(
                         "You already have a pending request awaiting admin review.");
 
-                if (existing.Status == "pending_doctor")
+                if (existing.Status == ConnectionStatus.PendingDoctor)
                     throw new InvalidOperationException(
                         "Your request has already been approved and is awaiting doctor acceptance.");
 
-                if (existing.Status == "active")
+                if (existing.Status == ConnectionStatus.Active)
                     throw new InvalidOperationException(
                         "You are already connected with this doctor.");
 
                 // Re-request after declined/rejected/revoked — reuse row
-                existing.Status = "pending_admin";
+                existing.Status = ConnectionStatus.PendingAdmin;
                 existing.DoctorId = request.DoctorId;
                 existing.RequestedAt = DateTime.UtcNow;
                 existing.AssignedAt = null;
@@ -100,7 +101,7 @@ namespace MediScope.Business.Services
                 {
                     PatientId = patient.Id,
                     DoctorId = request.DoctorId,   // may be null
-                    Status = "pending_admin",
+                    Status = ConnectionStatus.PendingAdmin,
                     RequestedAt = DateTime.UtcNow,
                     CreatedBy = patientUserId,
                     UpdatedBy = patientUserId,
@@ -134,11 +135,11 @@ namespace MediScope.Business.Services
                 throw new UnauthorizedAccessException(
                     "You can only revoke your own connections.");
 
-            if (link.Status != "active")
+            if (link.Status != ConnectionStatus.Active)
                 throw new InvalidOperationException(
                     "Only active connections can be revoked.");
 
-            link.Status = "revoked";
+            link.Status = ConnectionStatus.Revoked;
             link.RevokedAt = DateTime.UtcNow;
             link.UpdatedBy = patientUserId;
             link.UpdatedAt = DateTime.UtcNow;
@@ -150,7 +151,7 @@ namespace MediScope.Business.Services
             {
                 await _notificationService.CreateAsync(
                     link.Doctor!.UserId,
-                    "alert",
+                    NotificationType.Alert,
                     $"{link.Patient.User.FullName} revoked your access.");
             }
         }
@@ -168,9 +169,9 @@ namespace MediScope.Business.Services
             var links = await _uow.DoctorPatients.GetByPatientIdAsync(patient.Id);
 
             return links
-                .Where(l => l.Status != "declined_doctor" &&
-                            l.Status != "rejected_admin" &&
-                            l.Status != "revoked")
+                .Where(l => l.Status != ConnectionStatus.DeclinedDoctor &&
+                            l.Status != ConnectionStatus.RejectedAdmin &&
+                            l.Status != ConnectionStatus.Revoked)
                 .Select(MapToPatientDto);
         }
 
@@ -184,7 +185,7 @@ namespace MediScope.Business.Services
                 .GetByIdWithDetailsAsync(request.DoctorPatientId)
                 ?? throw new KeyNotFoundException("Request not found.");
 
-            if (link.Status != "pending_admin")
+            if (link.Status != ConnectionStatus.PendingAdmin)
                 throw new InvalidOperationException(
                     "Only pending_admin requests can be approved.");
 
@@ -199,7 +200,7 @@ namespace MediScope.Business.Services
 
             // Update link
             link.DoctorId = request.DoctorId;
-            link.Status = "pending_doctor";
+            link.Status = ConnectionStatus.PendingDoctor;
             link.AdminReviewedAt = DateTime.UtcNow;
             link.ReviewedByAdminId = adminUserId;
             link.AdminNote = request.AdminNote;
@@ -218,14 +219,14 @@ namespace MediScope.Business.Services
             // Notify patient — request approved
             await _notificationService.CreateAsync(
                 link.Patient.UserId,
-                "success",
+                NotificationType.Success,
                 $"Your connection request has been approved. " +
                 $"Dr. {doctor.User.FullName} will review it shortly.");
 
             // Notify doctor — new patient assigned
             await _notificationService.CreateAsync(
                 doctor.UserId,
-                "info",
+                NotificationType.Info,
                 $"A new patient {link.Patient.User.FullName} has been assigned to you. " +
                 $"Please accept or decline.");
 
@@ -253,11 +254,11 @@ namespace MediScope.Business.Services
                 .GetByIdWithDetailsAsync(request.DoctorPatientId)
                 ?? throw new KeyNotFoundException("Request not found.");
 
-            if (link.Status != "pending_admin")
+            if (link.Status != ConnectionStatus.PendingAdmin)
                 throw new InvalidOperationException(
                     "Only pending_admin requests can be rejected.");
 
-            link.Status = "rejected_admin";
+            link.Status = ConnectionStatus.RejectedAdmin;
             link.AdminReviewedAt = DateTime.UtcNow;
             link.ReviewedByAdminId = adminUserId;
             link.AdminNote = request.AdminNote;
@@ -273,7 +274,7 @@ namespace MediScope.Business.Services
                 : $"Your connection request was not approved: {request.AdminNote}";
 
             await _notificationService.CreateAsync(
-                link.Patient.UserId, "alert", note);
+                link.Patient.UserId, NotificationType.Alert, note);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -305,8 +306,10 @@ namespace MediScope.Business.Services
             if (filter.DoctorId.HasValue)
                 query = query.Where(l => l.DoctorId == filter.DoctorId);
 
-            if (!string.IsNullOrWhiteSpace(filter.Status) && filter.Status != "ALL")
-                query = query.Where(l => l.Status == filter.Status);
+            if (filter.Status.HasValue)
+            {
+                query = query.Where(l => l.Status == filter.Status.Value);
+            }
 
             return query
                 .OrderByDescending(l => l.RequestedAt)
@@ -328,11 +331,11 @@ namespace MediScope.Business.Services
                 throw new UnauthorizedAccessException(
                     "You can only respond to your own patient requests.");
 
-            if (link.Status != "pending_doctor")
+            if (link.Status != ConnectionStatus.PendingDoctor)
                 throw new InvalidOperationException(
                     "Only pending_doctor requests can be accepted or declined.");
 
-            link.Status = request.Accept ? "active" : "declined_doctor";
+            link.Status = request.Accept ? ConnectionStatus.Active : ConnectionStatus.DeclinedDoctor;
             link.UpdatedBy = doctorUserId;
             link.UpdatedAt = DateTime.UtcNow;
 
@@ -350,7 +353,7 @@ namespace MediScope.Business.Services
 
             await _notificationService.CreateAsync(
                 link.Patient.UserId,
-                request.Accept ? "success" : "alert",
+                request.Accept ? NotificationType.Success : NotificationType.Alert,
                 msg);
 
             // Real-time push to patient
@@ -400,7 +403,7 @@ namespace MediScope.Business.Services
             var links = await _uow.DoctorPatients.GetByDoctorIdAsync(doctor.Id);
 
             return links
-                .Where(l => l.Status == "active")
+                .Where(l => l.Status == ConnectionStatus.Active)
                 .Select(MapToDoctorDto);
         }
 
@@ -413,7 +416,7 @@ namespace MediScope.Business.Services
             foreach (var admin in admins)
             {
                 await _notificationService.CreateAsync(
-                    admin.UserId, "info", message);
+                    admin.UserId, NotificationType.Info, message);
             }
         }
 
@@ -423,7 +426,7 @@ namespace MediScope.Business.Services
             var user = doctor?.User;
 
             var totalPatients = doctor?.DoctorPatients?
-                .Count(dp => dp.Status == "active" && !dp.IsDeleted) ?? 0;
+                .Count(dp => dp.Status == ConnectionStatus.Active && !dp.IsDeleted) ?? 0;
 
             return new PatientDoctorResponseDto
             {
@@ -437,7 +440,15 @@ namespace MediScope.Business.Services
                 ContactNumber = doctor?.ContactNumber,
                 YearsExperience = doctor?.YearsExperience,
                 TotalPatients = totalPatients,
-                Status = link.Status,
+                Status = link.Status switch
+                {
+                    ConnectionStatus.PendingAdmin => "pending_admin",
+                    ConnectionStatus.PendingDoctor => "pending_doctor",
+                    ConnectionStatus.DeclinedDoctor => "declined_doctor",
+                    ConnectionStatus.RejectedAdmin => "rejected_admin",
+                    // For single-word statuses like Active and Revoked, just make them lowercase
+                    _ => link.Status.ToString().ToLower()
+                },
                 AdminNote = link.AdminNote,
                 RequestedAt = link.RequestedAt,
                 AssignedAt = link.AssignedAt,
@@ -467,7 +478,15 @@ namespace MediScope.Business.Services
                 BloodGroup = patient?.BloodGroup,
                 DateOfBirth = patient?.DateOfBirth,
                 Age = age,
-                Status = link.Status,
+                Status = link.Status switch
+                {
+                    ConnectionStatus.PendingAdmin => "pending_admin",
+                    ConnectionStatus.PendingDoctor => "pending_doctor",
+                    ConnectionStatus.DeclinedDoctor => "declined_doctor",
+                    ConnectionStatus.RejectedAdmin => "rejected_admin",
+                    // For single-word statuses like Active and Revoked, just make them lowercase
+                    _ => link.Status.ToString().ToLower()
+                },
                 RequestedAt = link.RequestedAt,
                 AssignedAt = link.AssignedAt,
             };
@@ -484,7 +503,15 @@ namespace MediScope.Business.Services
                 DoctorId = link.DoctorId,
                 DoctorName = link.Doctor?.User?.FullName,
                 Specialization = link.Doctor?.Specialization,
-                Status = link.Status,
+                Status = link.Status switch
+                {
+                    ConnectionStatus.PendingAdmin => "pending_admin",
+                    ConnectionStatus.PendingDoctor => "pending_doctor",
+                    ConnectionStatus.DeclinedDoctor => "declined_doctor",
+                    ConnectionStatus.RejectedAdmin => "rejected_admin",
+                    // For single-word statuses like Active and Revoked, just make them lowercase
+                    _ => link.Status.ToString().ToLower()
+                },
                 AdminNote = link.AdminNote,
                 RequestedAt = link.RequestedAt,
                 AdminReviewedAt = link.AdminReviewedAt,
@@ -497,17 +524,17 @@ namespace MediScope.Business.Services
 
             //  STEP A: STATIC METRICS SCORECARDS (Always computes true systemic counts) ──
             var globalStatuses = await baseQuery
-                .Select(l => l.Status.ToLower())
+                .Select(l => l.Status)
                 .ToListAsync();
 
             int totalCount = globalStatuses.Count;
-            int activeCount = globalStatuses.Count(s => s == "active");
-            int pendingCount = globalStatuses.Count(s => s == "pending");
-            int revokedCount = globalStatuses.Count(s => s == "revoked");
+            int activeCount = globalStatuses.Count(s => s == ConnectionStatus.Active);
+            int pendingCount = globalStatuses.Count(s => s == ConnectionStatus.PendingAdmin || s == ConnectionStatus.PendingDoctor);
+            int revokedCount = globalStatuses.Count(s => s == ConnectionStatus.Revoked);
 
             //  STEP B: STATIC PHYSICIAN PROFILE GRIDS (Always shows all active doctors & care teams) ──
             var staticDoctorCardsQuery = baseQuery
-                .Where(l => l.Status == "active")
+                .Where(l => l.Status == ConnectionStatus.Active)
                 .GroupBy(l => l.DoctorId)
                 .Select(group => new AdminDoctorCardDto
                 {
@@ -556,10 +583,9 @@ namespace MediScope.Business.Services
             }
 
             // 3. Dropdown Status Filter
-            if (!string.IsNullOrWhiteSpace(filter.Status) && !filter.Status.Equals("ALL", StringComparison.OrdinalIgnoreCase))
+            if (filter.Status.HasValue)
             {
-                var statusLower = filter.Status.ToLower().Trim();
-                tableQuery = tableQuery.Where(l => l.Status.ToLower() == statusLower);
+                tableQuery = tableQuery.Where(l => l.Status == filter.Status.Value);
             }
 
             // Compute subcount matches specifically for pagination totals matching active table filters
@@ -579,7 +605,7 @@ namespace MediScope.Business.Services
                     PatientName = link.Patient.User.FullName,
                     DoctorName = link.Doctor.User.FullName,
                     Specialization = link.Doctor.Specialization,
-                    Status = link.Status,
+                    Status = link.Status.ToString(),
                     RequestedAt = link.RequestedAt
                 })
                 .ToListAsync();

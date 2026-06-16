@@ -5,6 +5,7 @@ using MediScope.Business.Services.Interfaces;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -26,7 +27,7 @@ namespace MediScope.Business.Services
             var activeLinks = await _uow.DoctorPatients
                 .GetAllWithDetailsQueryable()
                 .Where(dp => dp.DoctorId == doctor.Id &&
-                             dp.Status == "active" &&
+                             dp.Status == ConnectionStatus.Active &&
                              !dp.IsDeleted)
                 .ToListAsync();
 
@@ -98,7 +99,7 @@ namespace MediScope.Business.Services
 
                     return new { dp.Patient, LatestStatus = latest?.Status };
                 })
-                .Where(x => x.LatestStatus == "CRITICAL")
+                .Where(x => x.LatestStatus == Severity.Critical)
                 .ToList();
 
             if (criticalPatients.Count == 0) return (0, null);
@@ -190,7 +191,7 @@ namespace MediScope.Business.Services
                         .FirstOrDefault();
 
                     var alertCount = patientBatches.Count(g =>
-                        g.First().Status == "ELEVATED" || g.First().Status == "CRITICAL");
+                        g.First().Status == Severity.Elevated || g.First().Status == Severity.Critical);
 
                     return new PatientStatusOverviewDto
                     {
@@ -198,7 +199,7 @@ namespace MediScope.Business.Services
                         FullName = patient.User?.FullName ?? string.Empty,
                         TotalRecords = patientBatches.Count,
                         TotalAlerts = alertCount,
-                        LatestStatus = latestBatch?.First().Status ?? "NORMAL",
+                        LatestStatus = (latestBatch?.First().Status ?? Severity.Normal).ToString(),
                         LatestRecordAt = latestBatch?.First().RecordedAt ?? dp.AssignedAt,
                     };
                 })
@@ -234,7 +235,7 @@ namespace MediScope.Business.Services
                         PatientName = patientName,
                         RecordedAt = first.RecordedAt,
                         AddedBy = first.RecordedByRole == "Patient" ? "Patient" : "Doctor",
-                        Status = first.Status,
+                        Status = first.Status.ToString(),
                         MetricValues = BuildMetricValues(g.ToList()),
                     };
                 })

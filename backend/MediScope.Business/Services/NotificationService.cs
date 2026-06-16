@@ -5,7 +5,7 @@ using MediScope.Business.Services.Interfaces;
 
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
-
+using MediScope.Common.Models.Enums;
 using MediScope.Data.Repositories;
 
 namespace MediScope.Business.Services
@@ -88,7 +88,7 @@ namespace MediScope.Business.Services
         }
         public async Task CreateAsync(
             Guid userId,
-            string type,
+            NotificationType type,
             string message)
         {
             var entity =
@@ -134,7 +134,7 @@ namespace MediScope.Business.Services
             return new NotificationResponseDto
             {
                 Id = n.Id,
-                Type = n.Type,
+                Type = n.Type.ToString(),
                 Message = n.Message,
                 IsRead = n.IsRead,
                 CreatedAt = n.CreatedAt,

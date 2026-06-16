@@ -2,6 +2,7 @@ using MediScope.Business.Services.Interfaces;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -37,7 +38,7 @@ namespace MediScope.Business.Services
             // ALERT COUNT
             var abnormalCount = submissions
                 .Take(3)
-                .Count(g => g.First().Status != "NORMAL");
+                .Count(g => g.First().Status != Severity.Normal);
 
             // LATEST VITALS
             var latestVitals = submissions
@@ -65,7 +66,7 @@ namespace MediScope.Business.Services
                         Unit = latest.Unit,
                         Status = latest.Value > (latest.MetricDefinition?.NormalMax ?? decimal.MaxValue) ||
                                  latest.Value < (latest.MetricDefinition?.NormalMin ?? decimal.MinValue)
-                                    ? "Critical" : "Normal",
+                                    ? Severity.Critical : Severity.Normal,
                         TrendPercent = trend,
                         TrendDirection = direction,
                         RecordedAt = latest.RecordedAt, // Updated to RecordedAt
@@ -87,7 +88,7 @@ namespace MediScope.Business.Services
                         RecordedAt = first.RecordedAt,
                         AddedBy = first.RecordedByUser?.FullName ?? "Unknown",
                         RecordedByRole = first.RecordedByRole,
-                        Status = first.Status,
+                        Status = first.Status.ToString(),
                         MetricValues = g.ToDictionary(m => m.MetricType, m => $"{m.Value} {m.Unit}")
                     };
                 })
@@ -118,7 +119,7 @@ namespace MediScope.Business.Services
 
             // DOCTORS
             var doctors = patient.DoctorPatients
-                .Where(dp => dp.Status == "active")
+                .Where(dp => dp.Status == ConnectionStatus.Active)
                 .Select(dp =>
                     new DashboardDoctorDto
                     {

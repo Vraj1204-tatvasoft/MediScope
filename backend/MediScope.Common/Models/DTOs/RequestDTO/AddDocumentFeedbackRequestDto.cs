@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Common.Models.DTOs.Request
 {
@@ -10,6 +11,6 @@ namespace MediScope.Common.Models.DTOs.Request
         [Required]
         public string Feedback { get; set; } = null!;
 
-        public string? Severity { get; set; }
+        public Severity? Severity { get; set; }
     }
 }

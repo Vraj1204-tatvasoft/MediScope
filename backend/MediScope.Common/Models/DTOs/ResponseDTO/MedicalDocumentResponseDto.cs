@@ -1,3 +1,4 @@
+using MediScope.Common.Models.Enums;
 namespace MediScope.Common.Models.DTOs.Response
 {
     public class MedicalDocumentResponseDto
@@ -10,7 +11,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public bool IsViewedByDoctor { get; set; }
         public bool IsReviewed { get; set; }
         public string? Feedback { get; set; }
-        public string? Severity { get; set; }
+        public Severity? Severity { get; set; }
         public DateTime UploadedAt { get; set; }
         public DateTime? ReviewedAt { get; set; }
     }

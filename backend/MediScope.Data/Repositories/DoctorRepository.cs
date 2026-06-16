@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MediScope.Common.Models.Entities;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Data.Repositories
 {
@@ -28,7 +29,7 @@ namespace MediScope.Data.Repositories
         public async Task<int> GetAssignedPatientCountAsync(Guid doctorId)
             => await _context.Set<DoctorPatient>()
                 .CountAsync(dp => dp.DoctorId == doctorId
-                               && dp.Status == "active"
+                               && dp.Status == ConnectionStatus.Active
                                && !dp.IsDeleted);
     }
 }

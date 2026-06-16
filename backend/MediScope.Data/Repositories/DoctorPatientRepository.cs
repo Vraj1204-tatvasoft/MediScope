@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MediScope.Common.Models.Entities;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Data.Repositories
 {
@@ -51,7 +52,7 @@ namespace MediScope.Data.Repositories
             => await _dbSet
                 .Include(dp => dp.Patient).ThenInclude(p => p.User)
                 .Where(dp => dp.DoctorId == doctorId &&
-                             dp.Status == "pending_doctor" &&
+                             dp.Status == ConnectionStatus.PendingDoctor &&
                              !dp.IsDeleted)
                 .OrderByDescending(dp => dp.RequestedAt)
                 .ToListAsync();
@@ -60,7 +61,7 @@ namespace MediScope.Data.Repositories
             => await _dbSet
                 .Include(dp => dp.Patient).ThenInclude(p => p.User)
                 .Include(dp => dp.Doctor).ThenInclude(d => d!.User)
-                .Where(dp => dp.Status == "pending_admin" && !dp.IsDeleted)
+                .Where(dp => dp.Status == ConnectionStatus.PendingAdmin && !dp.IsDeleted)
                 .OrderByDescending(dp => dp.RequestedAt)
                 .ToListAsync();
 

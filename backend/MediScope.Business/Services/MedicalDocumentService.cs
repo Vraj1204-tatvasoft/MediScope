@@ -8,6 +8,7 @@ using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -66,7 +67,7 @@ namespace MediScope.Business.Services
             var link = await _uow.DoctorPatients
                 .GetExistingLinkAsync(command.DoctorId, patient.Id);
 
-            if (link == null || link.Status != "active")
+            if (link == null || link.Status != ConnectionStatus.Active)
                 throw new InvalidOperationException(
                     "You can only share documents with your connected doctors.");
 
@@ -111,7 +112,7 @@ namespace MediScope.Business.Services
             // DB notification
             await _notificationService.CreateAsync(
                 doctor.UserId,
-                "info",
+                NotificationType.Info,
                 $"{patient.User.FullName} uploaded a new document: {command.FileName}.");
 
         }
@@ -152,7 +153,7 @@ namespace MediScope.Business.Services
             await _repository.AddFeedbackAsync(
                 request.DocumentId,
                 request.Feedback ?? "No feedback provided.",
-                request.Severity ?? "Normal");
+                (request.Severity ?? Severity.Normal).ToString());
 
             // 4. Safely trigger the notification without crashing the app
             try
@@ -171,7 +172,7 @@ namespace MediScope.Business.Services
 
                         await _notificationService.CreateAsync(
                             patient.UserId, // Use the Patient's underlying Account ID
-                            "success",
+                            NotificationType.Success,
                             $"{doctorName} reviewed your document and left feedback.");
                     }
                 }

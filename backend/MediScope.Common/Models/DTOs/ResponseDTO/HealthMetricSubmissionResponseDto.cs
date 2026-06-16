@@ -1,3 +1,5 @@
+using MediScope.Common.Models.Enums;
+
 namespace MediScope.Common.Models.DTOs.Response
 {
     public class HealthMetricSubmissionResponseDto
@@ -16,7 +18,7 @@ namespace MediScope.Common.Models.DTOs.Response
 
         public string? Notes { get; set; }
 
-        public string Status { get; set; } = "NORMAL";
+        public Severity Status { get; set; } = Severity.Normal;
 
         public DateTime CreatedAt { get; set; }
 

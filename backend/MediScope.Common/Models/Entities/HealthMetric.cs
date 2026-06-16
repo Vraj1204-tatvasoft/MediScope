@@ -1,3 +1,5 @@
+using MediScope.Common.Models.Enums;
+
 namespace MediScope.Common.Models.Entities
 {
     public class HealthMetric : BaseEntity
@@ -11,7 +13,7 @@ namespace MediScope.Common.Models.Entities
         public string RecordedByRole { get; set; } = null!;
         public DateTime RecordedAt { get; set; }
         public string? Notes { get; set; }
-        public string Status { get; set; } = "NORMAL";
+        public Severity Status { get; set; } = Severity.Normal;
         // Navigation
         public Patient Patient { get; set; } = null!;
         public User RecordedByUser { get; set; } = null!;

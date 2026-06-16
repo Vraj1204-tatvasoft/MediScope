@@ -1,4 +1,5 @@
 // File: MediScope.Common/Models/DTOs/Response/DoctorDashboardResponseDto.cs
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Common.Models.DTOs.Response
 {

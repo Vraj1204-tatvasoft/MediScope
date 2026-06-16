@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MediScope.Common.Models.Entities;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Data.Repositories
 {
@@ -37,7 +38,7 @@ namespace MediScope.Data.Repositories
             return await _dbSet
                 .AnyAsync(n =>
                     n.UserId == userId &&
-                    n.Type == "reminder" &&
+                    n.Type == NotificationType.Reminder &&
                     n.CreatedAt >= todayStart &&
                     !n.IsDeleted);
         }

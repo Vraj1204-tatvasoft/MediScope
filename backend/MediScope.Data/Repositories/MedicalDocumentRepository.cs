@@ -2,7 +2,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
-
+using MediScope.Common.Models.Enums;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Entities;
 
@@ -180,7 +180,7 @@ namespace MediScope.Data.Repositories
                     IsViewedByDoctor = reader.GetFieldValue<bool>(reader.GetOrdinal("is_viewed_by_doctor")),
                     IsReviewed = reader.GetFieldValue<bool>(reader.GetOrdinal("is_reviewed")),
                     Feedback = reader.IsDBNull(reader.GetOrdinal("feedback")) ? null : reader.GetFieldValue<string>("feedback"),
-                    Severity = reader.IsDBNull(reader.GetOrdinal("severity")) ? null : reader.GetFieldValue<string>("severity"),
+                    Severity = reader.IsDBNull(reader.GetOrdinal("severity")) ? null : Enum.Parse<Severity>(reader.GetString(reader.GetOrdinal("severity")), true),
                     UploadedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("uploaded_at")),
                     ReviewedAt = reader.IsDBNull(reader.GetOrdinal("reviewed_at")) ? null : reader.GetFieldValue<DateTime>("reviewed_at"),
                 });
@@ -231,9 +231,7 @@ namespace MediScope.Data.Repositories
                         ? null
                         : reader.GetFieldValue<string>("feedback"),
 
-                    Severity = reader.IsDBNull(reader.GetOrdinal("severity"))
-                        ? null
-                        : reader.GetFieldValue<string>("severity")
+                    Severity = reader.IsDBNull(reader.GetOrdinal("severity")) ? null : Enum.Parse<Severity>(reader.GetString(reader.GetOrdinal("severity")), true),
                 });
             }
             return result;
