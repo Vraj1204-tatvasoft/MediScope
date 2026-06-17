@@ -615,26 +615,48 @@ namespace MediScope.Data
             modelBuilder.Entity<AppointmentSlot>(entity =>
             {
                 entity.ToTable("appointment_slots");
+
+                entity.Property(s => s.DoctorId).HasColumnName("doctor_id");
+                entity.Property(s => s.StartTime).HasColumnName("start_time");
+                entity.Property(s => s.EndTime).HasColumnName("end_time");
+                entity.Property(s => s.DurationMinutes).HasColumnName("duration_minutes");
+                entity.Property(s => s.Notes).HasColumnName("notes");
+
                 entity.Property(s => s.Status)
-                    .HasConversion(
-                        v => ToSnakeCase(v.ToString()),
-                        v => (AppointmentSlotStatus)Enum.Parse(typeof(AppointmentSlotStatus), v.Replace("_", ""), true)
-                    );
+                      .HasColumnName("status")
+                      .HasConversion(
+                          v => ToSnakeCase(v.ToString()),
+                          v => (AppointmentSlotStatus)Enum.Parse(typeof(AppointmentSlotStatus), v.Replace("_", ""), true)
+                      );
+
                 entity.HasOne(s => s.Doctor)
                       .WithMany()
                       .HasForeignKey(s => s.DoctorId)
                       .OnDelete(DeleteBehavior.Restrict);
+
                 entity.HasIndex(s => new { s.DoctorId, s.StartTime });
             });
 
             modelBuilder.Entity<Appointment>(entity =>
             {
                 entity.ToTable("appointments");
+
+                entity.Property(a => a.SlotId).HasColumnName("slot_id");
+                entity.Property(a => a.DoctorId).HasColumnName("doctor_id");
+                entity.Property(a => a.PatientId).HasColumnName("patient_id");
+                entity.Property(a => a.DoctorNotes).HasColumnName("doctor_notes");
+                entity.Property(a => a.PatientNotes).HasColumnName("patient_notes");
+                entity.Property(a => a.RescheduledTo).HasColumnName("rescheduled_to");
+                entity.Property(a => a.RescheduleReason).HasColumnName("reschedule_reason");
+
                 entity.Property(a => a.Status)
-                    .HasConversion(
-                        v => ToSnakeCase(v.ToString()),
-                        v => (AppointmentStatus)Enum.Parse(typeof(AppointmentStatus), v.Replace("_", ""), true)
-                    );
+                      .HasColumnName("status")
+                      .HasConversion(
+                          v => ToSnakeCase(v.ToString()),
+                          v => (AppointmentStatus)Enum.Parse(typeof(AppointmentStatus), v.Replace("_", ""), true)
+                      );
+
+                // ── RELATIONSHIPS & INDEXES ──
                 entity.HasOne(a => a.Slot)
                       .WithOne(s => s.Appointment)
                       .HasForeignKey<Appointment>(a => a.SlotId)

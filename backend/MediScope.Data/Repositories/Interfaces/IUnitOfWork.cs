@@ -19,6 +19,7 @@ namespace MediScope.Data.Repositories
         IGenericRepository<RefreshToken> RefreshTokens { get; }
         //IHealthMetricSubmissionRepository HealthMetricSubmissions { get; }
         INotificationRepository Notifications { get; }
+        IAppointmentRepository Appointments { get; }
         IPatientDashboardRepository PatientDashboard { get; }
         IPasswordResetTokenRepository PasswordResetTokens { get; }
         IDoctorDashboardRepository DoctorDashboard { get; }

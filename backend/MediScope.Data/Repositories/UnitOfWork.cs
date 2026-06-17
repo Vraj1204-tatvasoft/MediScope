@@ -25,6 +25,7 @@ namespace MediScope.Data.Repositories
         //private IHealthMetricSubmissionRepository? _healthMetricSubmissions;
         private INotificationRepository? _notifications;
         public IDoctorDashboardRepository? _doctorDashboard;
+        public IAppointmentRepository? _appointments;
         private IPatientDashboardRepository? _patientDashboard;
         public UnitOfWork(AppDbContext context)
         {
@@ -47,6 +48,7 @@ namespace MediScope.Data.Repositories
         public IPatientDashboardRepository PatientDashboard => _patientDashboard ??= new PatientDashboardRepository(_context);
         public IPasswordResetTokenRepository PasswordResetTokens => _passwordResetTokens ??= new PasswordResetTokenRepository(_context);
         public IDoctorDashboardRepository DoctorDashboard => _doctorDashboard ??= new DoctorDashboardRepository(_context);
+        public IAppointmentRepository Appointments => _appointments ??= new AppointmentRepository(_context);
         public async Task<int> SaveChangesAsync()
             => await _context.SaveChangesAsync();
 
