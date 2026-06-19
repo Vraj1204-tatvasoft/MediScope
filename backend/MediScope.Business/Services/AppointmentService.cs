@@ -2,6 +2,7 @@ using MediScope.Business.Services.Interfaces;
 using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Data.Repositories;
+using MediScope.Common.Models.Enums;
 
 namespace MediScope.Business.Services
 {
@@ -9,11 +10,13 @@ namespace MediScope.Business.Services
     {
         private readonly IUnitOfWork _uow;
         private readonly ICurrentUserService _currentUser;
+        private readonly INotificationService _notificationService;
 
-        public AppointmentService(IUnitOfWork uow, ICurrentUserService currentUser)
+        public AppointmentService(IUnitOfWork uow, ICurrentUserService currentUser, INotificationService notificationService)
         {
             _uow = uow;
             _currentUser = currentUser;
+            _notificationService = notificationService;
         }
 
         public async Task<Guid> CreateAppointmentAsync(CreateAppointmentRequestDto request)
@@ -29,28 +32,41 @@ namespace MediScope.Business.Services
                 doctorNotes: request.DoctorNotes,
                 createdBy: _currentUser.UserId
             );
+            var patient = await _uow.Patients.GetByIdAsync(request.PatientId);
+            if (patient != null)
+            {
+                await _notificationService.CreateAsync(
+                    patient.UserId,
+                    NotificationType.Info,
+                    "A new appointment has been scheduled for you. Please review the details."
+                );
+            }
         }
 
         public async Task RespondToAppointmentAsync(RespondToAppointmentRequestDto request)
         {
-            var patient = await _uow.Patients.GetByUserIdAsync(_currentUser.UserId)
-                ?? throw new UnauthorizedAccessException("Only patients can respond to appointments.");
+            var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId);
+            var patient = await _uow.Patients.GetByUserIdAsync(_currentUser.UserId);
 
-            if (request.Action.ToLower() == "rescheduled" && !request.RescheduledTo.HasValue)
-            {
-                throw new ArgumentException("A proposed rescheduled time is required when requesting a reschedule.");
-            }
+            var actorProfileId = doctor?.Id ?? patient?.Id
+                ?? throw new UnauthorizedAccessException("You must have a doctor or patient profile to respond to appointments.");
 
             await _uow.Appointments.RespondToAppointmentViaSqlAsync(
                 appointmentId: request.AppointmentId,
-                patientId: patient.Id,
                 action: request.Action,
-                patientNotes: request.PatientNotes,
-                updatedBy: _currentUser.UserId
+                notes: request.PatientNotes,
+                userId: actorProfileId
+            );
+
+            var targetUserId = await GetOtherPartyUserIdAsync(request.AppointmentId);
+            await _notificationService.CreateAsync(
+                targetUserId,
+                NotificationType.Info,
+                $"Your appointment request was {request.Action.ToLower()}."
             );
         }
 
-        public async Task<List<DoctorSlotResponseDto>> GetMyDoctorScheduleAsync()
+        public async Task<List<DoctorAppointmentResponseDto>> GetMyDoctorScheduleAsync()
         {
             var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId)
                 ?? throw new UnauthorizedAccessException("Only doctors can access this schedule.");
@@ -65,23 +81,51 @@ namespace MediScope.Business.Services
 
             return await _uow.Appointments.GetPatientAppointmentsAsync(patient.Id);
         }
-        public async Task RescheduleAppointmentAsync(RespondToAppointmentRequestDto request)
+
+        public async Task RescheduleAppointmentAsync(RescheduleAppointmentRequestDto request)
         {
-            var patient = await _uow.Patients.GetByUserIdAsync(_currentUser.UserId)
-                ?? throw new UnauthorizedAccessException("Only patients can reschedule.");
-
-            if (!request.RescheduledTo.HasValue)
-            {
-                throw new ArgumentException("A new date and time must be provided to reschedule.");
-            }
-
-            await _uow.Appointments.RescheduleAppointmentViaSqlAsync(
+            await _uow.Appointments.RequestRescheduleViaSqlAsync(
                 appointmentId: request.AppointmentId,
-                patientId: patient.Id,
-                newStartTime: request.RescheduledTo.Value, // The new requested time
-                rescheduleReason: request.RescheduleReason,
-                updatedBy: _currentUser.UserId
+                userId: _currentUser.UserId,
+                newStartTime: request.RescheduledTo,
+                rescheduleReason: request.RescheduleReason
             );
+            var targetUserId = await GetOtherPartyUserIdAsync(request.AppointmentId);
+            await _notificationService.CreateAsync(
+                targetUserId,
+                NotificationType.Info,
+                "The other party has requested to reschedule an upcoming appointment."
+            );
+        }
+        public async Task CancelAppointmentAsync(Guid appointmentId, string? reason)
+        {
+            var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId);
+            var patient = await _uow.Patients.GetByUserIdAsync(_currentUser.UserId);
+
+            var actorProfileId = doctor?.Id ?? patient?.Id
+                ?? throw new UnauthorizedAccessException("You must have a doctor or patient profile to cancel an appointment.");
+
+            await _uow.Appointments.CancelAppointmentViaSqlAsync(
+                appointmentId: appointmentId,
+                actorId: actorProfileId,
+                cancelReason: reason
+            );
+            var targetUserId = await GetOtherPartyUserIdAsync(appointmentId);
+            await _notificationService.CreateAsync(
+                targetUserId,
+                NotificationType.Info,
+                "An upcoming appointment has been cancelled."
+            );
+        }
+        private async Task<Guid> GetOtherPartyUserIdAsync(Guid appointmentId)
+        {
+            var appointment = await _uow.Appointments.GetByIdAsync(appointmentId)
+                ?? throw new KeyNotFoundException("Appointment not found.");
+
+            var doctor = await _uow.Doctors.GetByIdAsync(appointment.DoctorId);
+            var patient = await _uow.Patients.GetByIdAsync(appointment.PatientId);
+
+            return _currentUser.UserId == doctor.UserId ? patient.UserId : doctor.UserId;
         }
     }
 }

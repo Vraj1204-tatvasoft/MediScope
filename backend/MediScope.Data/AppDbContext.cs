@@ -20,7 +20,6 @@ namespace MediScope.Data
         public DbSet<HealthAlert> HealthAlerts { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<AppointmentSlot> AppointmentSlots { get; set; }
         public DbSet<PatientAuditLog> PatientAuditLogs { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Notification> Notifications => Set<Notification>();
@@ -612,40 +611,20 @@ namespace MediScope.Data
                 entity.HasIndex(a => a.EntityId)
                       .HasDatabaseName("idx_audit_entity");
             });
-            modelBuilder.Entity<AppointmentSlot>(entity =>
-            {
-                entity.ToTable("appointment_slots");
-
-                entity.Property(s => s.DoctorId).HasColumnName("doctor_id");
-                entity.Property(s => s.StartTime).HasColumnName("start_time");
-                entity.Property(s => s.EndTime).HasColumnName("end_time");
-                entity.Property(s => s.DurationMinutes).HasColumnName("duration_minutes");
-                entity.Property(s => s.Notes).HasColumnName("notes");
-
-                entity.Property(s => s.Status)
-                      .HasColumnName("status")
-                      .HasConversion(
-                          v => ToSnakeCase(v.ToString()),
-                          v => (AppointmentSlotStatus)Enum.Parse(typeof(AppointmentSlotStatus), v.Replace("_", ""), true)
-                      );
-
-                entity.HasOne(s => s.Doctor)
-                      .WithMany()
-                      .HasForeignKey(s => s.DoctorId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasIndex(s => new { s.DoctorId, s.StartTime });
-            });
-
             modelBuilder.Entity<Appointment>(entity =>
             {
                 entity.ToTable("appointments");
 
-                entity.Property(a => a.SlotId).HasColumnName("slot_id");
                 entity.Property(a => a.DoctorId).HasColumnName("doctor_id");
                 entity.Property(a => a.PatientId).HasColumnName("patient_id");
+
+                entity.Property(a => a.StartTime).HasColumnName("start_time");
+                entity.Property(a => a.EndTime).HasColumnName("end_time");
+                entity.Property(a => a.DurationMinutes).HasColumnName("duration_minutes");
+
                 entity.Property(a => a.DoctorNotes).HasColumnName("doctor_notes");
                 entity.Property(a => a.PatientNotes).HasColumnName("patient_notes");
+                entity.Property(a => a.RescheduleRequestedBy).HasColumnName("reschedule_requested_by");
                 entity.Property(a => a.RescheduledTo).HasColumnName("rescheduled_to");
                 entity.Property(a => a.RescheduleReason).HasColumnName("reschedule_reason");
 
@@ -655,12 +634,6 @@ namespace MediScope.Data
                           v => ToSnakeCase(v.ToString()),
                           v => (AppointmentStatus)Enum.Parse(typeof(AppointmentStatus), v.Replace("_", ""), true)
                       );
-
-                // ── RELATIONSHIPS & INDEXES ──
-                entity.HasOne(a => a.Slot)
-                      .WithOne(s => s.Appointment)
-                      .HasForeignKey<Appointment>(a => a.SlotId)
-                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(a => a.Doctor)
                       .WithMany()
@@ -672,9 +645,8 @@ namespace MediScope.Data
                       .HasForeignKey(a => a.PatientId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasIndex(a => a.DoctorId);
+                entity.HasIndex(a => new { a.DoctorId, a.StartTime });
                 entity.HasIndex(a => a.PatientId);
-                entity.HasIndex(a => a.SlotId).IsUnique();
             });
             // ── PATIENT_AUDIT_LOGS ────────────────────────────────────
             modelBuilder.Entity<PatientAuditLog>(entity =>

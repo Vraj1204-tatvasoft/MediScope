@@ -3,14 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MediScope.Common.Models.DTOs.Request
 {
-    public class RespondToAppointmentRequestDto
+    public class RescheduleAppointmentRequestDto
     {
         [Required]
         public Guid AppointmentId { get; set; }
-
         [Required]
-        public string Action { get; set; } = null!; // accepted | rejected
-
-        public string? PatientNotes { get; set; }
+        public DateTime RescheduledTo { get; set; }
+        public string? RescheduleReason { get; set; }
     }
 }
