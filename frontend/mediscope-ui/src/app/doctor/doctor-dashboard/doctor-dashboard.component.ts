@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, signal, computed, inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, signal, computed, inject, OnDestroy, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -36,7 +36,7 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
   @ViewChild('bpCompareCanvas') private trendsCanvas!: ElementRef<HTMLCanvasElement>;
   
   isLoading = signal<boolean>(true);
-  isChartLoading = signal<boolean>(false);
+  isChartLoading  = signal<boolean>(false);
   dashboardData = signal<DoctorDashboardContainer | null>(null);
   availableMetrics = signal<{value: string, label: string}[]>([]);
   private trendChartInstance: Chart | null = null;

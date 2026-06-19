@@ -1,0 +1,121 @@
+
+  <div class="content-container">
+    <mat-tab-group animationDuration="0ms" class="mediscope-tabs">
+      
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">event</mat-icon> Upcoming Visits
+        </ng-template>
+  
+        <div class="tab-content">
+          <div class="empty-state" *ngIf="upcomingAppointments.length === 0">
+            <mat-icon>event_available</mat-icon>
+            <p>You have no upcoming appointments.</p>
+          </div>
+  
+          <div class="cards-grid">
+            <div class="appointment-card card-outline" *ngFor="let appt of upcomingAppointments">
+              
+              <div class="card-header">
+                <div class="doctor-info">
+                  <div class="avatar">Dr.</div>
+                  <div>
+                    <h4>{{ appt.doctorName }}</h4>
+                    <span class="text-muted">{{ appt.specialization || 'General Practice' }}</span>
+                  </div>
+                </div>
+                <span class="theme-badge" [ngClass]="appt.status.toLowerCase()">{{ appt.status }}</span>
+              </div>
+  
+              <div class="card-body">
+                <div class="info-row">
+                  <mat-icon>calendar_today</mat-icon>
+                  <span>{{ appt.startTime | date:'EEEE, MMM d, yyyy' }}</span>
+                </div>
+                <div class="info-row">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ appt.startTime | date:'shortTime' }} ({{ appt.durationMinutes }} mins)</span>
+                </div>
+                <div class="info-row" *ngIf="appt.hospital">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ appt.hospital }}</span>
+                </div>
+              </div>
+  
+              <div class="card-footer">
+                
+                <div class="action-buttons" *ngIf="
+                  (appt.status === 'pending' && appt.createdBy !== currentUserId) || 
+                  (appt.status === 'rescheduled' && appt.rescheduleRequestedBy !== currentUserId)">
+                  <button mat-button color="primary" (click)="acceptAppointment(appt)">Accept</button>
+                  <button mat-button color="accent" (click)="openRescheduleModal(appt)">Request Reschedule</button>
+                  <button mat-button color="warn" (click)="rejectAppointment(appt)">Decline</button>
+                </div>
+  
+                <div class="waiting-badge" *ngIf="
+                  (appt.status === 'pending' && appt.createdBy === currentUserId) || 
+                  (appt.status === 'rescheduled' && appt.rescheduleRequestedBy === currentUserId)">
+                  <mat-icon>hourglass_empty</mat-icon> Waiting for Doctor's confirmation
+                </div>
+  
+                <div class="action-buttons" *ngIf="appt.status === 'accepted'">
+                  <button mat-stroked-button color="primary" (click)="openRescheduleModal(appt)">Reschedule</button>
+                  <button mat-stroked-button color="warn" (click)="cancelAppointment(appt)">Cancel</button>
+                </div>
+  
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+  
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">history</mat-icon> History
+        </ng-template>
+  
+        <div class="tab-content">
+          <div class="table-container card-outline">
+            <table mat-table [dataSource]="historicalAppointments" class="mediscope-table">
+              
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef> DATE </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <strong>{{ element.startTime | date:'MMM d, yyyy' }}</strong><br>
+                  <span class="text-muted">{{ element.startTime | date:'shortTime' }}</span>
+                </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="doctor">
+                <th mat-header-cell *matHeaderCellDef> DOCTOR </th>
+                <td mat-cell *matCellDef="let element"> {{ element.doctorName }} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="duration">
+                <th mat-header-cell *matHeaderCellDef> DURATION </th>
+                <td mat-cell *matCellDef="let element"> {{ element.durationMinutes }} mins </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> STATUS </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <span class="theme-badge" [ngClass]="element.status.toLowerCase()">{{ element.status }}</span>
+                </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="notes">
+                <th mat-header-cell *matHeaderCellDef> DOCTOR NOTES </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <span class="text-muted">{{ element.doctorNotes || '--' }}</span>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+  
+    </mat-tab-group>
+  </div>

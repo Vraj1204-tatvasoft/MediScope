@@ -1,0 +1,136 @@
+<div class="page-header">
+    <div class="header-titles">
+      <h2>My Schedule</h2>
+    </div>
+    <button class="btn-primary" (click)="openBookingModal()">+ Book Appointment</button>
+  </div>
+  
+  <div class="content-container">
+    <mat-tab-group animationDuration="0ms" class="mediscope-tabs">
+      
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">event</mat-icon> Upcoming Schedule
+        </ng-template>
+  
+        <div class="tab-content">
+          <div class="summary-cards-row">
+            <div class="summary-card card-total"><h3>{{ stats.total }}</h3><p>Total</p></div>
+            <div class="summary-card card-normal"><h3>{{ stats.accepted }}</h3><p>Accepted</p></div>
+            <div class="summary-card card-warning"><h3>{{ stats.pending }}</h3><p>Pending</p></div>
+          </div>
+  
+          <div class="calendar-wrapper card-outline" style="padding: 20px;">
+            <full-calendar [options]="calendarOptions"></full-calendar>
+          </div>
+        </div>
+      </mat-tab>
+  
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">history</mat-icon> Patient History
+        </ng-template>
+  
+        <div class="tab-content">
+          <div class="agenda-header" style="margin-bottom: 16px;">
+            <h4 style="margin: 0; font-size: 18px;">Past & Cancelled Appointments</h4>
+            <span class="text-muted">({{ historicalAppointments.length }} records found)</span>
+          </div>
+  
+          <div class="table-container card-outline">
+            <table mat-table [dataSource]="historicalAppointments" class="mediscope-table">
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef> DATE </th>
+                <td mat-cell *matCellDef="let element"> {{ element.startTime | date:'MMM d, yyyy' }} </td>
+              </ng-container>
+              <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef> TIME </th>
+                <td mat-cell *matCellDef="let element"> <strong>{{ element.startTime | date:'shortTime' }}</strong> </td>
+              </ng-container>
+              <ng-container matColumnDef="patient">
+                <th mat-header-cell *matHeaderCellDef> PATIENT </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <span class="patient-name-cell"><span class="status-dot"></span> {{ element.patientName }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="duration">
+                <th mat-header-cell *matHeaderCellDef> DURATION </th>
+                <td mat-cell *matCellDef="let element"> {{ element.durationMinutes }} mins </td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> STATUS </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <span class="theme-badge" [ngClass]="element.status?.toLowerCase()">{{ element.status }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> ACTIONS </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <button mat-icon-button color="primary" matTooltip="View Details"><mat-icon>visibility</mat-icon></button>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+  
+    </mat-tab-group>
+  </div>
+  
+  <div style="visibility: hidden; position: fixed"
+       [style.left]="menuPosition.x"
+       [style.top]="menuPosition.y"
+       [matMenuTriggerFor]="apptMenu">
+  </div>
+  
+  <mat-menu #apptMenu="matMenu" class="mediscope-menu">
+    <ng-template matMenuContent>
+      
+      <ng-container *ngIf="selectedAppointment">
+        
+        <div class="menu-header">
+          <strong style="font-size: 16px;">{{ selectedAppointment.patientName }}</strong>
+          <span class="theme-badge" [ngClass]="selectedAppointment.status.toLowerCase()" style="display:inline-block; margin-top:8px;">
+            {{ selectedAppointment.status }}
+          </span>
+          <div class="text-muted" style="font-size: 12px; margin-top:6px;">
+            <mat-icon style="font-size:14px; height:14px; width:14px; vertical-align: middle;">schedule</mat-icon> 
+            {{ selectedAppointment.startTime | date:'fullDate' }} at {{ selectedAppointment.startTime | date:'shortTime' }}
+          </div>
+        </div>
+        
+        <mat-divider></mat-divider>
+  
+        <ng-container *ngIf="(selectedAppointment.status.toLowerCase() === 'pending' && selectedAppointment.createdBy !== currentUserId) || (selectedAppointment.status.toLowerCase() === 'rescheduled' && selectedAppointment.rescheduleRequestedBy !== currentUserId)">
+          <button mat-menu-item (click)="acceptAppointment(selectedAppointment)">
+            <mat-icon color="primary">check_circle</mat-icon> <span>Accept Request</span>
+          </button>
+          <button mat-menu-item (click)="openRescheduleModal(selectedAppointment)">
+            <mat-icon color="accent">edit_calendar</mat-icon> <span>Propose New Time</span>
+          </button>
+          <button mat-menu-item (click)="rejectAppointment(selectedAppointment)">
+            <mat-icon color="warn">cancel</mat-icon> <span>Decline Request</span>
+          </button>
+        </ng-container>
+  
+        <ng-container *ngIf="(selectedAppointment.status.toLowerCase() === 'pending' && selectedAppointment.createdBy === currentUserId) || (selectedAppointment.status.toLowerCase() === 'rescheduled' && selectedAppointment.rescheduleRequestedBy === currentUserId)">
+          <div style="padding: 16px; font-size: 13px; color: #d97706; display: flex; align-items: center; gap: 8px; font-weight: 500;">
+            <mat-icon style="font-size: 20px; height: 20px; width: 20px;">hourglass_empty</mat-icon> Waiting for Patient's Response
+          </div>
+        </ng-container>
+  
+        <ng-container *ngIf="selectedAppointment.status.toLowerCase() === 'accepted'">
+          <button mat-menu-item (click)="openRescheduleModal(selectedAppointment)">
+            <mat-icon color="primary">edit_calendar</mat-icon> <span>Reschedule</span>
+          </button>
+          <button mat-menu-item (click)="cancelAppointment(selectedAppointment)">
+            <mat-icon color="warn">event_busy</mat-icon> <span>Cancel Appointment</span>
+          </button>
+        </ng-container>
+  
+      </ng-container>
+    </ng-template>
+  </mat-menu>

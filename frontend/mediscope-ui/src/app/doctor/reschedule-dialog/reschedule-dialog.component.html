@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>Reschedule {{ data.patientName }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="rescheduleForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+    
+    <div style="display: flex; gap: 16px;">
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>New Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="newDate" [min]="minDate">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>New Time</mat-label>
+        <input matInput type="time" formControlName="newTimeString">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Reason for Rescheduling</mat-label>
+      <textarea matInput formControlName="reason" rows="2"></textarea>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="rescheduleForm.invalid">Send Request</button>
+</mat-dialog-actions>

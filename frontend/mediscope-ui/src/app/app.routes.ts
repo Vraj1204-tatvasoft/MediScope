@@ -28,6 +28,10 @@ import { DoctorPatientLinksComponent } from './admin/doctor-patient-links/doctor
 import { HealthRecordDetailComponent } from './patient/health-record-detail/health-record-detail.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { DoctorAppointmentComponent } from './doctor/doctor-appointment/doctor-appointment.component';
+import { BookAppointmentDialogComponent } from './doctor/book-appointment-dialog/book-appointment-dialog.component';
+import { PatientAppointmentComponent } from './patient/patient-appointment/patient-appointment.component';
+
 
 export const routes: Routes = [
   {
@@ -79,6 +83,10 @@ export const routes: Routes = [
         component: MyDoctorsComponent,
       },
       {
+        path: 'appointments',
+        component: PatientAppointmentComponent,
+      },
+      {
         path: 'patient-notifications',
         component: PatientNotificationComponent
       },
@@ -120,6 +128,14 @@ export const routes: Routes = [
       {
         path: 'pending-requests',
         component: PendingRequestsComponent,
+      },
+      {
+        path: 'appointments',
+        component: DoctorAppointmentComponent
+      },
+      {
+        path: 'book-appointment',
+        component: BookAppointmentDialogComponent
       },
       {
         path: 'profile',

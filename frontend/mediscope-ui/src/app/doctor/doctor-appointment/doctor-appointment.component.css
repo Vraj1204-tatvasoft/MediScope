@@ -1,0 +1,236 @@
+/* --- Global & Typography --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 20px 0;
+  }
+  
+  .page-header .header-titles h2 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  
+  .text-muted {
+    color: #6b7280;
+  }
+  
+  .btn-primary {
+    background-color: #1d4ed8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1e40af;
+  }
+  
+  .card-outline {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+  
+  /* --- Mediscope Tabs --- */
+  ::ng-deep .mediscope-tabs {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  ::ng-deep .mediscope-tabs .mat-mdc-tab-header {
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  ::ng-deep .mediscope-tabs .mat-mdc-tab {
+    flex-grow: 1;
+    color: #6b7280;
+    font-weight: 600;
+  }
+  
+  ::ng-deep .mediscope-tabs .mat-mdc-tab.mdc-tab--active {
+    color: #1d4ed8;
+  }
+  
+  ::ng-deep .mediscope-tabs .mdc-tab-indicator__content--underline {
+    border-color: #1d4ed8 !important;
+    border-width: 3px !important;
+  }
+  
+  .tab-content {
+    padding: 24px;
+  }
+  
+  /* --- Summary Cards --- */
+  .summary-cards-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .summary-card {
+    flex: 1;
+    text-align: center;
+    padding: 20px 16px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+  }
+  
+  .summary-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
+  
+  .summary-card p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .summary-card.card-total { background: white; border-color: #374151; color: #374151; }
+  .summary-card.card-normal { background: #f0fdf4; border-color: #22c55e; color: #166534; }
+  .summary-card.card-warning { background: #fffbeb; border-color: #f59e0b; color: #b45309; }
+  
+  /* --- Badges --- */
+  .theme-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    border: 1px solid transparent;
+  }
+  
+  .theme-badge.pending { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+  .theme-badge.accepted { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+  .theme-badge.rescheduled { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+  .theme-badge.rejected, .theme-badge.cancelled { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+  
+  /* --- 🖱️ MENU STYLING --- */
+  .menu-header {
+    padding: 16px 20px 12px;
+    display: flex;
+    flex-direction: column;
+    background: #f9fafb;
+  }
+  
+  /* --- Table Styles --- */
+  ::ng-deep .mediscope-table {
+    width: 100%;
+    box-shadow: none !important;
+  }
+  
+  ::ng-deep .mediscope-table th.mat-header-cell {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    padding: 16px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  ::ng-deep .mediscope-table td.mat-cell {
+    padding: 16px;
+    font-size: 14px;
+    color: #1f2937;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  ::ng-deep .mediscope-table .patient-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1d4ed8;
+    font-weight: 500;
+  }
+  
+  ::ng-deep .mediscope-table .patient-name-cell .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+  }
+  
+  /* --- 🛠️ CALENDAR LEGEND --- */
+  .calendar-legend {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px; /* Added spacing between legend and FullCalendar */
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #4b5563;
+    font-weight: 500;
+  }
+  
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+  
+  .legend-dot.accepted { background: #22c55e; }
+  .legend-dot.pending { background: #f59e0b; }
+  .legend-dot.rescheduled { background: #3b82f6; }
+  
+  /* --- 🛠️ FULLCALENDAR OVERRIDES --- */
+  /* Modernize the header buttons to match Material Theme */
+  ::ng-deep .fc .fc-button-primary {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+    color: #374151;
+    text-transform: capitalize;
+    font-weight: 500;
+    box-shadow: none;
+  }
+  
+  ::ng-deep .fc .fc-button-primary:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+  
+  ::ng-deep .fc .fc-button-primary:not(:disabled).fc-button-active, 
+  ::ng-deep .fc .fc-button-primary:not(:disabled):active {
+    background-color: #eff6ff;
+    border-color: #1d4ed8;
+    color: #1d4ed8;
+  }
+  
+  ::ng-deep .fc .fc-toolbar-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  /* Style the internal FullCalendar events */
+  ::ng-deep .fc-timegrid-event, ::ng-deep .fc-daygrid-event {
+    border-radius: 4px;
+    border-width: 0 0 0 4px; /* Left border only */
+    cursor: pointer;
+    padding: 2px 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: transform 0.1s ease;
+  }
+  
+  ::ng-deep .fc-timegrid-event:hover, ::ng-deep .fc-daygrid-event:hover {
+    transform: scale(1.02);
+    z-index: 10 !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  ::ng-deep .fc-event-title {
+    font-weight: 600;
+  }
