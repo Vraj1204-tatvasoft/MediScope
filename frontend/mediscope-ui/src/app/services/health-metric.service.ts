@@ -10,7 +10,7 @@ export class HealthMetricService {
 
   getMetricDefinitions() {
     return this.baseHttp.get<MetricDefinition[]>('metric-definitions').pipe(
-      map(response => response.data)
+      map(response => response.data.filter(metric => metric.isActive === true))
     );
   }
 

@@ -5,6 +5,7 @@ namespace MediScope.Common.Models.Entities
     public class HealthMetric : BaseEntity
     {
         public Guid SubmissionId { get; set; }
+        public Guid? AppointmentId { get; set; }
         public string MetricType { get; set; } = null!;
         public decimal Value { get; set; }
         public string Unit { get; set; } = null!;
@@ -18,7 +19,7 @@ namespace MediScope.Common.Models.Entities
         public Patient Patient { get; set; } = null!;
         public User RecordedByUser { get; set; } = null!;
         public MetricDefinition MetricDefinition { get; set; } = null!;
-
+        public Appointment? Appointment { get; set; }
         public ICollection<HealthAlert> HealthAlerts { get; set; } = new List<HealthAlert>();
     }
 }

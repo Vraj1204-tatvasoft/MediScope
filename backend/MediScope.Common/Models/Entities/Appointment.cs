@@ -19,5 +19,6 @@ namespace MediScope.Common.Models.Entities
         public string? RescheduleReason { get; set; }
         public Doctor Doctor { get; set; } = null!;
         public Patient Patient { get; set; } = null!;
+        public ICollection<HealthMetric> HealthMetrics { get; set; } = new List<HealthMetric>();
     }
 }

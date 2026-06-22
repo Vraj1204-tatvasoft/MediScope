@@ -10,6 +10,7 @@ namespace MediScope.Common.Models.DTOs.Request
 
         public string? Notes { get; set; }
         public Guid? PatientId { get; set; }
+        public Guid? AppointmentId { get; set; }
         [Required]
         [MinLength(1)]
         public List<AddMetricValueRequestDto> Metrics { get; set; }

@@ -117,13 +117,17 @@
           </div>
         }
         @if (selectedAppointment.status.toLowerCase() === 'accepted') {
-          <button mat-menu-item (click)="openRescheduleModal(selectedAppointment)">
-            <mat-icon color="primary">edit_calendar</mat-icon> <span>Reschedule</span>
-          </button>
-          <button mat-menu-item (click)="cancelAppointment(selectedAppointment)">
-            <mat-icon color="warn">event_busy</mat-icon> <span>Cancel Appointment</span>
-          </button>
-        }
+            <button mat-menu-item (click)="openMetricsModal(selectedAppointment)">
+              <mat-icon color="primary">monitor_heart</mat-icon> <span>Log Vitals & Notes</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="openRescheduleModal(selectedAppointment)">
+              <mat-icon color="primary">edit_calendar</mat-icon> <span>Reschedule</span>
+            </button>
+            <button mat-menu-item (click)="cancelAppointment(selectedAppointment)">
+              <mat-icon color="warn">event_busy</mat-icon> <span>Cancel Appointment</span>
+            </button>
+          }
       }
     </ng-template>
   </mat-menu>

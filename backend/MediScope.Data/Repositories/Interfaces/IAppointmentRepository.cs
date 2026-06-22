@@ -14,7 +14,6 @@ namespace MediScope.Data.Repositories
         Task<List<PatientAppointmentResponseDto>> GetPatientAppointmentsAsync(Guid patientId);
         Task<bool> RequestRescheduleViaSqlAsync(Guid appointmentId, Guid userId, DateTime newStartTime, string? rescheduleReason);
         Task<bool> CancelAppointmentViaSqlAsync(Guid appointmentId, Guid actorId, string? cancelReason);
-        // Add this inside the IAppointmentRepository interface
         Task<Appointment?> GetByIdAsync(Guid id);
     }
 }

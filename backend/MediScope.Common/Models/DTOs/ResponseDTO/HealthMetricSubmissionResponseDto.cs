@@ -5,7 +5,7 @@ namespace MediScope.Common.Models.DTOs.Response
     public class HealthMetricSubmissionResponseDto
     {
         public Guid SubmissionId { get; set; }
-
+        public Guid? AppointmentId { get; set; }
         public Guid PatientId { get; set; }
 
         public Guid RecordedByUserId { get; set; }

@@ -46,6 +46,16 @@ namespace MediScope.Business.Services
             var targetPatient = await _uow.Patients.GetByIdAsync(targetPatientId)
                 ?? throw new Exception("Patient not found.");
 
+            if (request.AppointmentId.HasValue)
+            {
+                var appointment = await _uow.Appointments.GetByIdAsync(request.AppointmentId.Value)
+                    ?? throw new KeyNotFoundException("The specified appointment does not exist.");
+
+                if (appointment.PatientId != targetPatientId)
+                {
+                    throw new UnauthorizedAccessException("The appointment provided does not belong to the target patient.");
+                }
+            }
             // PREPARE THE BATCH ID (The Grouping Tag)
             var sharedSubmissionId = Guid.NewGuid();
             bool elevated = false;
@@ -76,6 +86,7 @@ namespace MediScope.Business.Services
                 metricsToInsert.Add(new HealthMetric
                 {
                     SubmissionId = sharedSubmissionId,
+                    AppointmentId = request.AppointmentId,
                     MetricType = metricRequest.MetricType,
                     Value = metricRequest.Value,
                     Unit = string.IsNullOrWhiteSpace(metricRequest.Unit) ? metricDef.DefaultUnit : metricRequest.Unit,
@@ -252,6 +263,7 @@ namespace MediScope.Business.Services
             return new HealthMetricSubmissionResponseDto
             {
                 SubmissionId = first.SubmissionId,
+                AppointmentId = first.AppointmentId,
                 PatientId = first.PatientId,
                 RecordedByUserId = first.RecordedByUserId,
                 RecordedByRole = first.RecordedByRole,

@@ -403,6 +403,10 @@ namespace MediScope.Data
                 entity.ToTable("health_metrics");
 
                 // GROUPING TAG (No longer an FK constraint) ──
+                entity.Property(h => h.AppointmentId)
+                          .HasColumnName("appointment_id")
+                          .IsRequired(false);
+
                 entity.Property(h => h.SubmissionId)
                           .HasColumnName("submission_id")
                           .IsRequired();
@@ -458,6 +462,10 @@ namespace MediScope.Data
                 // ── RELATIONS ─────────────────────────────────
 
                 // The old entity.HasOne(h => h.Submission) has been completely removed.
+                entity.HasOne(h => h.Appointment)
+                          .WithMany(a => a.HealthMetrics)
+                          .HasForeignKey(h => h.AppointmentId)
+                          .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasOne(h => h.MetricDefinition)
                           .WithMany(m => m.HealthMetrics)
@@ -480,6 +488,9 @@ namespace MediScope.Data
                 // ── INDEXES ───────────────────────────────────
 
                 // Keep this! You will use it heavily to group records together in your Service layer
+                entity.HasIndex(h => h.AppointmentId)
+                          .HasDatabaseName("idx_hm_appointment_id");
+
                 entity.HasIndex(h => h.SubmissionId)
                           .HasDatabaseName("idx_hm_submission");
 

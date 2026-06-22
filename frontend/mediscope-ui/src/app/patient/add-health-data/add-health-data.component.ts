@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, signal, inject } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, signal, inject, Optional, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -14,6 +14,7 @@ import { HealthMetricService } from '../../services/health-metric.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Router } from '@angular/router';
 import { MatSpinner } from '@angular/material/progress-spinner';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-add-health-data',
@@ -28,7 +29,8 @@ import { MatSpinner } from '@angular/material/progress-spinner';
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSpinner
+    MatSpinner,
+    MatDialogModule
   ],
   templateUrl: './add-health-data.component.html',
   styleUrls: ['./add-health-data.component.css']
@@ -37,7 +39,7 @@ export class AddHealthDataComponent implements OnInit {
   // ── EXTERNAL INPUT OVERRIDES FOR DOCTOR VIEW REUSE ────────────────
   @Input() explicitPatientId?: string;
   @Input() explicitPatientName?: string;
-  
+  explicitAppointmentId?: string;
   // Optional event to trigger tab switching or list refreshes inside parent dashboards
   @Output() saveSuccess = new EventEmitter<void>();
 
@@ -53,9 +55,13 @@ export class AddHealthDataComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private metricService: HealthMetricService,
-    private router: Router
+    private router: Router,
+    @Optional() public dialogRef: MatDialogRef<AddHealthDataComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: any
   ) {}
-
+  get isDialogMode(): boolean {
+    return !!this.dialogRef;
+  }
   ngOnInit(): void {
     this.resolveTargetContext();
     this.initializeForm();
@@ -64,6 +70,13 @@ export class AddHealthDataComponent implements OnInit {
 
   private resolveTargetContext(): void {
     // If explicit inputs exist, we are operating inside a doctor's care plan workflow
+    if (this.dialogData) {
+      this.explicitPatientId = this.dialogData.patientId;
+      this.patientName = this.dialogData.patientName;
+      this.explicitAppointmentId = this.dialogData.appointmentId || this.dialogData.id;
+      return;
+    }
+
     if (this.explicitPatientName) {
       this.patientName = this.explicitPatientName;
       return;
@@ -114,7 +127,9 @@ export class AddHealthDataComponent implements OnInit {
     });
     this.healthForm.get('metrics')?.reset();
   }
-
+  closeDialog(): void {
+    if (this.dialogRef) this.dialogRef.close();
+  }
   saveHealthRecord(): void {
     if (this.healthForm.invalid) {
       return;
@@ -157,6 +172,7 @@ export class AddHealthDataComponent implements OnInit {
       recordedAt: localizedDate.toISOString(),
       notes: formValue.notes,
       metrics: recordsPayload,
+      appointmentId: this.explicitAppointmentId ? this.explicitAppointmentId : undefined,
       // If a doctor passes an ID, the API routes it correctly via route body payload tags
       ...(this.explicitPatientId && { patientId: this.explicitPatientId })
     };
@@ -168,7 +184,10 @@ export class AddHealthDataComponent implements OnInit {
         this.notify.success('Health record saved successfully.');
         
         // ── ROUTING DECISION MATRIX BASED ON ACCESSING ROLE ───────────────────
-        if (this.explicitPatientId) {
+        if (this.isDialogMode) {
+          this.dialogRef.close(true); // Close modal
+        }
+        else if (this.explicitPatientId) {
           // If in Doctor Mode, notify the parent view instead of changing routes forcefully
           this.saveSuccess.emit();
         } else {

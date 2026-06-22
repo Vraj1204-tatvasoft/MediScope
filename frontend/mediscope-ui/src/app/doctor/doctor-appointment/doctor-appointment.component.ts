@@ -21,6 +21,7 @@ import { DoctorAppointmentResponseDto } from '../../models/appointment.model';
 import { BookAppointmentDialogComponent } from '../book-appointment-dialog/book-appointment-dialog.component';
 import { RescheduleDialogComponent } from '../reschedule-dialog/reschedule-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component'; 
+import { AddHealthDataComponent } from '../../patient/add-health-data/add-health-data.component';
 
 @Component({
   selector: 'app-doctor-appointment',
@@ -122,7 +123,21 @@ export class DoctorAppointmentComponent implements OnInit {
     this.menuPosition.y = clickInfo.jsEvent.clientY + 'px';
     this.menuTrigger.openMenu();
   }
-
+  openMetricsModal(appointment: DoctorAppointmentResponseDto) {
+    const dialogRef = this.dialog.open(AddHealthDataComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      maxHeight: '90vh', 
+      data: appointment,
+      disableClose: true 
+    });
+    
+    dialogRef.afterClosed().subscribe(success => {
+      if (success) {
+        this.loadSchedule(); 
+      }
+    });
+  }
   openBookingModal() {
     const dialogRef = this.dialog.open(BookAppointmentDialogComponent, {
       width: '500px',

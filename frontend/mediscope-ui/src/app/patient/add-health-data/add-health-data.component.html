@@ -1,4 +1,4 @@
-<form class="metrics-container" [formGroup]="healthForm">
+<form class="metrics-container" [formGroup]="healthForm" [class.is-dialog-mode]="isDialogMode">
 
   <div class="info-banner">
     <mat-icon class="banner-icon">info</mat-icon>
@@ -72,11 +72,14 @@
     </mat-card>
 
     <div class="form-submission-actions-row">
-      <button mat-button class="clear-action-btn" (click)="clearForm()" [disabled]="isSaving()">Clear Form</button>
+      @if (isDialogMode) {
+        <button mat-button class="clear-action-btn" (click)="closeDialog()" [disabled]="isSaving()">Cancel</button>
+      } @else {
+        <button mat-button class="clear-action-btn" (click)="clearForm()" [disabled]="isSaving()">Clear Form</button>
+      }
       <button mat-flat-button color="primary" class="save-record-btn" (click)="saveHealthRecord()" [disabled]="isSaving() || healthForm.invalid">
         {{ isSaving() ? 'Saving...' : 'Save Health Record' }}
       </button>
     </div>
-
   }
 </form>

@@ -278,7 +278,16 @@
     color: #64748b;
     font-weight: 500;
   }
+  .metrics-container.is-dialog-mode {
+    padding: 24px;
+    margin: 0; 
+    box-sizing: border-box;
+  }
   
+  .metrics-container.is-dialog-mode .form-submission-actions-row {
+    margin-bottom: 0;
+    padding-top: 16px;
+  }
   @media (max-width: 768px) {
     .form-grid-row.dual-inputs {
       grid-template-columns: 1fr;
