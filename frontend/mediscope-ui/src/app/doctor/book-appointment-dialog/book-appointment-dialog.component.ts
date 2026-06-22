@@ -47,8 +47,7 @@ export class BookAppointmentDialogComponent implements OnInit {
   ngOnInit() {
     // Fetch dynamic patients
     this.appointmentService.getDoctorPatients().subscribe({
-      next: (res) => { this.patients = res.data, console.log('Patients from API:', this.patients); },
-      error: (err) => console.error("Failed to load patients", err)
+      next: (res) => { this.patients = res.data; }
     });
   }
 
@@ -67,9 +66,8 @@ export class BookAppointmentDialogComponent implements OnInit {
       doctorNotes: formVal.doctorNotes
     };
 
-    this.appointmentService.createAppointment(request).subscribe({
-      next: () => this.dialogRef.close(true),
-      error: (err) => alert(err.error?.message || 'Booking failed') 
+    this.appointmentService.createAppointment(request).subscribe(() => {
+      this.dialogRef.close(true);
     });
   }
 }

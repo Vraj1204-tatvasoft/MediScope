@@ -2,9 +2,11 @@
 
 import { HttpClient, HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment, SHOW_SUCCESS, SHOW_ERROR } from '../../environments/environments';
+import { environment } from '../../environments/environments';
+
 import { ApiResponse } from '../models/api-response.model';
 import { Observable } from 'rxjs';
+import { SHOW_ERROR, SHOW_SUCCESS } from '../core/tokens/http-context.tokens';
 
 export interface ApiRequestOptions {
   params?:      HttpParams | { [param: string]: string | number | boolean };

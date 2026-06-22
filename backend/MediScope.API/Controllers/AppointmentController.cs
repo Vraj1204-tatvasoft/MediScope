@@ -47,7 +47,7 @@ namespace MediScope.API.Controllers
             try
             {
                 await _appointmentService.RespondToAppointmentAsync(request);
-                return Success($"Appointment successfully {request.Action.ToLower()}.");
+                return Success<object>(null, $"Appointment successfully {request.Action.ToLower()}.");
             }
             catch (Exception ex)
             {
@@ -83,7 +83,7 @@ namespace MediScope.API.Controllers
             try
             {
                 await _appointmentService.RescheduleAppointmentAsync(request);
-                return Success("Reschedule request successfully submitted.");
+                return Success<object>(null, "Reschedule request successfully submitted.");
             }
             catch (ArgumentException ex)
             {
@@ -107,10 +107,11 @@ namespace MediScope.API.Controllers
         public async Task<IActionResult> CancelAppointment(Guid id, [FromBody] CancelAppointmentRequestDto request)
         {
             if (!ModelState.IsValid) return BadRequestResponse("Invalid request.");
+
             try
             {
                 await _appointmentService.CancelAppointmentAsync(id, request.Reason);
-                return Success("Appointment successfully cancelled.");
+                return Success<object>(null, "Appointment successfully cancelled.");
             }
             catch (InvalidOperationException ex)
             {

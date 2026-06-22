@@ -24,7 +24,7 @@ namespace MediScope.Business.Services
             var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId)
                 ?? throw new UnauthorizedAccessException("Only doctors can create appointments.");
 
-            return await _uow.Appointments.CreateAppointmentViaSqlAsync(
+            var appointmentId = await _uow.Appointments.CreateAppointmentViaSqlAsync(
                 doctorId: doctor.Id,
                 patientId: request.PatientId,
                 startTime: request.StartTime,
@@ -32,6 +32,7 @@ namespace MediScope.Business.Services
                 doctorNotes: request.DoctorNotes,
                 createdBy: _currentUser.UserId
             );
+
             var patient = await _uow.Patients.GetByIdAsync(request.PatientId);
             if (patient != null)
             {
@@ -41,6 +42,8 @@ namespace MediScope.Business.Services
                     "A new appointment has been scheduled for you. Please review the details."
                 );
             }
+
+            return appointmentId;
         }
 
         public async Task RespondToAppointmentAsync(RespondToAppointmentRequestDto request)

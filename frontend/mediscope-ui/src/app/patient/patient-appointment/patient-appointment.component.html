@@ -1,5 +1,4 @@
-
-  <div class="content-container">
+<div class="content-container">
     <mat-tab-group animationDuration="0ms" class="mediscope-tabs">
       
       <mat-tab>
@@ -8,63 +7,75 @@
         </ng-template>
   
         <div class="tab-content">
-          <div class="empty-state" *ngIf="upcomingAppointments.length === 0">
-            <mat-icon>event_available</mat-icon>
-            <p>You have no upcoming appointments.</p>
-          </div>
+          
+          @if (upcomingAppointments.length === 0) {
+            <div class="empty-state">
+              <mat-icon>event_available</mat-icon>
+              <p>You have no upcoming appointments.</p>
+            </div>
+          }
   
           <div class="cards-grid">
-            <div class="appointment-card card-outline" *ngFor="let appt of upcomingAppointments">
-              
-              <div class="card-header">
-                <div class="doctor-info">
-                  <div class="avatar">Dr.</div>
-                  <div>
-                    <h4>{{ appt.doctorName }}</h4>
-                    <span class="text-muted">{{ appt.specialization || 'General Practice' }}</span>
-                  </div>
-                </div>
-                <span class="theme-badge" [ngClass]="appt.status.toLowerCase()">{{ appt.status }}</span>
-              </div>
-  
-              <div class="card-body">
-                <div class="info-row">
-                  <mat-icon>calendar_today</mat-icon>
-                  <span>{{ appt.startTime | date:'EEEE, MMM d, yyyy' }}</span>
-                </div>
-                <div class="info-row">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ appt.startTime | date:'shortTime' }} ({{ appt.durationMinutes }} mins)</span>
-                </div>
-                <div class="info-row" *ngIf="appt.hospital">
-                  <mat-icon>location_on</mat-icon>
-                  <span>{{ appt.hospital }}</span>
-                </div>
-              </div>
-  
-              <div class="card-footer">
+            @for (appt of upcomingAppointments; track appt.appointmentId) {
+              <div class="appointment-card card-outline">
                 
-                <div class="action-buttons" *ngIf="
-                  (appt.status === 'pending' && appt.createdBy !== currentUserId) || 
-                  (appt.status === 'rescheduled' && appt.rescheduleRequestedBy !== currentUserId)">
-                  <button mat-button color="primary" (click)="acceptAppointment(appt)">Accept</button>
-                  <button mat-button color="accent" (click)="openRescheduleModal(appt)">Request Reschedule</button>
-                  <button mat-button color="warn" (click)="rejectAppointment(appt)">Decline</button>
+                <div class="card-header">
+                  <div class="doctor-info">
+                    <div class="avatar">Dr.</div>
+                    <div>
+                      <h4>{{ appt.doctorName }}</h4>
+                      <span class="text-muted">{{ appt.specialization || 'General Practice' }}</span>
+                    </div>
+                  </div>
+                  <span class="theme-badge" [ngClass]="appt.status.toLowerCase()">{{ appt.status }}</span>
                 </div>
   
-                <div class="waiting-badge" *ngIf="
-                  (appt.status === 'pending' && appt.createdBy === currentUserId) || 
-                  (appt.status === 'rescheduled' && appt.rescheduleRequestedBy === currentUserId)">
-                  <mat-icon>hourglass_empty</mat-icon> Waiting for Doctor's confirmation
+                <div class="card-body">
+                  <div class="info-row">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span>{{ appt.startTime | date:'EEEE, MMM d, yyyy' }}</span>
+                  </div>
+                  <div class="info-row">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ appt.startTime | date:'shortTime' }} ({{ appt.durationMinutes }} mins)</span>
+                  </div>
+                  
+                  @if (appt.hospital) {
+                    <div class="info-row">
+                      <mat-icon>location_on</mat-icon>
+                      <span>{{ appt.hospital }}</span>
+                    </div>
+                  }
                 </div>
   
-                <div class="action-buttons" *ngIf="appt.status === 'accepted'">
-                  <button mat-stroked-button color="primary" (click)="openRescheduleModal(appt)">Reschedule</button>
-                  <button mat-stroked-button color="warn" (click)="cancelAppointment(appt)">Cancel</button>
-                </div>
+                <div class="card-footer">
+                  
+                  @if ((appt.status.toLowerCase() === 'pending' && appt.createdBy !== currentUserId) || 
+                       (appt.status.toLowerCase() === 'rescheduled' && appt.rescheduleRequestedBy !== currentUserId)) {
+                    <div class="action-buttons">
+                      <button mat-button color="primary" (click)="acceptAppointment(appt)">Accept</button>
+                      <button mat-button color="accent" (click)="openRescheduleModal(appt)">Request Reschedule</button>
+                      <button mat-button color="warn" (click)="rejectAppointment(appt)">Decline</button>
+                    </div>
+                  }
   
+                  @if ((appt.status.toLowerCase() === 'pending' && appt.createdBy === currentUserId) || 
+                       (appt.status.toLowerCase() === 'rescheduled' && appt.rescheduleRequestedBy === currentUserId)) {
+                    <div class="waiting-badge">
+                      <mat-icon>hourglass_empty</mat-icon> Waiting for Doctor's confirmation
+                    </div>
+                  }
+  
+                  @if (appt.status.toLowerCase() === 'accepted') {
+                    <div class="action-buttons">
+                      <button mat-stroked-button color="primary" (click)="openRescheduleModal(appt)">Reschedule</button>
+                      <button mat-stroked-button color="warn" (click)="cancelAppointment(appt)">Cancel</button>
+                    </div>
+                  }
+  
+                </div>
               </div>
-            </div>
+            }
           </div>
         </div>
       </mat-tab>

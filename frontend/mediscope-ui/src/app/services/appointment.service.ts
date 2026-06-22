@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environments';
+import { BaseHttpService } from './base-http.service'; 
+import { ApiResponse } from '../models/api-response.model';
 import { 
   DoctorAppointmentResponseDto, 
   CreateAppointmentRequestDto, 
@@ -15,37 +15,45 @@ import {
   providedIn: 'root'
 })
 export class AppointmentService {
-  private apiUrl = `${environment.apiUrl}/appointments`;
-  private userApiUrl = `${environment.apiUrl}`;
-
-  constructor(private http: HttpClient) {}
-
-  getDoctorSchedule(): Observable<{ data: DoctorAppointmentResponseDto[] }> {
-    return this.http.get<{ data: DoctorAppointmentResponseDto[] }>(`${this.apiUrl}/doctor/my-schedule`);
-  }
-
-  // Fetch dynamic patients connected to this doctor
-  getDoctorPatients(): Observable<{ data: PatientDto[] }> {
-    return this.http.get<{ data: PatientDto[] }>(`${this.userApiUrl}/doctor-patient/my-patients`);
-  }
-
-  createAppointment(request: CreateAppointmentRequestDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, request);
-  }
-
-  rescheduleAppointment(id: string, request: RescheduleAppointmentRequestDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/reschedule`, request);
-  }
-
-  respondToAppointment(id: string, request: RespondToAppointmentRequestDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/respond`, request);
-  }
-
-  getPatientAppointments(): Observable<{ data: PatientAppointmentResponseDto[] }> {
-    return this.http.get<{ data: PatientAppointmentResponseDto[] }>(`${this.apiUrl}/patient/my-appointments`);
-  }
   
-  cancelAppointment(id: string, reason?: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/cancel`, { reason });
+  private baseEndpoint = 'appointments';
+  private userEndpoint = 'doctor-patient';
+
+  constructor(private http: BaseHttpService) {}
+
+  getDoctorSchedule(): Observable<ApiResponse<DoctorAppointmentResponseDto[]>> {
+    return this.http.get<DoctorAppointmentResponseDto[]>(`${this.baseEndpoint}/doctor/my-schedule`);
+  }
+
+  getDoctorPatients(): Observable<ApiResponse<PatientDto[]>> {
+    return this.http.get<PatientDto[]>(`${this.userEndpoint}/my-patients`);
+  }
+
+  getPatientAppointments(): Observable<ApiResponse<PatientAppointmentResponseDto[]>> {
+    return this.http.get<PatientAppointmentResponseDto[]>(`${this.baseEndpoint}/patient/my-appointments`);
+  }
+
+  createAppointment(request: CreateAppointmentRequestDto): Observable<ApiResponse<any>> {
+    return this.http.post<any>(`${this.baseEndpoint}`, request, { 
+      showSuccess: true 
+    });
+  }
+
+  rescheduleAppointment(id: string, request: RescheduleAppointmentRequestDto): Observable<ApiResponse<any>> {
+    return this.http.post<any>(`${this.baseEndpoint}/${id}/reschedule`, request, { 
+      showSuccess: true 
+    });
+  }
+
+  respondToAppointment(id: string, request: RespondToAppointmentRequestDto): Observable<ApiResponse<any>> {
+    return this.http.post<any>(`${this.baseEndpoint}/${id}/respond`, request, { 
+      showSuccess: true 
+    });
+  }
+
+  cancelAppointment(id: string, reason?: string): Observable<ApiResponse<any>> {
+    return this.http.post<any>(`${this.baseEndpoint}/${id}/cancel`, { reason }, { 
+      showSuccess: true 
+    });
   }
 }

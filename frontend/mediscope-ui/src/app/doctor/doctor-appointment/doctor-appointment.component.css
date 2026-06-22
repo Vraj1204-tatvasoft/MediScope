@@ -181,7 +181,62 @@
     height: 12px;
     border-radius: 3px;
   }
+  /* --- Classes to replace inline styles --- */
+
+  .calendar-padding {
+    padding: 20px;
+  }
   
+  .agenda-margin {
+    margin-bottom: 16px;
+  }
+  
+  .agenda-title {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .hidden-menu-trigger {
+    visibility: hidden;
+    position: fixed;
+  }
+  
+  .menu-patient-name {
+    font-size: 16px;
+  }
+  
+  .menu-badge {
+    display: inline-block;
+    margin-top: 8px;
+  }
+  
+  .menu-time-info {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  
+  .small-icon {
+    font-size: 14px;
+    height: 14px;
+    width: 14px;
+    vertical-align: middle;
+  }
+  
+  .medium-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+  
+  .waiting-status-box {
+    padding: 16px;
+    font-size: 13px;
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
   .legend-dot.accepted { background: #22c55e; }
   .legend-dot.pending { background: #f59e0b; }
   .legend-dot.rescheduled { background: #3b82f6; }

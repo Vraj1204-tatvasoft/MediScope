@@ -1,28 +1,26 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-// Material Imports
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider'; // ── 🛠️ ADDED MAT-DIVIDER
+import { MatDividerModule } from '@angular/material/divider';
 
-// FullCalendar Imports
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
-// Services & Models
 import { AppointmentService } from '../../services/appointment.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DoctorAppointmentResponseDto } from '../../models/appointment.model';
 import { BookAppointmentDialogComponent } from '../book-appointment-dialog/book-appointment-dialog.component';
 import { RescheduleDialogComponent } from '../reschedule-dialog/reschedule-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component'; 
 
 @Component({
   selector: 'app-doctor-appointment',
@@ -49,12 +47,10 @@ export class DoctorAppointmentComponent implements OnInit {
   stats = { total: 0, accepted: 0, pending: 0, available: 0 };
   displayedColumns: string[] = ['date', 'time', 'patient', 'duration', 'status'];
 
-  // For the programmatic Material Menu
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   menuPosition = { x: '0', y: '0' };
   selectedAppointment!: DoctorAppointmentResponseDto;
 
-  // ── 🛠️ FULLCALENDAR CONFIGURATION ──
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'timeGridWeek',
@@ -104,8 +100,7 @@ export class DoctorAppointmentComponent implements OnInit {
             textColor: this.getStatusTextColor(slot.status),
             extendedProps: { originalData: slot }
           }));
-      },
-      error: (err) => console.error("Failed to load schedule", err)
+      }
     });
   }
 
@@ -123,8 +118,6 @@ export class DoctorAppointmentComponent implements OnInit {
     this.historicalAppointments = this.allSlots.filter(s => new Date(s.endTime) < new Date() || s.status === 'cancelled');
   }
 
-  // ── 🛠️ CLICK HANDLERS ──
-
   handleDateClick(arg: any) {
     const dialogRef = this.dialog.open(BookAppointmentDialogComponent, {
       width: '500px',
@@ -140,8 +133,6 @@ export class DoctorAppointmentComponent implements OnInit {
     this.menuPosition.y = clickInfo.jsEvent.clientY + 'px';
     this.menuTrigger.openMenu();
   }
-
-  // ── 🛠️ ACTION METHODS ──
 
   openBookingModal() {
     const dialogRef = this.dialog.open(BookAppointmentDialogComponent, {
@@ -163,31 +154,47 @@ export class DoctorAppointmentComponent implements OnInit {
   acceptAppointment(appointment: DoctorAppointmentResponseDto) {
     this.appointmentService.respondToAppointment(appointment.appointmentId, {
       appointmentId: appointment.appointmentId, action: 'accepted'
-    }).subscribe({
-      next: () => this.loadSchedule(),
-      error: (err) => alert(err.error?.message || "Error accepting appointment")
-    });
+    }).subscribe(() => this.loadSchedule());
   }
 
   rejectAppointment(appointment: DoctorAppointmentResponseDto) {
-    this.appointmentService.respondToAppointment(appointment.appointmentId, {
-      appointmentId: appointment.appointmentId, action: 'rejected'
-    }).subscribe({
-      next: () => this.loadSchedule(),
-      error: (err) => alert(err.error?.message || "Error rejecting appointment")
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Decline Request',
+        message: `Are you sure you want to decline the proposed time for ${appointment.patientName}?`,
+        confirmText: 'Yes, Decline',
+        cancelText: 'Go Back'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.appointmentService.respondToAppointment(appointment.appointmentId, {
+          appointmentId: appointment.appointmentId, action: 'rejected'
+        }).subscribe(() => this.loadSchedule());
+      }
     });
   }
 
   cancelAppointment(appointment: DoctorAppointmentResponseDto) {
-    if(confirm(`Are you sure you want to cancel the appointment with ${appointment.patientName}?`)) {
-      this.appointmentService.cancelAppointment(appointment.appointmentId, 'Cancelled by doctor').subscribe({
-        next: () => this.loadSchedule(),
-        error: (err) => alert(err.error?.message || "Error cancelling appointment")
-      });
-    }
-  }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Cancel Appointment',
+        message: `Are you sure you want to cancel your appointment with ${appointment.patientName}?`,
+        confirmText: 'Yes, Cancel it',
+        cancelText: 'Keep Appointment'
+      }
+    });
 
-  // ── 🛠️ COLOR HELPERS ──
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.appointmentService.cancelAppointment(appointment.appointmentId, 'Cancelled by doctor')
+          .subscribe(() => this.loadSchedule());
+      }
+    });
+  }
 
   getStatusBgColor(status: string) {
     switch(status.toLowerCase()) {

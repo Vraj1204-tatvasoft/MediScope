@@ -20,7 +20,7 @@
             <div class="summary-card card-warning"><h3>{{ stats.pending }}</h3><p>Pending</p></div>
           </div>
   
-          <div class="calendar-wrapper card-outline" style="padding: 20px;">
+          <div class="calendar-wrapper card-outline calendar-padding">
             <full-calendar [options]="calendarOptions"></full-calendar>
           </div>
         </div>
@@ -32,8 +32,8 @@
         </ng-template>
   
         <div class="tab-content">
-          <div class="agenda-header" style="margin-bottom: 16px;">
-            <h4 style="margin: 0; font-size: 18px;">Past & Cancelled Appointments</h4>
+          <div class="agenda-header agenda-margin">
+            <h4 class="agenda-title">Past & Cancelled Appointments</h4>
             <span class="text-muted">({{ historicalAppointments.length }} records found)</span>
           </div>
   
@@ -80,7 +80,7 @@
     </mat-tab-group>
   </div>
   
-  <div style="visibility: hidden; position: fixed"
+  <div class="hidden-menu-trigger"
        [style.left]="menuPosition.x"
        [style.top]="menuPosition.y"
        [matMenuTriggerFor]="apptMenu">
@@ -89,22 +89,23 @@
   <mat-menu #apptMenu="matMenu" class="mediscope-menu">
     <ng-template matMenuContent>
       
-      <ng-container *ngIf="selectedAppointment">
+      @if (selectedAppointment) {
         
         <div class="menu-header">
-          <strong style="font-size: 16px;">{{ selectedAppointment.patientName }}</strong>
-          <span class="theme-badge" [ngClass]="selectedAppointment.status.toLowerCase()" style="display:inline-block; margin-top:8px;">
+          <strong class="menu-patient-name">{{ selectedAppointment.patientName }}</strong>
+          <span class="theme-badge menu-badge" [ngClass]="selectedAppointment.status.toLowerCase()">
             {{ selectedAppointment.status }}
           </span>
-          <div class="text-muted" style="font-size: 12px; margin-top:6px;">
-            <mat-icon style="font-size:14px; height:14px; width:14px; vertical-align: middle;">schedule</mat-icon> 
+          <div class="text-muted menu-time-info">
+            <mat-icon class="small-icon">schedule</mat-icon> 
             {{ selectedAppointment.startTime | date:'fullDate' }} at {{ selectedAppointment.startTime | date:'shortTime' }}
           </div>
         </div>
         
         <mat-divider></mat-divider>
   
-        <ng-container *ngIf="(selectedAppointment.status.toLowerCase() === 'pending' && selectedAppointment.createdBy !== currentUserId) || (selectedAppointment.status.toLowerCase() === 'rescheduled' && selectedAppointment.rescheduleRequestedBy !== currentUserId)">
+        @if ((selectedAppointment.status.toLowerCase() === 'pending' && selectedAppointment.createdBy !== currentUserId) || 
+             (selectedAppointment.status.toLowerCase() === 'rescheduled' && selectedAppointment.rescheduleRequestedBy !== currentUserId)) {
           <button mat-menu-item (click)="acceptAppointment(selectedAppointment)">
             <mat-icon color="primary">check_circle</mat-icon> <span>Accept Request</span>
           </button>
@@ -114,23 +115,21 @@
           <button mat-menu-item (click)="rejectAppointment(selectedAppointment)">
             <mat-icon color="warn">cancel</mat-icon> <span>Decline Request</span>
           </button>
-        </ng-container>
-  
-        <ng-container *ngIf="(selectedAppointment.status.toLowerCase() === 'pending' && selectedAppointment.createdBy === currentUserId) || (selectedAppointment.status.toLowerCase() === 'rescheduled' && selectedAppointment.rescheduleRequestedBy === currentUserId)">
-          <div style="padding: 16px; font-size: 13px; color: #d97706; display: flex; align-items: center; gap: 8px; font-weight: 500;">
-            <mat-icon style="font-size: 20px; height: 20px; width: 20px;">hourglass_empty</mat-icon> Waiting for Patient's Response
+        }
+        @if ((selectedAppointment.status.toLowerCase() === 'pending' && selectedAppointment.createdBy === currentUserId) || 
+             (selectedAppointment.status.toLowerCase() === 'rescheduled' && selectedAppointment.rescheduleRequestedBy === currentUserId)) {
+          <div class="waiting-status-box">
+            <mat-icon class="medium-icon">hourglass_empty</mat-icon> Waiting for Patient's Response
           </div>
-        </ng-container>
-  
-        <ng-container *ngIf="selectedAppointment.status.toLowerCase() === 'accepted'">
+        }
+        @if (selectedAppointment.status.toLowerCase() === 'accepted') {
           <button mat-menu-item (click)="openRescheduleModal(selectedAppointment)">
             <mat-icon color="primary">edit_calendar</mat-icon> <span>Reschedule</span>
           </button>
           <button mat-menu-item (click)="cancelAppointment(selectedAppointment)">
             <mat-icon color="warn">event_busy</mat-icon> <span>Cancel Appointment</span>
           </button>
-        </ng-container>
-  
-      </ng-container>
+        }
+      }
     </ng-template>
   </mat-menu>

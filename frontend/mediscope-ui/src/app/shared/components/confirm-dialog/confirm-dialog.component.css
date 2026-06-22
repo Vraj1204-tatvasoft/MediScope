@@ -1,0 +1,15 @@
+.dialog-title {
+    margin: 0;
+    color: #1f2937;
+    font-weight: 600;
+  }
+  
+  .dialog-content {
+    margin-top: 8px;
+    color: #4b5563;
+  }
+  
+  .dialog-actions {
+    padding-bottom: 16px;
+    padding-right: 16px;
+  }
