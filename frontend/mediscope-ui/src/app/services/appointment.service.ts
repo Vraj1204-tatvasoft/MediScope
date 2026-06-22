@@ -22,38 +22,51 @@ export class AppointmentService {
   constructor(private http: BaseHttpService) {}
 
   getDoctorSchedule(): Observable<ApiResponse<DoctorAppointmentResponseDto[]>> {
-    return this.http.get<DoctorAppointmentResponseDto[]>(`${this.baseEndpoint}/doctor/my-schedule`);
+    return this.http.get<DoctorAppointmentResponseDto[]>(`${this.baseEndpoint}/doctor/my-schedule`,{
+        showError: true,
+        showSuccess: false
+      });
   }
 
   getDoctorPatients(): Observable<ApiResponse<PatientDto[]>> {
-    return this.http.get<PatientDto[]>(`${this.userEndpoint}/my-patients`);
+    return this.http.get<PatientDto[]>(`${this.userEndpoint}/my-patients`,{
+        showError: true,
+        showSuccess: false
+      });
   }
 
   getPatientAppointments(): Observable<ApiResponse<PatientAppointmentResponseDto[]>> {
-    return this.http.get<PatientAppointmentResponseDto[]>(`${this.baseEndpoint}/patient/my-appointments`);
+    return this.http.get<PatientAppointmentResponseDto[]>(`${this.baseEndpoint}/patient/my-appointments`,{
+        showError: true,
+        showSuccess: false
+      });
   }
 
   createAppointment(request: CreateAppointmentRequestDto): Observable<ApiResponse<any>> {
     return this.http.post<any>(`${this.baseEndpoint}`, request, { 
-      showSuccess: true 
+      showSuccess: true,
+      showError: true,
     });
   }
 
   rescheduleAppointment(id: string, request: RescheduleAppointmentRequestDto): Observable<ApiResponse<any>> {
     return this.http.post<any>(`${this.baseEndpoint}/${id}/reschedule`, request, { 
-      showSuccess: true 
+      showSuccess: true,
+      showError: true,
     });
   }
 
   respondToAppointment(id: string, request: RespondToAppointmentRequestDto): Observable<ApiResponse<any>> {
     return this.http.post<any>(`${this.baseEndpoint}/${id}/respond`, request, { 
-      showSuccess: true 
+      showSuccess: true,
+      showError:true,
     });
   }
 
   cancelAppointment(id: string, reason?: string): Observable<ApiResponse<any>> {
     return this.http.post<any>(`${this.baseEndpoint}/${id}/cancel`, { reason }, { 
-      showSuccess: true 
+      showSuccess: true,
+      showError: true,
     });
   }
 }

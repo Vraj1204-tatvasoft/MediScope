@@ -84,7 +84,6 @@ export class DoctorAppointmentComponent implements OnInit {
     this.appointmentService.getDoctorSchedule().subscribe({
       next: (res) => {
         this.allSlots = res.data || [];
-        this.calculateStats();
         this.extractHistory();
         
         // Map DTOs to FullCalendar Event format
@@ -102,16 +101,6 @@ export class DoctorAppointmentComponent implements OnInit {
           }));
       }
     });
-  }
-
-  calculateStats() {
-    const upcoming = this.allSlots.filter(s => new Date(s.endTime) >= new Date() && s.status !== 'cancelled');
-    this.stats = {
-      total: upcoming.length,
-      accepted: upcoming.filter(s => s.status.toLowerCase() === 'accepted').length,
-      pending: upcoming.filter(s => s.status.toLowerCase() === 'pending' || s.status.toLowerCase() === 'rescheduled').length,
-      available: 0 
-    };
   }
 
   extractHistory() {

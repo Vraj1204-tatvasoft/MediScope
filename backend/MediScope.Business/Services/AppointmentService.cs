@@ -21,6 +21,10 @@ namespace MediScope.Business.Services
 
         public async Task<Guid> CreateAppointmentAsync(CreateAppointmentRequestDto request)
         {
+            if (request.StartTime < DateTime.UtcNow)
+            {
+                throw new ArgumentException("Cannot book an appointment for a time that has already passed.");
+            }
             var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId)
                 ?? throw new UnauthorizedAccessException("Only doctors can create appointments.");
 
@@ -87,6 +91,10 @@ namespace MediScope.Business.Services
 
         public async Task RescheduleAppointmentAsync(RescheduleAppointmentRequestDto request)
         {
+            if (request.RescheduledTo < DateTime.UtcNow)
+            {
+                throw new ArgumentException("Cannot reschedule an appointment to a time that has already passed.");
+            }
             await _uow.Appointments.RequestRescheduleViaSqlAsync(
                 appointmentId: request.AppointmentId,
                 userId: _currentUser.UserId,

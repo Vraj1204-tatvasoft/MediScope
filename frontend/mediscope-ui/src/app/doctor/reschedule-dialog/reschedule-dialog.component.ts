@@ -58,9 +58,8 @@ export class RescheduleDialogComponent implements OnInit {
       rescheduleReason: formVal.reason
     };
 
-    this.appointmentService.rescheduleAppointment(this.data.appointmentId, request).subscribe({
-      next: () => this.dialogRef.close(true),
-      error: (err) => alert(err.error?.message || 'Reschedule failed')
+    this.appointmentService.rescheduleAppointment(this.data.appointmentId, request).subscribe(() => {
+      this.dialogRef.close(true);
     });
   }
 }
