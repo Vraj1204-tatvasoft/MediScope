@@ -128,6 +128,38 @@ namespace MediScope.Business.Services
                 "An upcoming appointment has been cancelled."
             );
         }
+
+        public async Task CompleteAppointmentAsync(Guid appointmentId)
+        {
+            var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId)
+                ?? throw new UnauthorizedAccessException("Only doctors can complete appointments.");
+
+            var appointment = await _uow.Appointments.GetByIdAsync(appointmentId)
+                ?? throw new KeyNotFoundException("Appointment not found.");
+
+            if (appointment.DoctorId != doctor.Id)
+                throw new UnauthorizedAccessException("You can only complete your own appointments.");
+
+            if (appointment.EndTime > DateTime.UtcNow)
+                throw new InvalidOperationException("Cannot complete an appointment before its scheduled end time.");
+
+            if (appointment.Status != AppointmentStatus.Accepted)
+                throw new InvalidOperationException("Only accepted appointments can be marked as completed.");
+
+            appointment.Status = AppointmentStatus.Completed;
+            appointment.UpdatedBy = _currentUser.UserId;
+            appointment.UpdatedAt = DateTime.UtcNow;
+
+            await _uow.SaveChangesAsync();
+
+            var targetUserId = await GetOtherPartyUserIdAsync(appointmentId);
+
+            await _notificationService.CreateAsync(
+                targetUserId,
+                NotificationType.Info,
+                "Your appointment has been marked as completed."
+            );
+        }
         private async Task<Guid> GetOtherPartyUserIdAsync(Guid appointmentId)
         {
             var appointment = await _uow.Appointments.GetByIdAsync(appointmentId)

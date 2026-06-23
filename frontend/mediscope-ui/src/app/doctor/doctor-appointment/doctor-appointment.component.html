@@ -120,6 +120,11 @@
             <button mat-menu-item (click)="openMetricsModal(selectedAppointment)">
               <mat-icon color="primary">monitor_heart</mat-icon> <span>Log Vitals & Notes</span>
             </button>
+            @if (isAppointmentPast(selectedAppointment.endTime)) {
+                <button mat-menu-item (click)="markAsCompleted(selectedAppointment)">
+                  <mat-icon style="color: #10b981;">task_alt</mat-icon> <span>Mark as Completed</span>
+                </button>
+              }
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="openRescheduleModal(selectedAppointment)">
               <mat-icon color="primary">edit_calendar</mat-icon> <span>Reschedule</span>

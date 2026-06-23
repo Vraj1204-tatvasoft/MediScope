@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using MediScope.Business.Services.Interfaces;
 using MediScope.Common.Models.DTOs.Request;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MediScope.API.Controllers
@@ -26,15 +25,8 @@ namespace MediScope.API.Controllers
         {
             if (!ModelState.IsValid) return BadRequestResponse("Invalid request.");
 
-            try
-            {
-                var newAppointmentId = await _appointmentService.CreateAppointmentAsync(request);
-                return Success(new { AppointmentId = newAppointmentId }, "Appointment successfully scheduled.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
+            var newAppointmentId = await _appointmentService.CreateAppointmentAsync(request);
+            return Success(new { AppointmentId = newAppointmentId }, "Appointment successfully scheduled.");
         }
 
         [HttpPost("{id:guid}/respond")]
@@ -44,16 +36,10 @@ namespace MediScope.API.Controllers
             if (id != request.AppointmentId) return BadRequestResponse("Route ID does not match request body ID.");
             if (!ModelState.IsValid) return BadRequestResponse("Invalid request.");
 
-            try
-            {
-                await _appointmentService.RespondToAppointmentAsync(request);
-                return Success<object>(null, $"Appointment successfully {request.Action.ToLower()}.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
+            await _appointmentService.RespondToAppointmentAsync(request);
+            return Success<object>(null, $"Appointment successfully {request.Action.ToLower()}.");
         }
+
         [HttpGet("doctor/my-schedule")]
         [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> GetDoctorSchedule()
@@ -74,57 +60,29 @@ namespace MediScope.API.Controllers
         [Authorize(Roles = "Doctor, Patient")]
         public async Task<IActionResult> RescheduleAppointment(Guid id, [FromBody] RescheduleAppointmentRequestDto request)
         {
-            if (id != request.AppointmentId)
-                return BadRequestResponse("Route ID does not match request body ID.");
+            if (id != request.AppointmentId) return BadRequestResponse("Route ID does not match request body ID.");
+            if (!ModelState.IsValid) return BadRequestResponse("Invalid request.");
 
-            if (!ModelState.IsValid)
-                return BadRequestResponse("Invalid request.");
-
-            try
-            {
-                await _appointmentService.RescheduleAppointmentAsync(request);
-                return Success<object>(null, "Reschedule request successfully submitted.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
+            await _appointmentService.RescheduleAppointmentAsync(request);
+            return Success<object>(null, "Reschedule request successfully submitted.");
         }
+
         [HttpPost("{id:guid}/cancel")]
         [Authorize(Roles = "Doctor, Patient")]
         public async Task<IActionResult> CancelAppointment(Guid id, [FromBody] CancelAppointmentRequestDto request)
         {
             if (!ModelState.IsValid) return BadRequestResponse("Invalid request.");
 
-            try
-            {
-                await _appointmentService.CancelAppointmentAsync(id, request.Reason);
-                return Success<object>(null, "Appointment successfully cancelled.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequestResponse(ex.Message);
-            }
+            await _appointmentService.CancelAppointmentAsync(id, request.Reason);
+            return Success<object>(null, "Appointment successfully cancelled.");
+        }
+
+        [HttpPost("{id:guid}/complete")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> CompleteAppointment(Guid id)
+        {
+            await _appointmentService.CompleteAppointmentAsync(id);
+            return Success<object>(null, "Appointment marked as completed successfully.");
         }
     }
 }

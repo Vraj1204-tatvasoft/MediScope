@@ -11,5 +11,6 @@ namespace MediScope.Business.Services.Interfaces
         Task<List<PatientAppointmentResponseDto>> GetMyPatientAppointmentsAsync();
         Task RescheduleAppointmentAsync(RescheduleAppointmentRequestDto request);
         Task CancelAppointmentAsync(Guid appointmentId, string? reason);
+        Task CompleteAppointmentAsync(Guid appointmentId);
     }
 }

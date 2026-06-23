@@ -199,7 +199,31 @@ export class DoctorAppointmentComponent implements OnInit {
       }
     });
   }
+  isAppointmentPast(endTime: string | Date): boolean {
+    const end = new Date(endTime).getTime();
+    const now = new Date().getTime();
+    return end < now;
+  }
+  markAsCompleted(appointment: DoctorAppointmentResponseDto) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Complete Appointment',
+        message: `Are you sure you want to mark the appointment with ${appointment.patientName} as completed? Have you logged all necessary vitals?`,
+        confirmText: 'Yes, Complete',
+        cancelText: 'Go Back'
+      }
+    });
 
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.appointmentService.completeAppointment(appointment.appointmentId)
+          .subscribe(() => {
+            this.loadSchedule(); 
+          });
+      }
+    });
+  }
   getStatusBgColor(status: string) {
     switch(status.toLowerCase()) {
       case 'accepted': return '#dcfce7'; 

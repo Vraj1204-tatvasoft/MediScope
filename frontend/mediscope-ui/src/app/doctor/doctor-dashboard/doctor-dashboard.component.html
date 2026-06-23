@@ -22,10 +22,9 @@
           <div class="alert-message-text">
             <strong>{{ dashboardData()?.criticalPatientCount }} patient(s) with critical readings</strong>
             <p class="alert-sub-detail-p">
-              {{ dashboardData()?.criticalPatientNames?.join(', ') || 'Unknown' }} &mdash; immediate review recommended.
+              {{ dashboardData()?.criticalPatientNames || 'Unknown' }} &mdash; immediate review recommended.
             </p>
           </div>
-          <button mat-flat-button color="warn" class="alert-review-action-btn" routerLink="/doctor/manage-patients">Review</button>
         </div>
       }
   

@@ -69,4 +69,10 @@ export class AppointmentService {
       showError: true,
     });
   }
+  
+  completeAppointment(id: string): Observable<ApiResponse<any>> {
+    return this.http.post<any>(`${this.baseEndpoint}/${id}/complete`, {}, { 
+      showSuccess: true 
+    });
+  }
 }
