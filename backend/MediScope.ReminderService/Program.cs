@@ -19,6 +19,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHostedService<Worker>();
-
+builder.Services.AddHostedService<AutoCancelWorker>();
 var host = builder.Build();
 host.Run();
