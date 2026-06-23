@@ -284,7 +284,47 @@ namespace MediScope.Business.Helpers
                 {PrimaryButton("View Health Dashboard", "http://localhost:4200/patient/dashboard")}"
       );
     }
+    public static string AppointmentReminder(
+        string recipientName,
+        string otherPartyName,
+        string timeText,
+        bool isDoctor,
+        string frontendUrl)
+    {
+      string greetingName = isDoctor ? $"Dr. {recipientName}" : recipientName;
+      string appointmentWith = isDoctor ? $"patient <strong>{otherPartyName}</strong>" : $"<strong>Dr. {otherPartyName}</strong>";
 
+      return Wrap(
+          preheader: $"Your appointment starts {timeText}.",
+          content: $@"
+                <div style='text-align:center; margin-bottom:32px;'>
+                  <div style='display:inline-block; background:{PRIMARY}; border-radius:50%; width:64px; height:64px; line-height:64px; text-align:center;'>
+                    <span style='color:white; font-size:28px;'>⏰</span>
+                  </div>
+                  <h1 style='color:{TEXT_DARK}; font-size:24px; font-weight:700; margin:16px 0 8px;'>
+                    Appointment Reminder
+                  </h1>
+                  <p style='color:{TEXT_GRAY}; font-size:15px; margin:0;'>
+                    Your scheduled appointment is starting soon.
+                  </p>
+                </div>
+
+                <p style='color:{TEXT_DARK}; font-size:15px; margin:0 0 24px;'>
+                  Hello <strong>{greetingName}</strong>,
+                </p>
+
+                <p style='color:{TEXT_GRAY}; font-size:14px; line-height:1.6; margin:0 0 24px;'>
+                  This is a quick reminder that your appointment with {appointmentWith} is scheduled to start <strong>{timeText}</strong>.
+                </p>
+
+                {AlertBox(
+              "💻 Get Ready",
+              "Please log into your dashboard and review any recent health metrics or notes prior to the appointment.",
+              PRIMARY)}
+
+                {PrimaryButton("Go to Dashboard", $"{frontendUrl}/login")}"
+      );
+    }
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE LAYOUT HELPERS
     // ═══════════════════════════════════════════════════════════════

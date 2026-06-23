@@ -639,6 +639,10 @@ namespace MediScope.Data
                 entity.Property(a => a.RescheduledTo).HasColumnName("rescheduled_to");
                 entity.Property(a => a.RescheduleReason).HasColumnName("reschedule_reason");
 
+                entity.Property(a => a.ReminderSent)
+                    .HasColumnName("reminder_sent")
+                    .HasDefaultValue(false);
+
                 entity.Property(a => a.Status)
                       .HasColumnName("status")
                       .HasConversion(

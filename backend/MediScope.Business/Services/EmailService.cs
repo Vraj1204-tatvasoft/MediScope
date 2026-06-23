@@ -35,7 +35,7 @@ namespace MediScope.Business.Services
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Timeout = 10000,   // 10 seconds
+                Timeout = 60000,   // 60 seconds
             };
 
             // ── Build message ─────────────────────────────────────────

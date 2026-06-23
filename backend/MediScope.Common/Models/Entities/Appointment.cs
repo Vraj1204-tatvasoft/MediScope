@@ -17,6 +17,7 @@ namespace MediScope.Common.Models.Entities
         public Guid? RescheduleRequestedBy { get; set; }
         public DateTime? RescheduledTo { get; set; }
         public string? RescheduleReason { get; set; }
+        public bool? ReminderSent { get; set; } = false;
         public Doctor Doctor { get; set; } = null!;
         public Patient Patient { get; set; } = null!;
         public ICollection<HealthMetric> HealthMetrics { get; set; } = new List<HealthMetric>();
