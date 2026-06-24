@@ -717,6 +717,10 @@ namespace MediScope.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("doctor_id");
 
+                    b.Property<string>("ExtractedText")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("extracted_text");
+
                     b.Property<string>("Feedback")
                         .HasColumnType("text")
                         .HasColumnName("feedback");

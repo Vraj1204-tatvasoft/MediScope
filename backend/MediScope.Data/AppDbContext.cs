@@ -302,6 +302,10 @@ namespace MediScope.Data
                 entity.Property(d => d.ReviewedAt)
                           .HasColumnName("reviewed_at");
 
+                entity.Property(d => d.ExtractedText)
+                          .HasColumnName("extracted_text")
+                          .HasColumnType("jsonb");
+
                 entity.HasOne(d => d.Patient)
                           .WithMany(p => p.MedicalDocuments)
                           .HasForeignKey(d => d.PatientId)

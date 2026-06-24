@@ -165,6 +165,7 @@ builder.Services.AddScoped<IDoctorDashboardService, DoctorDashboardService>();
 builder.Services.AddScoped<IMedicalDocumentService, MedicalDocumentService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IOcrService, HybridOcrService>();
 // ── 6. CORS (for Angular frontend) ───────────────────────────────────
 builder.Services.AddCors(options =>
 {

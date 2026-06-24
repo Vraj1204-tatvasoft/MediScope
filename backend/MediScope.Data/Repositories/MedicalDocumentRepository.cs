@@ -70,6 +70,11 @@ namespace MediScope.Data.Repositories
                 document.FileSizeBytes);
 
             command.Parameters.AddWithValue(
+                "p_extracted_text",
+                (object?)document.ExtractedText
+                ?? DBNull.Value);
+
+            command.Parameters.AddWithValue(
                 "p_description",
                 (object?)document.Description
                 ?? DBNull.Value);

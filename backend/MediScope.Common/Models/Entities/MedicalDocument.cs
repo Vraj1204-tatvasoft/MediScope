@@ -21,7 +21,7 @@ namespace MediScope.Common.Models.Entities
         public bool IsReviewed { get; set; }
 
         public string? Feedback { get; set; }
-
+        public string? ExtractedText { get; set; }
         public Severity? Severity { get; set; }
 
         public DateTime? ReviewedAt { get; set; }
