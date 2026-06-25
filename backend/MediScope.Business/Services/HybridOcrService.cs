@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Tesseract;
-using UglyToad.PdfPig;
 using Docnet.Core;
 using Docnet.Core.Models;
 using SixLabors.ImageSharp;
@@ -40,7 +39,8 @@ namespace MediScope.Business.Services
 
                 if (ext == ".pdf")
                 {
-                    return ProcessPdfWithFallback(fileBytes);
+                    _logger.LogInformation("Routing PDF directly to Visual OCR for maximum data capture safety.");
+                    return ProcessScannedPdfWithOcr(fileBytes);
                 }
                 else if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".bmp")
                 {
@@ -48,7 +48,7 @@ namespace MediScope.Business.Services
                 }
                 else
                 {
-                    return string.Empty;
+                    return "[]";
                 }
             }
             catch (Exception ex)
@@ -58,53 +58,17 @@ namespace MediScope.Business.Services
             }
         }
 
-        private string ProcessPdfWithFallback(byte[] pdfBytes)
-        {
-            var pages = new List<OcrPageResult>();
-
-            try
-            {
-                using var document = PdfDocument.Open(pdfBytes);
-                int pageNumber = 1;
-
-                foreach (var page in document.GetPages())
-                {
-                    pages.Add(new OcrPageResult
-                    {
-                        Page = pageNumber++,
-                        Content = page.Text.Trim(),
-                        Confidence = 100.0f
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "PdfPig failed to open document natively.");
-            }
-
-            int totalChars = pages.Sum(p => p.Content.Length);
-
-            if (pages.Count == 0 || totalChars < 50)
-            {
-                _logger.LogInformation("PDF appears to be a scanned image. Triggering Visual OCR...");
-                return ProcessScannedPdfWithOcr(pdfBytes);
-            }
-
-            return JsonSerializer.Serialize(pages, new JsonSerializerOptions { WriteIndented = true });
-        }
-
         private string ProcessScannedPdfWithOcr(byte[] pdfBytes)
         {
-            var pages = new List<OcrPageResult>();
-            using var engine = new TesseractEngine(_tessDataPath, "eng", EngineMode.Default);
-
             using var docReader = DocLib.Instance.GetDocReader(pdfBytes, new PageDimensions(2048, 2048));
             int pageCount = docReader.GetPageCount();
+
+            // Fast Sequential Image Extraction (Protects Docnet from native memory crashes)
+            var pageImages = new List<(int Index, byte[] PngBytes)>();
 
             for (int i = 0; i < pageCount; i++)
             {
                 using var pageReader = docReader.GetPageReader(i);
-
                 byte[] rawBytes = pageReader.GetImage();
                 int width = pageReader.GetPageWidth();
                 int height = pageReader.GetPageHeight();
@@ -112,23 +76,36 @@ namespace MediScope.Business.Services
                 using var image = Image.LoadPixelData<Bgra32>(rawBytes, width, height);
                 using var memoryStream = new MemoryStream();
                 image.SaveAsPng(memoryStream);
-                byte[] pngBytes = memoryStream.ToArray();
 
-                using var pix = Pix.LoadFromMemory(pngBytes);
+                pageImages.Add((i, memoryStream.ToArray()));
+            }
+
+            // Lists are NOT thread-safe for adding items concurrently. Arrays are, as long as threads write to different indexes.
+            var pages = new OcrPageResult[pageCount];
+
+            // Heavy Parallel OCR Processing (Uses 100% of available CPU cores)
+            Parallel.ForEach(pageImages, pageData =>
+            {
+                // SAFETY: Every thread MUST create its own isolated TesseractEngine.
+                using var engine = new TesseractEngine(_tessDataPath, "eng", EngineMode.Default);
+
+                using var pix = Pix.LoadFromMemory(pageData.PngBytes);
                 using var tesseractPage = engine.Process(pix);
 
                 float rawConfidence = tesseractPage.GetMeanConfidence();
                 float percentageConfidence = (float)Math.Round(rawConfidence * 100, 2);
 
-                pages.Add(new OcrPageResult
+                // Thread safely writes only to its specifically assigned index
+                pages[pageData.Index] = new OcrPageResult
                 {
-                    Page = i + 1,
+                    Page = pageData.Index + 1,
                     Content = tesseractPage.GetText().Trim(),
                     Confidence = percentageConfidence
-                });
-            }
+                };
+            });
 
-            return JsonSerializer.Serialize(pages, new JsonSerializerOptions { WriteIndented = true });
+            // Convert the array back to a List for the JSON Serializer
+            return JsonSerializer.Serialize(pages.ToList(), new JsonSerializerOptions { WriteIndented = true });
         }
 
         private string ProcessImageWithTesseract(byte[] imageBytes)
