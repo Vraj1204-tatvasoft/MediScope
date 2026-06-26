@@ -22,7 +22,7 @@ namespace MediScope.Data.Repositories
         private IGenericRepository<AuditLog>? _auditLogs;
         private IGenericRepository<PatientAuditLog>? _patientAuditLogs;
         private IGenericRepository<RefreshToken>? _refreshTokens;
-        //private IHealthMetricSubmissionRepository? _healthMetricSubmissions;
+        // private IInvoiceRepository<Invoice>? _invoices;
         private INotificationRepository? _notifications;
         public IDoctorDashboardRepository? _doctorDashboard;
         public IAppointmentRepository? _appointments;
@@ -49,6 +49,7 @@ namespace MediScope.Data.Repositories
         public IPasswordResetTokenRepository PasswordResetTokens => _passwordResetTokens ??= new PasswordResetTokenRepository(_context);
         public IDoctorDashboardRepository DoctorDashboard => _doctorDashboard ??= new DoctorDashboardRepository(_context);
         public IAppointmentRepository Appointments => _appointments ??= new AppointmentRepository(_context);
+        //public IInvoiceRepository Invoices => _invoices ??= new IInvoiceRepository<Invoice>(_context);
         public async Task<int> SaveChangesAsync()
             => await _context.SaveChangesAsync();
 

@@ -147,6 +147,7 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IMedicalDocumentRepository, MedicalDocumentRepository>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 // ── 5. SERVICES ──────────────────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -166,6 +167,7 @@ builder.Services.AddScoped<IMedicalDocumentService, MedicalDocumentService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IOcrService, HybridOcrService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 // ── 6. CORS (for Angular frontend) ───────────────────────────────────
 builder.Services.AddCors(options =>
 {

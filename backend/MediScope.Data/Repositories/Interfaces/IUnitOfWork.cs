@@ -23,6 +23,7 @@ namespace MediScope.Data.Repositories
         IPatientDashboardRepository PatientDashboard { get; }
         IPasswordResetTokenRepository PasswordResetTokens { get; }
         IDoctorDashboardRepository DoctorDashboard { get; }
+        //IInvoiceRepository Invoices { get; }
         Task<int> SaveChangesAsync();
 
         Task BeginTransactionAsync();
