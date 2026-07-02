@@ -128,6 +128,20 @@ namespace MediScope.Business.Services
                 "An upcoming appointment has been cancelled."
             );
         }
+        public async Task<List<AppointmentSummaryDto>> GetAppointmentsByPatientForDoctorAsync(Guid patientId)
+        {
+            var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId)
+                ?? throw new UnauthorizedAccessException("Only doctors can access this information.");
+
+            var appointments = await _uow.Appointments.GetAppointmentsByPatientAndDoctorAsync(patientId, doctor.Id);
+
+            return appointments.Select(a => new AppointmentSummaryDto
+            {
+                Id = a.Id,
+                StartTime = a.StartTime,
+                DoctorNotes = a.DoctorNotes
+            }).ToList();
+        }
 
         public async Task CompleteAppointmentAsync(Guid appointmentId)
         {

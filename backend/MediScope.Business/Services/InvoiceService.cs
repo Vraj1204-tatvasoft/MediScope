@@ -39,10 +39,27 @@ namespace MediScope.Business.Services
             await _repository.DeleteInvoiceAsync(id);
         }
 
-        public async Task<List<InvoiceSummaryDto>> GetDoctorInvoicesAsync(Guid doctorId)
+        public async Task<List<DoctorInvoiceSummaryDto>> GetDoctorInvoicesAsync(Guid doctorId)
         {
             _logger.LogInformation("Fetching invoices for Doctor {DoctorId}", doctorId);
             return await _repository.GetDoctorInvoicesAsync(doctorId);
+        }
+
+        public async Task<List<PatientInvoiceSummaryDto>> GetPatientInvoicesAsync(Guid patientId)
+        {
+            _logger.LogInformation("Fetching invoices for Doctor {DoctorId}", patientId);
+            return await _repository.GetPatientInvoicesAsync(patientId);
+        }
+
+        public async Task<List<BillingItemDto>> GetBillingItemsAsync()
+        {
+            _logger.LogInformation("Fetching billing items catalog.");
+            return await _repository.GetBillingItemsAsync();
+        }
+        public async Task<InvoiceDetailsDto?> GetInvoiceByIdAsync(Guid invoiceId)
+        {
+            _logger.LogInformation("Fetching full details for Invoice {InvoiceId}", invoiceId);
+            return await _repository.GetInvoiceByIdAsync(invoiceId);
         }
     }
 }

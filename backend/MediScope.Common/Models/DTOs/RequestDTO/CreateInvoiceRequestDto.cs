@@ -15,6 +15,7 @@ namespace MediScope.Common.Models.DTOs.Request
         public decimal GrandTotal { get; set; }
         public decimal TotalPaid { get; set; }
         public List<InvoiceItemDto> Items { get; set; } = new();
+        public List<PaymentDto> Payments { get; set; } = new();
     }
     public class InvoiceItemDto
     {
@@ -25,5 +26,10 @@ namespace MediScope.Common.Models.DTOs.Request
         public bool IsTax { get; set; }
         public decimal Tax { get; set; }
         public decimal Total { get; set; }
+    }
+    public class PaymentDto
+    {
+        public string PaymentMode { get; set; }
+        public decimal PaymentAmount { get; set; }
     }
 }

@@ -12,10 +12,12 @@ namespace MediScope.API.Controllers
     public class PatientController : BaseController
     {
         private readonly IPatientService _patientService;
+        private readonly IInvoiceService _invoiceService;
 
-        public PatientController(IPatientService patientService)
+        public PatientController(IPatientService patientService, IInvoiceService invoiceService)
         {
             _patientService = patientService;
+            _invoiceService = invoiceService;
         }
 
         //  GET /api/patient/profile
@@ -62,6 +64,20 @@ namespace MediScope.API.Controllers
                     .GetAdminPatientsAsync(filter, pagination);
 
             return Success(response);
+        }
+
+        [HttpGet("invoices")]
+        public async Task<IActionResult> GetMyInvoices()
+        {
+            var profile = await _patientService.GetMyProfileAsync(CurrentUserId);
+
+            if (profile == null)
+            {
+                return BadRequestResponse("Patient profile not found.");
+            }
+            var invoices = await _invoiceService.GetPatientInvoicesAsync(profile.PatientId);
+
+            return Success(invoices);
         }
     }
 }

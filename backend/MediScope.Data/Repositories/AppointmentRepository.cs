@@ -94,5 +94,12 @@ namespace MediScope.Data.Repositories
             return await _context.Appointments
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         }
+        public async Task<List<Appointment>> GetAppointmentsByPatientAndDoctorAsync(Guid patientId, Guid doctorId)
+        {
+            return await _context.Appointments
+                .Where(a => a.PatientId == patientId && a.DoctorId == doctorId && !a.IsDeleted)
+                .OrderByDescending(a => a.StartTime)
+                .ToListAsync();
+        }
     }
 }

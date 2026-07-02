@@ -56,6 +56,14 @@ namespace MediScope.API.Controllers
             return Success(result);
         }
 
+        [HttpGet("patient/{patientId:guid}")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> GetPatientAppointmentsForDoctor(Guid patientId)
+        {
+            var result = await _appointmentService.GetAppointmentsByPatientForDoctorAsync(patientId);
+            return Success(result);
+        }
+
         [HttpPost("{id:guid}/reschedule")]
         [Authorize(Roles = "Doctor, Patient")]
         public async Task<IActionResult> RescheduleAppointment(Guid id, [FromBody] RescheduleAppointmentRequestDto request)

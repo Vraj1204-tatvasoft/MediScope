@@ -1,0 +1,106 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Invoice' : 'Generate Invoice' }}</h2>
+
+<mat-dialog-content>
+  @if (isLoading) {
+    <div class="loading-container">Loading invoice details...</div>
+  } @else {
+    <form [formGroup]="invoiceForm" class="dialog-form">
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Select Patient</mat-label>
+          <mat-select formControlName="patientId">
+            @for (p of patients; track p.patientId) {
+              <mat-option [value]="p.patientId">{{ p.fullName }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Link to Appointment (Optional)</mat-label>
+          <mat-select formControlName="appointmentId">
+            <mat-option [value]="null">-- None --</mat-option>
+            @for (appt of patientAppointments; track appt.id) {
+              <mat-option [value]="appt.id">
+                {{ appt.startTime | date:'MMM d, y, h:mm a' }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="items-header">
+        <h3>Invoice Items</h3>
+        <button mat-button color="primary" type="button" (click)="addItem()">
+          <mat-icon>add_circle</mat-icon> Add Item
+        </button>
+      </div>
+
+      <div formArrayName="items" class="items-container">
+        @for (item of items.controls; track item; let i = $index) {
+          <div [formGroupName]="i" class="item-row">
+            
+            <mat-form-field appearance="outline" class="item-catalog">
+              <mat-label>Service / Item</mat-label>
+              <mat-select formControlName="billingItemId" (selectionChange)="onBillingItemChange($event.value, i)">
+                <mat-option [value]="null">-- Custom --</mat-option>
+                @for (b of billingItems; track b.id) {
+                  <mat-option [value]="b.id" [disabled]="isBillingItemDisabled(b.id, i)">
+                    {{ b.itemName }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+      
+            <mat-form-field appearance="outline" class="item-desc">
+              <mat-label>Description</mat-label>
+              <input matInput formControlName="description" placeholder="Notes">
+            </mat-form-field>
+      
+            <mat-form-field appearance="outline" class="item-amount">
+              <mat-label>Amount</mat-label>
+              <input matInput type="number" formControlName="amount" min="0">
+            </mat-form-field>
+      
+            <mat-form-field appearance="outline" class="item-tax">
+              <mat-label>Tax (%)</mat-label>
+              <input matInput type="number" formControlName="taxRate" min="0">
+            </mat-form-field>
+      
+            <div class="item-actions">
+              <button mat-icon-button color="warn" type="button" (click)="removeItem(i)" [disabled]="items.length === 1">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+      
+          </div>
+        }
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="totals-section">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>{{ subTotal | currency:'USD' }}</span>
+        </div>
+        <div class="total-row text-muted">
+          <span>Tax:</span>
+          <span>{{ totalTax | currency:'USD' }}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span>Grand Total:</span>
+          <span>{{ grandTotal | currency:'USD' }}</span>
+        </div>
+      </div>
+
+    </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="invoiceForm.invalid || isLoading">
+    {{ isEditMode ? 'Save Changes' : 'Create Invoice' }}
+  </button>
+</mat-dialog-actions>

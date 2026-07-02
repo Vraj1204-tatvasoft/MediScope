@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { BaseHttpService } from './base-http.service'; 
 import { ApiResponse } from '../models/api-response.model';
 import { 
@@ -10,6 +10,7 @@ import {
   PatientDto,
   PatientAppointmentResponseDto
 } from '../models/appointment.model';
+import { AppointmentDto } from '../models/invoice.model';
 
 @Injectable({
   providedIn: 'root'
@@ -74,5 +75,11 @@ export class AppointmentService {
     return this.http.post<any>(`${this.baseEndpoint}/${id}/complete`, {}, { 
       showSuccess: true 
     });
+  }
+
+  getAppointmentsByPatient(patientId: string): Observable<AppointmentDto[]> {
+    return this.http.get<AppointmentDto[]>(`appointments/patient/${patientId}`).pipe(
+      map(res => res.data ? res.data : (Array.isArray(res) ? res : []))
+    );
   }
 }

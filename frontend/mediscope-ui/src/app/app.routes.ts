@@ -31,6 +31,9 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
 import { DoctorAppointmentComponent } from './doctor/doctor-appointment/doctor-appointment.component';
 import { BookAppointmentDialogComponent } from './doctor/book-appointment-dialog/book-appointment-dialog.component';
 import { PatientAppointmentComponent } from './patient/patient-appointment/patient-appointment.component';
+import {  DoctorInvoicesComponent } from './doctor/doctor-invoices/doctor-invoices.component';
+import { InvoiceDetailComponent } from './doctor/invoice-detail.component/invoice-detail.component';
+import { PatientInvoicesComponent } from './patient/patient-invoice/patient-invoice.component';
 
 
 export const routes: Routes = [
@@ -87,6 +90,14 @@ export const routes: Routes = [
         component: PatientAppointmentComponent,
       },
       {
+        path: 'invoices',
+        component: PatientInvoicesComponent
+      },
+      {
+        path: 'invoice-detail/:id',
+        component: InvoiceDetailComponent
+      },
+      {
         path: 'patient-notifications',
         component: PatientNotificationComponent
       },
@@ -136,6 +147,14 @@ export const routes: Routes = [
       {
         path: 'book-appointment',
         component: BookAppointmentDialogComponent
+      },
+      {
+        path: 'doctor-invoices',
+        component: DoctorInvoicesComponent
+      },
+      {
+        path: 'invoice-detail/:id',
+        component: InvoiceDetailComponent
       },
       {
         path: 'profile',

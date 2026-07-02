@@ -20,6 +20,7 @@ namespace MediScope.API.Controllers
 
         // POST: api/invoices
         [HttpPost]
+
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequestDto dto)
         {
             try
@@ -78,7 +79,7 @@ namespace MediScope.API.Controllers
 
         // GET: api/invoices/doctor/{doctorId}
         [HttpGet("doctor/{doctorId:guid}")]
-        public async Task<ActionResult<List<InvoiceSummaryDto>>> GetDoctorInvoices(Guid doctorId)
+        public async Task<ActionResult<List<DoctorInvoiceSummaryDto>>> GetDoctorInvoices(Guid doctorId)
         {
             try
             {
@@ -90,6 +91,29 @@ namespace MediScope.API.Controllers
                 _logger.LogError(ex, "Error fetching invoices for doctor {DoctorId}", doctorId);
                 return StatusCode(500, "An error occurred while retrieving the invoices.");
             }
+        }
+
+        [HttpGet("billing-items")]
+        public async Task<ActionResult<List<BillingItemDto>>> GetBillingItems()
+        {
+            try
+            {
+                var items = await _invoiceService.GetBillingItemsAsync();
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching billing items");
+                return StatusCode(500, "An error occurred while retrieving billing items.");
+            }
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetInvoiceById(Guid id)
+        {
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            if (invoice == null) return NotFound("Invoice not found.");
+            return Ok(invoice);
         }
     }
 }

@@ -1,0 +1,73 @@
+<h2 mat-dialog-title>Record Payments</h2>
+
+<mat-dialog-content>
+  <div class="balance-summary">
+    <span class="label">Amount Due:</span>
+    <span class="value text-danger">{{ data.balanceDue | currency:'USD' }}</span>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">Loading previous transaction history...</div>
+  } @else {
+    <form [formGroup]="paymentForm" class="dialog-form">
+      <div class="items-header">
+        <h3>Payment Entries</h3>
+        <button mat-button color="primary" type="button" (click)="addPaymentRow()" [disabled]="totalPaidAmount >= data.balanceDue">
+          <mat-icon>add_circle</mat-icon> Add Row
+        </button>
+      </div>
+
+      <div formArrayName="payments" class="items-container">
+        @for (pmt of payments.controls; track pmt; let i = $index) {
+          <div [formGroupName]="i" class="item-row">
+            
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Payment Mode</mat-label>
+              <mat-select formControlName="paymentMode">
+                @for (mode of paymentModes; track mode) {
+                  <mat-option [value]="mode">{{ mode }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Amount Paid</mat-label>
+              <input matInput type="number" formControlName="paymentAmount" min="1">
+            </mat-form-field>
+
+            <div class="item-actions">
+              @if (!pmt.get('isExisting')?.value) {
+                <button mat-icon-button color="warn" type="button" (click)="removePaymentRow(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              } @else {
+                <span class="lock-badge"><mat-icon>lock</mat-icon></span>
+              }
+            </div>
+
+          </div>
+        }
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="totals-section">
+        <div class="total-row">
+          <span>Total Being Paid:</span>
+          <span class="text-success">{{ totalPaidAmount | currency:'USD' }}</span>
+        </div>
+        <div class="total-row remaining-row">
+          <span>Remaining Amount:</span>
+          <span>{{ Math.max(0, data.balanceDue - totalPaidAmount) | currency:'USD' }}</span>
+        </div>
+      </div>
+    </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="paymentForm.invalid || isLoading">
+    Submit Payment
+  </button>
+</mat-dialog-actions>

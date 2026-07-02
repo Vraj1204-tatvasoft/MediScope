@@ -1,0 +1,91 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+  min-width: 650px; 
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-row mat-form-field {
+  flex: 1;
+}
+
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.items-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #3f51b5; 
+}
+
+.items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 240px; 
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 8px;   
+  padding-right: 8px;
+}
+
+.item-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start; /* Keeps field names from being cut off vertically */
+  width: 100%;
+}
+
+.item-catalog { flex: 2; }
+.item-desc { flex: 2.5; }
+.item-amount { flex: 1; }
+.item-tax { flex: 1; }
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  height: 56px; 
+}
+
+.totals-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  padding-right: 16px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  width: 250px;
+  font-size: 1rem;
+}
+
+.grand-total {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 8px;
+  border-top: 2px solid #eee;
+  padding-top: 8px;
+}
+
+.loading-container {
+  padding: 24px;
+  text-align: center;
+  font-weight: 500;
+  color: #757575;
+}
