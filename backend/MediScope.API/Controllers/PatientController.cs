@@ -65,19 +65,5 @@ namespace MediScope.API.Controllers
 
             return Success(response);
         }
-
-        [HttpGet("invoices")]
-        public async Task<IActionResult> GetMyInvoices()
-        {
-            var profile = await _patientService.GetMyProfileAsync(CurrentUserId);
-
-            if (profile == null)
-            {
-                return BadRequestResponse("Patient profile not found.");
-            }
-            var invoices = await _invoiceService.GetPatientInvoicesAsync(profile.PatientId);
-
-            return Success(invoices);
-        }
     }
 }

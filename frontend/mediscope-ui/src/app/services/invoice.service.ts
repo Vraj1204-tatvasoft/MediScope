@@ -10,12 +10,6 @@ export class InvoiceService {
 
   constructor(private baseHttp: BaseHttpService) {}
 
-  getDoctorInvoices(doctorId: string): Observable<InvoiceSummary[]> {
-    return this.baseHttp.get<InvoiceSummary[]>(`${this.endpoint}/doctor/${doctorId}`).pipe(
-        map((response: any) => response as InvoiceSummary[])
-    );
-  }
-
   createInvoice(data: InvoiceCreateDto): Observable<string> {
     return this.baseHttp.post<string>(this.endpoint, data, { 
       showSuccess: true, 
@@ -52,9 +46,10 @@ export class InvoiceService {
       map(() => void 0)
     );
   }
-  getPatientInvoices(): Observable<any[]> {
-    return this.baseHttp.get<any>('patient/invoices').pipe(
-      map((response: any) => response.data || response)
+  
+  getMyInvoices(): Observable<InvoiceSummary[]> {
+    return this.baseHttp.get<InvoiceSummary[]>(this.endpoint).pipe(
+        map((response: any) => response.data || response)
     );
   }
 }

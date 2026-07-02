@@ -54,7 +54,7 @@ export class DoctorInvoicesComponent implements OnInit {
     this.doctorService.getMyProfile().pipe(
       switchMap((profile) => {
         this.currentUserId = profile.doctorId; 
-        return this.invoiceService.getDoctorInvoices(this.currentUserId);})
+        return this.invoiceService.getMyInvoices();})
     ).subscribe({
       next: (data) => {
         this.invoices = data || [];

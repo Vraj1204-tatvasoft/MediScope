@@ -11,9 +11,8 @@ namespace MediScope.Business.Services.Interfaces
         Task<Guid> CreateInvoiceAsync(CreateInvoiceRequestDto dto);
         Task UpdateInvoiceAsync(Guid id, CreateInvoiceRequestDto dto);
         Task DeleteInvoiceAsync(Guid id);
-        Task<List<DoctorInvoiceSummaryDto>> GetDoctorInvoicesAsync(Guid doctorId);
         Task<List<BillingItemDto>> GetBillingItemsAsync();
         Task<InvoiceDetailsDto?> GetInvoiceByIdAsync(Guid invoiceId);
-        Task<List<PatientInvoiceSummaryDto>> GetPatientInvoicesAsync(Guid patientId);
+        Task<List<InvoiceSummaryDto>> GetMyInvoicesAsync(Guid userId);
     }
 }

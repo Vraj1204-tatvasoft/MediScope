@@ -29,7 +29,7 @@ namespace MediScope.API.Controllers
                     return BadRequest("Invoice data and line items are required.");
 
                 var invoiceId = await _invoiceService.CreateInvoiceAsync(dto);
-                return CreatedAtAction(nameof(GetDoctorInvoices), new { doctorId = dto.DoctorId }, new { id = invoiceId });
+                return CreatedAtAction(nameof(GetInvoiceById), new { id = invoiceId }, new { id = invoiceId });
             }
             catch (Exception ex)
             {
@@ -77,20 +77,11 @@ namespace MediScope.API.Controllers
             }
         }
 
-        // GET: api/invoices/doctor/{doctorId}
-        [HttpGet("doctor/{doctorId:guid}")]
-        public async Task<ActionResult<List<DoctorInvoiceSummaryDto>>> GetDoctorInvoices(Guid doctorId)
+        [HttpGet]
+        public async Task<IActionResult> GetMyInvoices()
         {
-            try
-            {
-                var invoices = await _invoiceService.GetDoctorInvoicesAsync(doctorId);
-                return Ok(invoices);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching invoices for doctor {DoctorId}", doctorId);
-                return StatusCode(500, "An error occurred while retrieving the invoices.");
-            }
+            var invoices = await _invoiceService.GetMyInvoicesAsync(CurrentUserId);
+            return Success(invoices);
         }
 
         [HttpGet("billing-items")]

@@ -8,9 +8,8 @@ namespace MediScope.Data.Repositories
         Task<Guid> CreateInvoiceAsync(CreateInvoiceRequestDto dto);
         Task UpdateInvoiceAsync(Guid invoiceId, CreateInvoiceRequestDto dto);
         Task DeleteInvoiceAsync(Guid invoiceId);
-        Task<List<DoctorInvoiceSummaryDto>> GetDoctorInvoicesAsync(Guid doctorId);
         Task<List<BillingItemDto>> GetBillingItemsAsync();
         Task<InvoiceDetailsDto?> GetInvoiceByIdAsync(Guid invoiceId);
-        Task<List<PatientInvoiceSummaryDto>> GetPatientInvoicesAsync(Guid patientId);
+        Task<List<InvoiceSummaryDto>> GetInvoicesByUserIdAsync(Guid userId);
     }
 }

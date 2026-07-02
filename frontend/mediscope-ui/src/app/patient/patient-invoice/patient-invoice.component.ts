@@ -35,7 +35,7 @@ export class PatientInvoicesComponent implements OnInit {
   }
 
   loadInvoices(): void {
-    this.invoiceService.getPatientInvoices().subscribe({
+    this.invoiceService.getMyInvoices().subscribe({
       next: (data) => {
         this.invoices = data || [];
       },
@@ -44,7 +44,6 @@ export class PatientInvoicesComponent implements OnInit {
   }
 
   onView(invoice: any): void {
-    // Assuming you have a route set up like '/patient/invoice-detail/:id'
     this.router.navigate(['/patient/invoice-detail', invoice.id]); 
   }
 

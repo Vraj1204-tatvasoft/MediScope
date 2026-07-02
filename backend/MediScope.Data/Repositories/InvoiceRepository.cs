@@ -63,24 +63,34 @@ namespace MediScope.Data.Repositories
                 invoiceId
             );
         }
-
-        public async Task<List<DoctorInvoiceSummaryDto>> GetDoctorInvoicesAsync(Guid doctorId)
-        {
-            return await _context.Database
-                .SqlQueryRaw<DoctorInvoiceSummaryDto>("SELECT * FROM fn_get_invoices_by_doctor({0})", doctorId)
-                .ToListAsync();
-        }
-
         public async Task<List<BillingItemDto>> GetBillingItemsAsync()
         {
             return await _context.Database
                 .SqlQueryRaw<BillingItemDto>("SELECT * FROM fn_get_billing_items()")
                 .ToListAsync();
         }
-        public async Task<List<PatientInvoiceSummaryDto>> GetPatientInvoicesAsync(Guid patientId)
+        public async Task<List<InvoiceSummaryDto>> GetInvoicesByUserIdAsync(Guid userId)
         {
+            var doctorId = await _context.Doctors
+                .Where(d => d.UserId == userId)
+                .Select(d => (Guid?)d.Id)
+                .FirstOrDefaultAsync();
+
+            var patientId = await _context.Patients
+                .Where(p => p.UserId == userId)
+                .Select(p => (Guid?)p.Id)
+                .FirstOrDefaultAsync();
+
+            if (doctorId == null && patientId == null)
+            {
+                return new List<InvoiceSummaryDto>();
+            }
+
+            var pDoc = new NpgsqlParameter("@p_doctor_id", doctorId ?? (object)DBNull.Value);
+            var pPat = new NpgsqlParameter("@p_patient_id", patientId ?? (object)DBNull.Value);
+
             return await _context.Database
-                .SqlQueryRaw<PatientInvoiceSummaryDto>("SELECT * FROM fn_get_invoices_by_patient({0})", patientId)
+                .SqlQueryRaw<InvoiceSummaryDto>("SELECT * FROM fn_get_invoices(@p_doctor_id, @p_patient_id)", pDoc, pPat)
                 .ToListAsync();
         }
         public async Task<InvoiceDetailsDto?> GetInvoiceByIdAsync(Guid invoiceId)
