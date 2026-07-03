@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BaseHttpService } from './base-http.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BillingItemDto, InvoiceCreateDto, InvoiceDetails, InvoiceSummary } from '../models/invoice.model'; 
+import { BillingItemDto, InvoiceCreateDto, InvoiceDetails, InvoiceSummary, RefundRequestDto } from '../models/invoice.model'; 
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
@@ -46,10 +46,17 @@ export class InvoiceService {
       map(() => void 0)
     );
   }
-  
+
   getMyInvoices(): Observable<InvoiceSummary[]> {
     return this.baseHttp.get<InvoiceSummary[]>(this.endpoint).pipe(
         map((response: any) => response.data || response)
     );
+  }
+
+  issueRefund(invoiceId: string, data: RefundRequestDto): Observable<void> {
+    return this.baseHttp.post<void>(`${this.endpoint}/${invoiceId}/refund`, data, {
+      showSuccess: true,
+      showError: true
+    }).pipe(map(() => void 0));
   }
 }

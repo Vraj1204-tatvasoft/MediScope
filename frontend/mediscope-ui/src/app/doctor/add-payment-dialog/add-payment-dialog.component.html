@@ -20,7 +20,14 @@
       <div formArrayName="payments" class="items-container">
         @for (pmt of payments.controls; track pmt; let i = $index) {
           <div [formGroupName]="i" class="item-row">
-            
+
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="paymentDate" [max]="maxDate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
             <mat-form-field appearance="outline" class="flex-1">
               <mat-label>Payment Mode</mat-label>
               <mat-select formControlName="paymentMode">

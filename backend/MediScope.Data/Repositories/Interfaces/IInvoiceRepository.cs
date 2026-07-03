@@ -11,5 +11,7 @@ namespace MediScope.Data.Repositories
         Task<List<BillingItemDto>> GetBillingItemsAsync();
         Task<InvoiceDetailsDto?> GetInvoiceByIdAsync(Guid invoiceId);
         Task<List<InvoiceSummaryDto>> GetInvoicesByUserIdAsync(Guid userId);
+        Task IssueRefundAsync(List<Guid> refundIds, List<Guid> paymentIds, Guid invoiceId, string refundMode, string? reason, DateTime refundDate, decimal grandTotal, Guid? createdBy);
+        Task<List<Guid>> GetUnrefundedPaymentIdsAsync(Guid invoiceId);
     }
 }

@@ -9,6 +9,8 @@ import { InvoiceService } from '../../services/invoice.service';
 import { Location } from '@angular/common';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { RefundDialogComponent } from '../refund-dialog/refund-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-invoice-detail',
   templateUrl: './invoice-detail.component.html',
@@ -27,7 +29,7 @@ export class InvoiceDetailComponent implements OnInit {
   private router = inject(Router);
   private invoiceService = inject(InvoiceService);
   private location = inject(Location);
-
+  private dialog = inject(MatDialog);
   ngOnInit(): void {
     const invoiceId = this.route.snapshot.paramMap.get('id');
     if (invoiceId) {
@@ -56,11 +58,36 @@ export class InvoiceDetailComponent implements OnInit {
     
     if (this.invoice && this.invoice.payments) {
       this.invoice.payments.forEach((pmt: any) => {
-        this.totalPaid += Number(pmt.paymentAmount) || 0;
+        let netPayment = Number(pmt.paymentAmount) || 0;
+        
+        if (pmt.refunds && pmt.refunds.length > 0) {
+          pmt.refunds.forEach((refund: any) => {
+            netPayment -= Number(refund.refundAmount) || 0;
+          });
+        }
+        
+        this.totalPaid += netPayment;
       });
     }
 
     this.balanceDue = Math.max(0, (this.invoice?.grandTotal || 0) - this.totalPaid);
+  }
+
+  onRefundSpecific(pmt: any) {
+    this.dialog.open(RefundDialogComponent, {
+      width: '700px', 
+      data: { 
+        invoiceId: this.invoice.id, 
+        paymentIds: [pmt.id], 
+        grandTotal: this.invoice.grandTotal,
+        minRefundDate: new Date(pmt.paymentDate) 
+      }
+    }).afterClosed().subscribe(res => {
+      if (res) {
+        this.isLoading = true;
+        this.loadInvoiceDetails(this.invoice.id);
+      }
+    });
   }
 
   goBack() {

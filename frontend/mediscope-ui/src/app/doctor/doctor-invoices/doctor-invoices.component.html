@@ -77,11 +77,18 @@
             </button>
           }
 
-          <button mat-menu-item (click)="onDelete(element.id)">
-            <mat-icon color="warn">delete_outline</mat-icon>
-            <span>Delete Invoice</span>
-          </button>
-          
+          @if (element.status !== 0) {
+            <button mat-menu-item (click)="onRefund(element)">
+              <mat-icon color="warn">currency_exchange</mat-icon>
+              <span>Refund</span>
+            </button>
+          }
+          @if (element.status !== 1 && element.status !==2) {
+            <button mat-menu-item (click)="onDelete(element.id)">
+              <mat-icon color="warn">delete_outline</mat-icon>
+              <span>Delete Invoice</span>
+            </button>
+        }
         </mat-menu>
     
       </td>

@@ -93,6 +93,30 @@ namespace MediScope.Data.Repositories
                 .SqlQueryRaw<InvoiceSummaryDto>("SELECT * FROM fn_get_invoices(@p_doctor_id, @p_patient_id)", pDoc, pPat)
                 .ToListAsync();
         }
+        public async Task IssueRefundAsync(List<Guid> refundIds, List<Guid> paymentIds, Guid invoiceId, string refundMode, string? reason, DateTime refundDate, decimal grandTotal, Guid? createdBy)
+        {
+            var pRefundIds = new NpgsqlParameter("@p_refund_ids", refundIds.ToArray()) { NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Uuid };
+            var pPayIds = new NpgsqlParameter("@p_payment_ids", paymentIds.ToArray()) { NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Uuid };
+            var pInvoice = new NpgsqlParameter("@p_invoice_id", invoiceId);
+            var pMode = new NpgsqlParameter("@p_refund_mode", refundMode);
+            var pReason = new NpgsqlParameter("@p_reason", reason ?? (object)DBNull.Value);
+            var pDate = new NpgsqlParameter("@p_refund_date", refundDate);
+            var pGrand = new NpgsqlParameter("@p_grand_total", grandTotal);
+            var pCreatedBy = new NpgsqlParameter("@p_created_by", createdBy ?? (object)DBNull.Value);
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "CALL sp_issue_refund_bulk(@p_refund_ids, @p_payment_ids, @p_invoice_id, @p_refund_mode, @p_reason, @p_refund_date, @p_grand_total, @p_created_by)",
+                pRefundIds, pPayIds, pInvoice, pMode, pReason, pDate, pGrand, pCreatedBy
+            );
+        }
+        public async Task<List<Guid>> GetUnrefundedPaymentIdsAsync(Guid invoiceId)
+        {
+            return await _context.Payments
+                .Include(p => p.Refund)
+                .Where(p => p.InvoiceId == invoiceId && p.Refund == null && !p.IsDeleted)
+                .Select(p => p.Id)
+                .ToListAsync();
+        }
         public async Task<InvoiceDetailsDto?> GetInvoiceByIdAsync(Guid invoiceId)
         {
             var rawData = await _context.Database
@@ -100,6 +124,10 @@ namespace MediScope.Data.Repositories
                 .FirstOrDefaultAsync();
 
             if (rawData == null) return null;
+
+            var refunds = await _context.Database
+                .SqlQueryRaw<InvoiceRefundResponseDto>("SELECT * FROM fn_get_refunds_by_invoice({0})", invoiceId)
+                .ToListAsync();
 
             var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
@@ -110,6 +138,14 @@ namespace MediScope.Data.Repositories
             var parsedPayments = string.IsNullOrEmpty(rawData.PaymentsJson)
                 ? new List<InvoicePaymentResponseDto>()
                 : JsonSerializer.Deserialize<List<InvoicePaymentResponseDto>>(rawData.PaymentsJson, jsonOptions);
+
+            if (parsedPayments != null && refunds.Any())
+            {
+                foreach (var payment in parsedPayments)
+                {
+                    payment.Refunds = refunds.Where(r => r.PaymentId == payment.Id).ToList();
+                }
+            }
 
             return new InvoiceDetailsDto
             {

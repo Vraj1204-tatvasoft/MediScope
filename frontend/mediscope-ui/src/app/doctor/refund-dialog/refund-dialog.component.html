@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>{{ data.paymentIds ? 'Refund Specific Payment' : 'Refund Entire Invoice' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="refundForm" class="dialog-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Refund Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="refundDate" [max]="maxDate" [min]="data.minRefundDate" >
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Refund Mode</mat-label>
+      <mat-select formControlName="refundMode">
+        @for (mode of refundModes; track mode) {
+          <mat-option [value]="mode">{{ mode }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Reason</mat-label>
+      <textarea matInput formControlName="reason" rows="3"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="warn" (click)="onSubmit()" [disabled]="refundForm.invalid">
+    Confirm Refund
+  </button>
+</mat-dialog-actions>

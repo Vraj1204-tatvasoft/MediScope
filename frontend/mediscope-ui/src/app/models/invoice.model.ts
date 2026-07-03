@@ -78,3 +78,12 @@ export interface InvoiceDetails {
   items: InvoiceItemDetails[];
   payments: InvoicePayment[];
 }
+
+export interface RefundRequestDto {
+  paymentIds?: string | null; 
+  invoiceId: string;
+  refundMode: string;
+  reason?: string;
+  refundDate: string; 
+  grandTotal: number;
+}

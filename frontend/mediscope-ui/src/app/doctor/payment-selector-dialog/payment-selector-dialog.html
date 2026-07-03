@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>Select Payments to Refund</h2>
+    <mat-dialog-content>
+    <div align="end">
+        <strong>Select All</strong>
+        <mat-checkbox 
+          color="primary"
+          (change)="toggleSelectAll(paymentList, $event)"
+          [checked]="isAllSelected(paymentList)"
+          [indeterminate]="isSomeSelected(paymentList)">
+        </mat-checkbox>
+      </div>
+      <mat-selection-list #paymentList>
+        @for (pmt of availablePayments; track pmt.id) {
+          <mat-list-option [value]="pmt.id">
+            {{ pmt.paymentDate | date:'mediumDate' }} - {{ pmt.paymentMode }} - {{ pmt.paymentAmount | currency:'USD' }}
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      
+      <button mat-raised-button color="primary" [disabled]="!paymentList.selectedOptions.hasValue()" 
+              (click)="dialogRef.close(getSelectionData(paymentList))">
+        Proceed to Refund
+      </button>
+    </mat-dialog-actions>

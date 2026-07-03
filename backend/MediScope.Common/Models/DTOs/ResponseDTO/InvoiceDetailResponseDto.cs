@@ -40,5 +40,15 @@ namespace MediScope.Common.Models.DTOs.Response
         public DateTime PaymentDate { get; set; }
         public string PaymentMode { get; set; } = string.Empty;
         public decimal PaymentAmount { get; set; }
+        public List<InvoiceRefundResponseDto> Refunds { get; set; } = new();
+    }
+    public class InvoiceRefundResponseDto
+    {
+        public Guid Id { get; set; }
+        public Guid PaymentId { get; set; }
+        public DateTime RefundDate { get; set; }
+        public string RefundMode { get; set; } = string.Empty;
+        public decimal RefundAmount { get; set; }
+        public string? Reason { get; set; }
     }
 }

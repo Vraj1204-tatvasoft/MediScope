@@ -5,6 +5,7 @@ namespace MediScope.Common.Models.Enums
         Unpaid = 0,
         Partial = 1,
         Paid = 2,
-        Cancelled = 3
+        Partial_Refund = 3,
+        Refunded = 4
     }
 }

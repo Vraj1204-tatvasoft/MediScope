@@ -135,6 +135,7 @@
                     <th>Date</th>
                     <th>Mode</th>
                     <th class="text-right">Amount ($)</th>
+                    <th class="text-right">Actions</th> 
                   </tr>
                 </thead>
                 <tbody>
@@ -143,7 +144,26 @@
                       <tr>
                         <td>{{ pmt.paymentDate | date:'MMM d, y, h:mm a' }}</td>
                         <td>{{ pmt.paymentMode }}</td>
-                        <td class="text-right">{{ pmt.paymentAmount | number:'1.2-2' }}</td>
+                        <td class="text-right">
+                          <span [ngStyle]="{'text-decoration': pmt.refunds?.length > 0 ? 'line-through' : 'none'}">
+                            {{ pmt.paymentAmount | number:'1.2-2' }}
+                          </span>
+                        </td>
+                        <td class="text-right">
+                          
+                          @if (pmt.refunds && pmt.refunds.length > 0) {
+                            <div class="text-danger" style="font-size: 0.85rem; line-height: 1.2;">
+                              <strong>Refunded</strong><br>
+                              {{ pmt.refunds[0].refundDate | date:'MMM d, y' }}<br>
+                              <span class="text-muted">({{ pmt.refunds[0].refundMode }})</span>
+                            </div>
+                          } @else {
+                            <button mat-stroked-button color="warn" class="no-print" (click)="onRefundSpecific(pmt)">
+                              Refund
+                            </button>
+                          }
+          
+                        </td>
                       </tr>
                     }
                   } @else {

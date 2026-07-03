@@ -16,6 +16,8 @@ import { DoctorService } from '../../services/doctor.service';
 //import { EditInvoiceComponent } from '../edit-invoice.component/edit-invoice.component';
 import { Router } from '@angular/router';
 import { AddPaymentDialogComponent } from '../add-payment-dialog/add-payment-dialog.component';
+import { RefundDialogComponent } from '../refund-dialog/refund-dialog.component';
+import { PaymentSelectorDialog } from '../payment-selector-dialog/payment-selector-dialog';
 
 @Component({
   selector: 'app-doctor-invoices',
@@ -112,6 +114,26 @@ export class DoctorInvoicesComponent implements OnInit {
     this.router.navigate(['/doctor/invoice-detail', invoice.id]); 
   }
 
+  onRefund(element: any): void {
+    this.dialog.open(PaymentSelectorDialog, {
+      width: '700px',
+      data: { invoiceId: element.id }
+    }).afterClosed().subscribe((selectionData: { ids: string[], latestDate: Date } | undefined) => {
+      if (selectionData && selectionData.ids && selectionData.ids.length > 0) {
+        
+        this.dialog.open(RefundDialogComponent, {
+          width: '700px',
+          data: { 
+            invoiceId: element.id, 
+            paymentIds: selectionData.ids,
+            grandTotal: element.grandTotal,
+            minRefundDate: selectionData.latestDate 
+          }
+        }).afterClosed().subscribe(res => res && this.loadInvoices());
+      }
+    });
+}
+  
   onDelete(invoiceId: string): void {
     if (confirm('Are you sure you want to delete this invoice?')) {
       this.invoiceService.deleteInvoice(invoiceId).subscribe({
@@ -130,7 +152,6 @@ export class DoctorInvoicesComponent implements OnInit {
       case 0: return 'Unpaid';
       case 1: return 'Partial';
       case 2: return 'Paid';
-      case 3: return 'Cancelled';
       default: return 'Unknown';
     }
   }

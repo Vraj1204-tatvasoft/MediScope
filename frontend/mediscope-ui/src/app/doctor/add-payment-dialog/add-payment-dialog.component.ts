@@ -12,6 +12,8 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { InvoiceService } from '../../services/invoice.service';
 import { InvoiceDetails } from '../../models/invoice.model'; 
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-add-payment-dialog',
@@ -20,7 +22,7 @@ import { InvoiceDetails } from '../../models/invoice.model';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule,
-    MatInputModule, MatButtonModule, MatDialogModule, MatIconModule, MatDividerModule
+    MatInputModule, MatButtonModule, MatDialogModule, MatIconModule, MatDividerModule, MatDatepickerModule, MatNativeDateModule
   ]
 })
 export class AddPaymentDialogComponent implements OnInit {
@@ -29,7 +31,7 @@ export class AddPaymentDialogComponent implements OnInit {
   paymentModes = ['Cash', 'Credit Card', 'Debit Card', 'UPI', 'Bank Transfer'];
   isLoading = false;
   protected readonly Math = Math;
-
+  maxDate = new Date()
   invoiceData!: InvoiceDetails;
 
   constructor(
@@ -63,6 +65,7 @@ export class AddPaymentDialogComponent implements OnInit {
         if (invoice && invoice.payments) {
           invoice.payments.forEach((pmt: any) => {
             const row = this.fb.group({
+              paymentDate: [{ value: pmt.paymentDate || new Date(), disabled: true }, Validators.required],
               paymentMode: [{ value: pmt.paymentMode, disabled: true }, Validators.required],
               paymentAmount: [{ value: pmt.paymentAmount, disabled: true }, [Validators.required, Validators.min(1)]],
               isExisting: [true] 
@@ -85,6 +88,7 @@ export class AddPaymentDialogComponent implements OnInit {
     const currentPending = Math.max(0, this.data.balanceDue - this.totalPaidAmount);
 
     const paymentGroup = this.fb.group({
+      paymentDate: [new Date(), Validators.required],
       paymentMode: ['Cash', Validators.required],
       paymentAmount: [currentPending > 0 ? currentPending : 0, [Validators.required, Validators.min(1)]],
       isExisting: [false] 
@@ -119,9 +123,9 @@ export class AddPaymentDialogComponent implements OnInit {
     const newPaymentsPayload = rawFormValues.payments
       .filter((pmt: any) => !pmt.isExisting)
       .map((pmt: any) => ({
+        paymentDate: new Date(pmt.paymentDate).toISOString(),
         paymentMode: pmt.paymentMode,
-        paymentAmount: pmt.paymentAmount,
-        paymentDate: new Date().toISOString()
+        paymentAmount: pmt.paymentAmount
       }));
 
     if (newPaymentsPayload.length === 0) return;

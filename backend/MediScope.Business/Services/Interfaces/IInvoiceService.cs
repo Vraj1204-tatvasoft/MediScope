@@ -14,5 +14,6 @@ namespace MediScope.Business.Services.Interfaces
         Task<List<BillingItemDto>> GetBillingItemsAsync();
         Task<InvoiceDetailsDto?> GetInvoiceByIdAsync(Guid invoiceId);
         Task<List<InvoiceSummaryDto>> GetMyInvoicesAsync(Guid userId);
+        Task IssueRefundAsync(IssueRefundRequestDto dto, Guid currentUserId);
     }
 }

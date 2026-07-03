@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using MediScope.Business.Services.Interfaces;
 using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
@@ -20,7 +21,7 @@ namespace MediScope.API.Controllers
 
         // POST: api/invoices
         [HttpPost]
-
+        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequestDto dto)
         {
             try
@@ -42,16 +43,8 @@ namespace MediScope.API.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateInvoice(Guid id, [FromBody] CreateInvoiceRequestDto dto)
         {
-            try
-            {
-                await _invoiceService.UpdateInvoiceAsync(id, dto);
-                return NoContent(); // 204 No Content is standard for a successful PUT
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating invoice {InvoiceId}", id);
-                return StatusCode(500, "An error occurred while updating the invoice.");
-            }
+            await _invoiceService.UpdateInvoiceAsync(id, dto);
+            return NoContent();
         }
 
         // DELETE: api/invoices/{id}
@@ -105,6 +98,22 @@ namespace MediScope.API.Controllers
             var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
             if (invoice == null) return NotFound("Invoice not found.");
             return Ok(invoice);
+        }
+
+        // POST: api/invoices/{id}/refund
+        [HttpPost("{id:guid}/refund")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> IssueRefund(Guid id, [FromBody] IssueRefundRequestDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Refund data is required.");
+
+            if (id != dto.InvoiceId)
+                return BadRequest("The Invoice ID in the URL does not match the payload.");
+
+            await _invoiceService.IssueRefundAsync(dto, CurrentUserId);
+
+            return Ok(new { success = true, message = "Refund processed successfully." });
         }
     }
 }

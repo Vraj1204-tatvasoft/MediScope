@@ -55,5 +55,32 @@ namespace MediScope.Business.Services
             _logger.LogInformation("Fetching full details for Invoice {InvoiceId}", invoiceId);
             return await _repository.GetInvoiceByIdAsync(invoiceId);
         }
+        public async Task IssueRefundAsync(IssueRefundRequestDto dto, Guid currentUserId)
+        {
+            List<Guid> paymentIds;
+
+            if (dto.PaymentIds != null && dto.PaymentIds.Any())
+            {
+                _logger.LogInformation("Issuing partial refund for {Count} payments on Invoice {InvoiceId}",
+                    dto.PaymentIds.Count, dto.InvoiceId);
+                paymentIds = dto.PaymentIds;
+            }
+            else
+            {
+                _logger.LogInformation("Issuing full refund for Invoice {InvoiceId}", dto.InvoiceId);
+                paymentIds = await _repository.GetUnrefundedPaymentIdsAsync(dto.InvoiceId);
+
+                if (!paymentIds.Any())
+                    throw new InvalidOperationException("No valid payments found to refund on this invoice.");
+            }
+
+            var refundIds = paymentIds.Select(_ => Guid.NewGuid()).ToList();
+
+            await _repository.IssueRefundAsync(
+                refundIds, paymentIds, dto.InvoiceId,
+                dto.RefundMode, dto.Reason, dto.RefundDate,
+                dto.GrandTotal, currentUserId
+            );
+        }
     }
 }

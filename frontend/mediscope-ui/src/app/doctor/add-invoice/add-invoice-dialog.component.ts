@@ -46,7 +46,7 @@ export class InvoiceDialogComponent implements OnInit {
   ) {
     this.invoiceForm = this.fb.group({
       patientId: ['', Validators.required],
-      appointmentId: [''], 
+      appointmentId: ['',Validators.required], 
       items: this.fb.array([]) 
     });
 

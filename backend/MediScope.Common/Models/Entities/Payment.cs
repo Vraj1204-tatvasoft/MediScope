@@ -14,5 +14,6 @@ namespace MediScope.Common.Models.Entities
         public decimal PaymentAmount { get; set; }
 
         public Invoice Invoice { get; set; } = null!;
+        public Refund? Refund { get; set; }
     }
 }

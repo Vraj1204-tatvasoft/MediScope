@@ -17,7 +17,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Link to Appointment (Optional)</mat-label>
+          <mat-label>Link to Appointment</mat-label>
           <mat-select formControlName="appointmentId">
             <mat-option [value]="null">-- None --</mat-option>
             @for (appt of patientAppointments; track appt.id) {
