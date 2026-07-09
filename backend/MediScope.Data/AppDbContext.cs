@@ -30,6 +30,7 @@ namespace MediScope.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Refund> Refunds { get; set; }
         public DbSet<BillingItem> BillingItems { get; set; }
+        public DbSet<PatientCardToken> PatientCardTokens { get; set; }
         private static string ToSnakeCase(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
@@ -133,6 +134,10 @@ namespace MediScope.Data
                 entity.HasIndex(p => p.UserId)
                       .IsUnique()
                       .HasDatabaseName("uq_patients_user_id");
+
+                entity.Property(p => p.RazorpayCustomerId)
+                          .HasColumnName("razorpay_customer_id")
+                          .HasMaxLength(50);
 
                 entity.Property(p => p.DateOfBirth).HasColumnName("date_of_birth");
                 entity.Property(p => p.Gender).HasColumnName("gender").HasMaxLength(20).HasConversion<string>();
@@ -817,7 +822,7 @@ namespace MediScope.Data
                 entity.Property(e => e.InvoiceId).HasColumnName("invoice_id");
                 entity.Property(e => e.PaymentDate).HasColumnName("payment_date");
                 entity.Property(e => e.PaymentMode).HasColumnName("payment_mode").HasMaxLength(50);
-
+                entity.Property(e => e.RazorpayPaymentId).HasColumnName("razorpay_payment_id").HasMaxLength(50);
                 entity.Property(e => e.PaymentAmount).HasColumnName("payment_amount").HasColumnType("numeric(18,2)");
                 entity.HasOne(p => p.Refund).WithOne(r => r.Payment).HasForeignKey<Refund>(r => r.PaymentId).OnDelete(DeleteBehavior.Restrict);
             });
@@ -837,6 +842,56 @@ namespace MediScope.Data
 
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
                 entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            });
+
+            modelBuilder.Entity<PatientCardToken>(entity =>
+            {
+                entity.ToTable("patient_card_tokens");
+
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.Id)
+                            .HasColumnName("id");
+
+                entity.Property(t => t.PatientId)
+                            .HasColumnName("patient_id")
+                            .IsRequired();
+
+                entity.Property(t => t.RazorpayTokenId)
+                            .HasColumnName("razorpay_token_id")
+                            .HasMaxLength(100)
+                            .IsRequired();
+
+                entity.Property(t => t.Last4Digits)
+                            .HasColumnName("last_4_digits")
+                            .HasMaxLength(4)
+                            .IsRequired();
+
+                entity.Property(t => t.CardNetwork)
+                            .HasColumnName("card_network")
+                            .HasMaxLength(30)
+                            .IsRequired();
+
+                entity.Property(t => t.IsActive)
+                            .HasColumnName("is_active")
+                            .HasDefaultValue(true);
+
+                entity.Property(t => t.CreatedAt)
+                            .HasColumnName("created_at");
+
+                entity.Property(t => t.UpdatedAt)
+                            .HasColumnName("updated_at");
+
+                entity.Property(t => t.IsDeleted)
+                            .HasColumnName("is_deleted")
+                            .HasDefaultValue(false);
+
+                entity.HasOne(t => t.Patient)
+                            .WithMany()
+                            .HasForeignKey(t => t.PatientId)
+                            .HasConstraintName("fk_card_tokens_patient");
+
+                entity.HasIndex(t => t.PatientId)
+                            .HasDatabaseName("ix_card_tokens_patient_id");
             });
         }
     }

@@ -12,7 +12,7 @@ namespace MediScope.Common.Models.Entities
         public DateTime PaymentDate { get; set; }
         public string PaymentMode { get; set; } = string.Empty;
         public decimal PaymentAmount { get; set; }
-
+        public string? RazorpayPaymentId { get; set; }
         public Invoice Invoice { get; set; } = null!;
         public Refund? Refund { get; set; }
     }

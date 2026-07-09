@@ -87,3 +87,37 @@ export interface RefundRequestDto {
   refundDate: string; 
   grandTotal: number;
 }
+
+export interface CreatePaymentOrderRequest {
+  invoiceId: string;
+  amount: number;
+  paymentMode: string;
+}
+
+export interface CreatePaymentOrderResponse {
+  orderId: string;
+  keyId: string;
+  amount: number;
+  currency: string;
+}
+
+export interface VerifyPaymentRequest {
+  invoiceId: string;
+  amount: number;
+  paymentMode: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+  saveCard: boolean;
+  paymentDate: string;
+}
+
+export interface SavedCard {
+  tokenId:  string;
+  last4:    string;
+  network:  string;
+  cardType: string;
+  status:   string;    
+  expMonth: string;    
+  expYear:  string;    
+}

@@ -32,5 +32,6 @@ namespace MediScope.Common.Models.DTOs.Request
         public DateTime? PaymentDate { get; set; }
         public string PaymentMode { get; set; }
         public decimal PaymentAmount { get; set; }
+        public string? RazorpayPaymentId { get; set; }
     }
 }

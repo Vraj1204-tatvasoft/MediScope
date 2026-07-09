@@ -60,7 +60,6 @@ export class PendingRequestsComponent implements OnInit, OnDestroy {
   }
 
   private setupRealtimeListeners(): void {
-    this.signalrService.startConnection();
 
     this.signalrSubscription = this.signalrService.incomingRequest$.subscribe({
       next: (newRequest: DoctorPatientResponseDto) => {

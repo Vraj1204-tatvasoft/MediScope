@@ -14,7 +14,8 @@ export const SHOW_ERROR   = new HttpContextToken<boolean>(() => true);
 // ════════════════════════════════════════════════════════════════
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5211/api',   // ← your backend port
+  apiUrl: 'http://localhost:5211/api',
+  razorpayKey: 'rzp_test_TA6MCcNycb36Q5'
 };
 
 

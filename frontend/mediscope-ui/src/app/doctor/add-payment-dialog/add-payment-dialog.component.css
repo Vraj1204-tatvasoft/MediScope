@@ -100,6 +100,52 @@
     width: 18px;
     height: 18px;
   }
-
+  
+  .item-row-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+  }
+  
+  .save-card-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-left: 4px;
+    flex-wrap: wrap;
+  }
+  
+  .secure-note {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: #757575;
+  }
+  
+  .secure-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #4caf50;
+  }
+  
+  .gateway-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #1565c0;
+    padding-left: 4px;
+  }
+  
+  .gateway-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+  
   .text-danger { color: #c62828; }
   .text-success { color: #2e7d32; }

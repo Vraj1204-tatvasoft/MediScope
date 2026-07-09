@@ -9,6 +9,8 @@ namespace MediScope.Common.Models.DTOs.Response
         public Guid PatientId { get; set; }
         public string DoctorName { get; set; }
         public string PatientName { get; set; }
+        public string PatientContact { get; set; }
+        public string PatientEmail { get; set; }
         public Guid? AppointmentId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime InvoiceDate { get; set; }

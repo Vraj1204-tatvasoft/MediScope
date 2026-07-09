@@ -12,46 +12,71 @@
     <form [formGroup]="paymentForm" class="dialog-form">
       <div class="items-header">
         <h3>Payment Entries</h3>
-        <button mat-button color="primary" type="button" (click)="addPaymentRow()" [disabled]="totalPaidAmount >= data.balanceDue">
+        <button mat-button color="primary" type="button"
+          (click)="addPaymentRow()"
+          [disabled]="totalPaidAmount >= data.balanceDue">
           <mat-icon>add_circle</mat-icon> Add Row
         </button>
       </div>
 
       <div formArrayName="payments" class="items-container">
         @for (pmt of payments.controls; track pmt; let i = $index) {
-          <div [formGroupName]="i" class="item-row">
+          <div [formGroupName]="i" class="item-row-wrapper">
+            <div class="item-row">
 
-            <mat-form-field appearance="outline" class="flex-1">
+              <mat-form-field appearance="outline" class="flex-1">
                 <mat-label>Date</mat-label>
-                <input matInput [matDatepicker]="picker" formControlName="paymentDate" [max]="maxDate">
+                <input matInput [matDatepicker]="picker"
+                  formControlName="paymentDate" [max]="maxDate">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline" class="flex-1">
-              <mat-label>Payment Mode</mat-label>
-              <mat-select formControlName="paymentMode">
-                @for (mode of paymentModes; track mode) {
-                  <mat-option [value]="mode">{{ mode }}</mat-option>
+              <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Payment Mode</mat-label>
+                <mat-select formControlName="paymentMode">
+                  @for (mode of paymentModes; track mode) {
+                    <mat-option [value]="mode">{{ mode }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Amount Paid</mat-label>
+                <input matInput type="number" formControlName="paymentAmount" min="1">
+              </mat-form-field>
+
+              <div class="item-actions">
+                @if (!pmt.get('isExisting')?.value) {
+                  <button mat-icon-button color="warn" type="button" (click)="removePaymentRow(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                } @else {
+                  <span class="lock-badge"><mat-icon>lock</mat-icon></span>
                 }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-1">
-              <mat-label>Amount Paid</mat-label>
-              <input matInput type="number" formControlName="paymentAmount" min="1">
-            </mat-form-field>
-
-            <div class="item-actions">
-              @if (!pmt.get('isExisting')?.value) {
-                <button mat-icon-button color="warn" type="button" (click)="removePaymentRow(i)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              } @else {
-                <span class="lock-badge"><mat-icon>lock</mat-icon></span>
-              }
+              </div>
             </div>
 
+            <!-- Save card checkbox — only for new card payments -->
+            @if (!pmt.get('isExisting')?.value && isCardMode(pmt.get('paymentMode')?.value)) {
+              <div class="save-card-row">
+                <mat-checkbox formControlName="saveCard">
+                  Save card for future payments
+                </mat-checkbox>
+                <span class="secure-note">
+                  <mat-icon class="secure-icon">lock</mat-icon>
+                  Secured by Razorpay — card number never stored on our servers
+                </span>
+              </div>
+            }
+
+            <!-- Gateway badge for non-cash modes -->
+            @if (!pmt.get('isExisting')?.value && requiresGateway(pmt.get('paymentMode')?.value)) {
+              <div class="gateway-note">
+                <mat-icon class="gateway-icon">payment</mat-icon>
+                <span>This payment will open the Razorpay secure checkout</span>
+              </div>
+            }
           </div>
         }
       </div>
@@ -73,8 +98,15 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="paymentForm.invalid || isLoading">
-    Submit Payment
+  <button mat-button mat-dialog-close [disabled]="isProcessingPayment">Cancel</button>
+  <button mat-raised-button color="primary"
+    (click)="onSubmit()"
+    [disabled]="paymentForm.invalid || isLoading || isProcessingPayment">
+    @if (isProcessingPayment) {
+      <mat-spinner diameter="20" style="display:inline-block; margin-right:8px;"></mat-spinner>
+      Processing...
+    } @else {
+      Submit Payment
+    }
   </button>
 </mat-dialog-actions>

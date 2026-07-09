@@ -224,7 +224,6 @@ export class MyDoctorsComponent implements OnInit, OnDestroy {
 
   // ── SignalR ────────────────────────────────────────────────
   private setupSignalR(): void {
-    this.signalrService.startConnection();
 
     this.signalrSub = this.signalrService.requestUpdate$.subscribe({
       next: (payload: any) => {

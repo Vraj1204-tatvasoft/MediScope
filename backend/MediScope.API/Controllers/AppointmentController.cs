@@ -20,7 +20,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> CreateAppointment([FromBody] CreateAppointmentRequestDto request)
         {
             if (!ModelState.IsValid) return BadRequestResponse("Invalid request.");
@@ -30,7 +30,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPost("{id:guid}/respond")]
-        [Authorize(Roles = "Doctor, Patient")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> RespondToAppointment(Guid id, [FromBody] RespondToAppointmentRequestDto request)
         {
             if (id != request.AppointmentId) return BadRequestResponse("Route ID does not match request body ID.");
@@ -41,7 +41,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("doctor/my-schedule")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> GetDoctorSchedule()
         {
             var result = await _appointmentService.GetMyDoctorScheduleAsync();
@@ -49,7 +49,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("patient/my-appointments")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> GetPatientAppointments()
         {
             var result = await _appointmentService.GetMyPatientAppointmentsAsync();
@@ -57,7 +57,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("patient/{patientId:guid}")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> GetPatientAppointmentsForDoctor(Guid patientId)
         {
             var result = await _appointmentService.GetAppointmentsByPatientForDoctorAsync(patientId);
@@ -65,7 +65,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPost("{id:guid}/reschedule")]
-        [Authorize(Roles = "Doctor, Patient")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> RescheduleAppointment(Guid id, [FromBody] RescheduleAppointmentRequestDto request)
         {
             if (id != request.AppointmentId) return BadRequestResponse("Route ID does not match request body ID.");
@@ -76,7 +76,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPost("{id:guid}/cancel")]
-        [Authorize(Roles = "Doctor, Patient")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> CancelAppointment(Guid id, [FromBody] CancelAppointmentRequestDto request)
         {
             if (!ModelState.IsValid) return BadRequestResponse("Invalid request.");
@@ -86,7 +86,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPost("{id:guid}/complete")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> CompleteAppointment(Guid id)
         {
             await _appointmentService.CompleteAppointmentAsync(id);

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MediScope.Data.Repositories;
 using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
+using MediScope.Common.Models.Entities;
 
 namespace MediScope.Data.Repositories
 {
@@ -153,6 +154,8 @@ namespace MediScope.Data.Repositories
                 PatientId = rawData.PatientId,
                 DoctorName = rawData.DoctorName,
                 PatientName = rawData.PatientName,
+                PatientContact = rawData.PatientContact,
+                PatientEmail = rawData.PatientEmail,
                 AppointmentId = rawData.AppointmentId,
                 StartTime = rawData.StartTime ?? DateTime.MinValue,
                 InvoiceDate = rawData.InvoiceDate,
@@ -169,12 +172,67 @@ namespace MediScope.Data.Repositories
                 Payments = parsedPayments ?? new List<InvoicePaymentResponseDto>()
             };
         }
+        public async Task<Guid> GetPatientIdByUserIdAsync(Guid userId)
+        {
+            return await _context.Patients
+                .Where(p => p.UserId == userId && !p.IsDeleted)
+                .Select(p => p.Id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task SaveCardTokenAsync(
+            Guid patientId, string tokenId, string last4, string network)
+        {
+            var existing = await _context.PatientCardTokens
+                .Where(t => t.PatientId == patientId && t.IsActive && !t.IsDeleted)
+                .ToListAsync();
+
+            existing.ForEach(t =>
+            {
+                t.UpdatedAt = DateTime.UtcNow;
+            });
+
+            _context.PatientCardTokens.Add(new PatientCardToken
+            {
+                Id = Guid.NewGuid(),
+                PatientId = patientId,
+                RazorpayTokenId = tokenId,
+                Last4Digits = last4,
+                CardNetwork = network,
+                IsActive = true,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task<string?> GetRazorpayCustomerIdAsync(Guid patientId)
+        {
+            return await _context.Patients
+                .Where(p => p.Id == patientId && !p.IsDeleted)
+                .Select(p => p.RazorpayCustomerId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task SaveRazorpayCustomerIdAsync(Guid patientId, string customerId)
+        {
+            var patient = await _context.Patients.FindAsync(patientId);
+            if (patient != null)
+            {
+                patient.RazorpayCustomerId = customerId;
+                patient.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
         internal class InvoiceDetailsSqlResult
         {
             public Guid Id { get; set; }
             public Guid PatientId { get; set; }
             public string DoctorName { get; set; } = string.Empty;
             public string PatientName { get; set; } = string.Empty;
+            public string PatientContact { get; set; }
+            public string PatientEmail { get; set; }
             public Guid? AppointmentId { get; set; }
             public DateTime? StartTime { get; set; }
             public DateTime InvoiceDate { get; set; }

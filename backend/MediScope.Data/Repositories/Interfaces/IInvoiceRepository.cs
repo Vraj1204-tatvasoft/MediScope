@@ -13,5 +13,9 @@ namespace MediScope.Data.Repositories
         Task<List<InvoiceSummaryDto>> GetInvoicesByUserIdAsync(Guid userId);
         Task IssueRefundAsync(List<Guid> refundIds, List<Guid> paymentIds, Guid invoiceId, string refundMode, string? reason, DateTime refundDate, decimal grandTotal, Guid? createdBy);
         Task<List<Guid>> GetUnrefundedPaymentIdsAsync(Guid invoiceId);
+        Task<Guid> GetPatientIdByUserIdAsync(Guid userId);
+        Task SaveCardTokenAsync(Guid patientId, string tokenId, string last4, string network);
+        Task<string?> GetRazorpayCustomerIdAsync(Guid patientId);
+        Task SaveRazorpayCustomerIdAsync(Guid patientId, string customerId);
     }
 }

@@ -82,5 +82,13 @@ namespace MediScope.Business.Services
                 dto.GrandTotal, currentUserId
             );
         }
+        public async Task<Guid> GetPatientIdByUserIdAsync(Guid userId)
+        {
+            return await _repository.GetPatientIdByUserIdAsync(userId);
+        }
+        public async Task<string?> GetRazorpayCustomerIdAsync(Guid patientId)
+        {
+            return await _repository.GetRazorpayCustomerIdAsync(patientId);
+        }
     }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BaseHttpService } from './base-http.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BillingItemDto, InvoiceCreateDto, InvoiceDetails, InvoiceSummary, RefundRequestDto } from '../models/invoice.model'; 
+import { BillingItemDto, InvoiceCreateDto, InvoiceDetails, InvoiceSummary, RefundRequestDto, VerifyPaymentRequest } from '../models/invoice.model'; 
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
@@ -58,5 +58,24 @@ export class InvoiceService {
       showSuccess: true,
       showError: true
     }).pipe(map(() => void 0));
+  }
+  createPaymentOrder(invoiceId: string, amount: number, paymentMode: string): Observable<any> {
+    return this.baseHttp.post(`${this.endpoint}/${invoiceId}/payment/order`, {
+      invoiceId, amount, paymentMode
+    });
+  }
+  
+  verifyPayment(payload: VerifyPaymentRequest): Observable<any> {
+    return this.baseHttp.post(`${this.endpoint}/${payload.invoiceId}/payment/verify`, payload);
+  }
+
+  getSavedCards(): Observable<any> {
+    return this.baseHttp.get(`${this.endpoint}/payment/tokens`);
+  }
+  
+  chargeSavedCard(invoiceId: string, amount: number, tokenId: string, paymentMode: string): Observable<any> {
+      return this.baseHttp.post(`${this.endpoint}/${invoiceId}/payment/saved-card`, {
+      invoiceId, amount, tokenId, paymentMode
+    });
   }
 }

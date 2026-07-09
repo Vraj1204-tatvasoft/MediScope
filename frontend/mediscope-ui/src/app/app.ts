@@ -18,7 +18,6 @@ export class App implements OnInit {
     const token = localStorage.getItem('ms_access_token');
     if (token) {
       console.log('Valid session discovered on app boot. Initializing real-time streams...');
-      this.signalrService.startConnection();
     }
   }
   ngAfterViewInit() {
