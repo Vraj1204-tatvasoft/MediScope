@@ -13,3 +13,6 @@ frontend/mediscope-ui/dist/
 
 # Uploaded documents
 backend/MediScope.API/wwwroot/documents/
+
+# Local development configuration (contains secrets)
+backend/MediScope.API/appsettings.Development.json
