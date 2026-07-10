@@ -15,5 +15,6 @@ namespace MediScope.Common.Models.DTOs.Response
         public string? PatientNotes { get; set; }
         public Guid CreatedBy { get; set; }
         public Guid? RescheduleRequestedBy { get; set; }
+        public string? RescheduleReason { get; set; }
     }
 }

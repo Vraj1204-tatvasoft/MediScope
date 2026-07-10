@@ -10,6 +10,7 @@ export interface DoctorAppointmentResponseDto {
     patientNotes?: string;
     createdBy: string;
     rescheduleRequestedBy?: string;
+    rescheduleReason?: string;
   }
 
   export interface PatientAppointmentResponseDto {

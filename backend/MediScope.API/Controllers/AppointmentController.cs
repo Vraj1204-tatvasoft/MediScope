@@ -92,5 +92,17 @@ namespace MediScope.API.Controllers
             await _appointmentService.CompleteAppointmentAsync(id);
             return Success<object>(null, "Appointment marked as completed successfully.");
         }
+
+        [HttpGet("doctor/{doctorId}/availability")]
+        [Authorize(Policy = "DoctorOrPatient")]
+        public async Task<IActionResult> GetDoctorAvailability(Guid doctorId)
+        {
+            if (doctorId == Guid.Empty)
+            {
+                return BadRequest("Invalid doctor ID.");
+            }
+            var result = await _appointmentService.GetDoctorAvailabilityAsync(doctorId);
+            return Success(result);
+        }
     }
 }

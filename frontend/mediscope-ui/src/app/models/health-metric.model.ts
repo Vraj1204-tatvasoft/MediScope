@@ -18,6 +18,7 @@ export interface MetricDefinition {
   }
   
   export interface AddHealthMetricRequestDto {
+    submissionId?: string;
     recordedAt: string;      // ISO string date format or YYYY-MM-DD
     notes?: string;
     patientId?: string;      

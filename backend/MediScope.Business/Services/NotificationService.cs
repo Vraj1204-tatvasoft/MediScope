@@ -86,33 +86,25 @@ namespace MediScope.Business.Services
                     "NotificationRead",
                     notificationId);
         }
-        public async Task CreateAsync(
-            Guid userId,
-            NotificationType type,
-            string message)
+        public async Task CreateAsync(Guid userId, NotificationType type, string message, string? referenceType = null, Guid? referenceId = null)
         {
-            var entity =
-                new Notification
-                {
-                    UserId = userId,
-                    Type = type,
-                    Message = message
-                };
+            var entity = new Notification
+            {
+                UserId = userId,
+                Type = type,
+                Message = message,
+                ReferenceType = referenceType,
+                ReferenceId = referenceId
+            };
 
-            await _uow.Notifications
-                .AddAsync(entity);
-
+            await _uow.Notifications.AddAsync(entity);
             await _uow.SaveChangesAsync();
 
             var dto = Map(entity);
 
-            // LIVE PUSH
-
             await _hub.Clients
                 .Group(userId.ToString())
-                .SendAsync(
-                    "NotificationRecieved",
-                    dto);
+                .SendAsync("NotificationRecieved", dto);
         }
         public async Task ClearAllNotificationsAsync(Guid userId)
         {
@@ -138,7 +130,9 @@ namespace MediScope.Business.Services
                 Message = n.Message,
                 IsRead = n.IsRead,
                 CreatedAt = n.CreatedAt,
-                ReadAt = n.ReadAt
+                ReadAt = n.ReadAt,
+                ReferenceType = n.ReferenceType,
+                ReferenceId = n.ReferenceId
             };
         }
     }

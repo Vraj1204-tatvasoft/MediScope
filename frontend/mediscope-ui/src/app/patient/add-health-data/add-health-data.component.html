@@ -10,7 +10,7 @@
       <div class="form-card-title-row">
         <mat-icon color="primary">add_circle_outline</mat-icon>
         <div>
-          <h2 class="card-main-title">Add New Health Record</h2>
+          <h2 class="card-main-title">{{ isEditMode() ? 'Edit Health Record' : 'Add New Health Record' }}</h2>
           <p class="card-subtitle">Recording for: <strong>{{ patientName }}</strong></p>
         </div>
       </div>
@@ -78,7 +78,7 @@
         <button mat-button class="clear-action-btn" (click)="clearForm()" [disabled]="isSaving()">Clear Form</button>
       }
       <button mat-flat-button color="primary" class="save-record-btn" (click)="saveHealthRecord()" [disabled]="isSaving() || healthForm.invalid">
-        {{ isSaving() ? 'Saving...' : 'Save Health Record' }}
+        {{ isSaving() ? 'Saving...' : (isEditMode() ? 'Update Record' : 'Save Health Record') }}
       </button>
     </div>
   }

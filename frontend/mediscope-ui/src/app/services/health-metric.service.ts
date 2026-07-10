@@ -14,7 +14,7 @@ export class HealthMetricService {
     );
   }
 
-  saveHealthRecord(request: AddHealthMetricRequestDto, p0: { showSuccess: boolean; }) {
+  saveHealthRecord(request: AddHealthMetricRequestDto, p0: { showSuccess: boolean, showError: boolean; }) {
     return this.baseHttp.post<any>('health-metrics', request);
   }
 }

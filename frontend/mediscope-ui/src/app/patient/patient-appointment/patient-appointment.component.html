@@ -46,6 +46,14 @@
                       <span>{{ appt.hospital }}</span>
                     </div>
                   }
+                  @if (appt.status.toLowerCase() === 'rescheduled' && appt.rescheduleReason) {
+                    <div class="info-row" style="align-items: flex-start;">
+                      <mat-icon color="accent">info</mat-icon>
+                      <span class="text-muted">
+                        <strong>Reason:</strong> {{ appt.rescheduleReason }}
+                      </span>
+                    </div>
+                  }
                 </div>
   
                 <div class="card-footer">

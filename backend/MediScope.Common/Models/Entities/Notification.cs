@@ -2,10 +2,6 @@ using MediScope.Common.Models.Enums;
 
 namespace MediScope.Common.Models.Entities
 {
-    /// <summary>
-    /// Stores all notifications for any user (patient or doctor).
-    /// Type determines the icon and colour on the frontend.
-    /// </summary>
     public class Notification : BaseEntity
     {
         /// <summary>The user who receives this notification</summary>
@@ -17,12 +13,11 @@ namespace MediScope.Common.Models.Entities
         /// <summary>The notification message text</summary>
         public string Message { get; set; } = null!;
 
-        /// <summary>Whether the user has read it</summary>
         public bool IsRead { get; set; } = false;
 
         public DateTime? ReadAt { get; set; }
-
-        // Navigation
+        public string? ReferenceType { get; set; }
+        public Guid? ReferenceId { get; set; }
         public User User { get; set; } = null!;
     }
 }

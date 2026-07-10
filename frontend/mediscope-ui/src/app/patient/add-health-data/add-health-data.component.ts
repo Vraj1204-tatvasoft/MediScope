@@ -49,7 +49,9 @@ export class AddHealthDataComponent implements OnInit {
   isSaving = signal<boolean>(false);
   maxDate = new Date();
   patientName = '';
-
+  isEditMode = signal<boolean>(false);
+  currentSubmissionId?: string;
+  existingRecordData?: any;
   private notify = inject(NotificationService);
 
   constructor(
@@ -74,6 +76,12 @@ export class AddHealthDataComponent implements OnInit {
       this.explicitPatientId = this.dialogData.patientId;
       this.patientName = this.dialogData.patientName;
       this.explicitAppointmentId = this.dialogData.appointmentId || this.dialogData.id;
+
+      if (this.dialogData.submissionId) {
+        this.isEditMode.set(true);
+        this.currentSubmissionId = this.dialogData.submissionId;
+        this.existingRecordData = this.dialogData; // Store the row data
+      } 
       return;
     }
 
@@ -111,6 +119,10 @@ export class AddHealthDataComponent implements OnInit {
           );
         });
 
+        if (this.isEditMode()) {
+          this.prefillForm();
+        }
+
         this.isLoading.set(false);
       },
       error: () => {
@@ -119,7 +131,70 @@ export class AddHealthDataComponent implements OnInit {
       }
     });
   }
+  private prefillForm(): void {
+    if (!this.existingRecordData) return;
 
+    // 1. Patch Date & Notes Safely
+    const recordDate = this.existingRecordData.recordedAt 
+      ? new Date(this.existingRecordData.recordedAt) 
+      : new Date(this.existingRecordData.date);
+    
+    this.healthForm.patchValue({
+      recordedAt: isNaN(recordDate.getTime()) ? new Date() : recordDate,
+      notes: this.existingRecordData.notes || ''
+    });
+
+    const metricsGroup = this.healthForm.get('metrics') as FormGroup;
+    
+    // 2. Extract Metric Values Robustly
+    this.metricDefinitions().forEach(metric => {
+      if (this.existingRecordData.metrics) {
+        
+        let metricData = this.existingRecordData.metrics[metric.metricType] 
+                      || this.existingRecordData.metrics[metric.id] 
+                      || this.existingRecordData.metrics[metric.displayName];
+        
+        if (!metricData && this.existingRecordData.metrics['blood_pressure']) {
+          // Grab the merged string (e.g., "121.00/64.00 mmHg")
+          const bpString = this.existingRecordData.metrics['blood_pressure'].displayValue?.toString() || '';
+          const bpParts = bpString.split('/'); // Splits into ["121.00", "64.00 mmHg"]
+
+          if (bpParts.length >= 2) {
+            const mType = metric.metricType.toLowerCase();
+            const mName = metric.displayName.toLowerCase();
+
+            // Check for Systolic
+            if (mType.includes('systolic') || mName.includes('systolic')) {
+              // Strip out any non-numbers (just in case) and parse
+              const sysVal = parseFloat(bpParts[0].replace(/[^\d.]/g, ''));
+              if (!isNaN(sysVal)) metricData = { value: sysVal };
+            }
+            // Check for Diastolic AND Dialostic (Handling the DB typo)
+            else if (mType.includes('diastolic') || mType.includes('dialostic') || 
+                     mName.includes('diastolic') || mName.includes('dialostic')) {
+              const diaVal = parseFloat(bpParts[1].replace(/[^\d.]/g, ''));
+              if (!isNaN(diaVal)) metricData = { value: diaVal };
+            }
+          }
+        }
+
+        if (metricData) {
+          let valToSet = metricData.rawValue ?? metricData.value;
+
+          // Fallback: If only 'displayValue' exists (e.g., "98.6 °F")
+          if (valToSet === undefined && metricData.displayValue) {
+             const numericMatch = metricData.displayValue.toString().match(/-?\d+(\.\d+)?/);
+             if (numericMatch) valToSet = parseFloat(numericMatch[0]);
+          }
+
+          // If we successfully found a number, patch the form control
+          if (valToSet !== undefined && valToSet !== null && !isNaN(valToSet)) {
+            metricsGroup.get(metric.id.toString())?.setValue(valToSet);
+          }
+        }
+      }
+    });
+  }
   clearForm(): void {
     this.healthForm.patchValue({
       recordedAt: new Date(),
@@ -169,6 +244,7 @@ export class AddHealthDataComponent implements OnInit {
     const localizedDate = new Date(dateToSave.getTime() - userTimezoneOffset);
 
     const payload: AddHealthMetricRequestDto = {
+      submissionId: this.currentSubmissionId,
       recordedAt: localizedDate.toISOString(),
       notes: formValue.notes,
       metrics: recordsPayload,
@@ -177,7 +253,7 @@ export class AddHealthDataComponent implements OnInit {
       ...(this.explicitPatientId && { patientId: this.explicitPatientId })
     };
 
-    this.metricService.saveHealthRecord(payload, { showSuccess: false }).subscribe({
+    this.metricService.saveHealthRecord(payload, { showSuccess: false, showError: true }).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.clearForm();
@@ -196,11 +272,7 @@ export class AddHealthDataComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error(err);
         this.isSaving.set(false);
-        if (!err?.error?.errors) {
-          this.notify.error('Failed to record health metric entry.');
-        }
       }
     });
   }

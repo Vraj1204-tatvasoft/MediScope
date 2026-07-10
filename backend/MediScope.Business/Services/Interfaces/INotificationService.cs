@@ -12,7 +12,7 @@ namespace MediScope.Business.Services.Interfaces
 
         Task MarkAllAsReadAsync(Guid userId);
         Task MarkAsReadAsync(Guid notificationId, Guid userId);
-        Task CreateAsync(Guid userId, NotificationType type, string message);
         Task ClearAllNotificationsAsync(Guid userId);
+        Task CreateAsync(Guid userId, NotificationType type, string message, string? referenceType = null, Guid? referenceId = null);
     }
 }

@@ -121,11 +121,13 @@ namespace MediScope.Business.Services
             var doctor = await _uow.Doctors.GetByIdWithDetailsAsync(command.DoctorId)
                 ?? throw new KeyNotFoundException("Doctor not found.");
 
+            // Notify the doctor — clicking navigates to /doctor/documents
             await _notificationService.CreateAsync(
                 doctor.UserId,
                 NotificationType.Info,
-                $"{patient.User.FullName} uploaded a new document: {command.FileName}.");
-
+                $"{patient.User.FullName} uploaded a new document: {command.FileName}.",
+                referenceType: "my-patients/patient.Id"
+            );
         }
 
         public async Task<List<MedicalDocumentResponseDto>> GetPatientDocumentsAsync(
@@ -172,10 +174,13 @@ namespace MediScope.Business.Services
                             ? $"Dr. {doctor.User.FullName}"
                             : "Your doctor";
 
+                        // Notify the patient — clicking navigates to /patient/documents/:id
                         await _notificationService.CreateAsync(
                             patient.UserId,
                             NotificationType.Success,
-                            $"{doctorName} reviewed your document and left feedback.");
+                            $"{doctorName} reviewed your document and left feedback.",
+                            referenceType: "my-doctors"
+                        );
                     }
                 }
             }

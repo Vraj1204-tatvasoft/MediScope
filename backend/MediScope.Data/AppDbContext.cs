@@ -582,6 +582,12 @@ namespace MediScope.Data
                 entity.Property(n => n.ReadAt)
                     .HasColumnName("read_at");
 
+                entity.Property(n => n.ReferenceType)
+                    .HasColumnName("reference_type")
+                    .HasMaxLength(50);
+
+                entity.Property(n => n.ReferenceId)
+                      .HasColumnName("reference_id");
                 // ─────────────────────────────────────
                 // RELATIONSHIPS
                 // ─────────────────────────────────────

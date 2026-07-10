@@ -15,4 +15,6 @@ export interface NotificationDto {
     createdAt: string;
   
     readAt?: string;
+    referenceType?: string;  
+    referenceId?:   string;
   }

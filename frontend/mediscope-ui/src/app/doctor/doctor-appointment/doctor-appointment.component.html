@@ -15,7 +15,7 @@
   
         <div class="tab-content">
           <div class="calendar-wrapper card-outline calendar-padding">
-            <full-calendar [options]="calendarOptions"></full-calendar>
+            <full-calendar #calendar [options]="calendarOptions"></full-calendar>
           </div>
         </div>
       </mat-tab>
@@ -94,6 +94,14 @@
             <mat-icon class="small-icon">schedule</mat-icon> 
             {{ selectedAppointment.startTime | date:'fullDate' }} at {{ selectedAppointment.startTime | date:'shortTime' }}
           </div>
+          @if (selectedAppointment.status.toLowerCase() === 'rescheduled' && selectedAppointment.rescheduleReason) {
+            <div class="text-muted menu-time-info" style="margin-top: 8px; display: flex; align-items: flex-start; gap: 4px;">
+              <mat-icon class="small-icon" color="accent">info</mat-icon> 
+              <span style="font-size: 13px; line-height: 1.2;">
+                <strong>Reason:</strong> {{ selectedAppointment.rescheduleReason }}
+              </span>
+            </div>
+          }
         </div>
         
         <mat-divider></mat-divider>

@@ -20,9 +20,7 @@ namespace MediScope.API.Controllers
                 healthMetricService;
         }
 
-        // ─────────────────────────────────────────────
         // ADD HEALTH RECORD
-        // ─────────────────────────────────────────────
 
         [HttpPost]
         [Authorize(Roles = "Patient,Doctor")]
@@ -46,9 +44,7 @@ namespace MediScope.API.Controllers
                 "Health metric recorded successfully.");
         }
 
-        // ─────────────────────────────────────────────
         // GET SINGLE SUBMISSION
-        // ─────────────────────────────────────────────
 
         [HttpGet("{id:guid}")]
         [Authorize(Roles = "Patient,Doctor,Admin")]

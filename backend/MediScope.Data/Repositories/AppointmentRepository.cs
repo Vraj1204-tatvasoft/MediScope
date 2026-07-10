@@ -70,9 +70,10 @@ namespace MediScope.Data.Repositories
                     .SqlQuery<bool>($"SELECT fn_request_reschedule({appointmentId}, {userId}, {newStartTime}, {rescheduleReason}) AS \"Value\"")
                     .SingleAsync();
             }
-            catch (PostgresException ex) when (ex.MessageText.Contains("NOT_FOUND"))
+            catch (PostgresException ex) when (ex.MessageText != null && ex.MessageText.Contains("CONFLICT"))
             {
-                throw new KeyNotFoundException("Appointment not found or you do not have permission to modify it.");
+                string errorMessage = ex.MessageText.Replace("CONFLICT: ", "");
+                throw new InvalidOperationException(errorMessage);
             }
         }
 

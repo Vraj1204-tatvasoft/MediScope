@@ -43,7 +43,9 @@ namespace MediScope.Business.Services
                 await _notificationService.CreateAsync(
                     patient.UserId,
                     NotificationType.Info,
-                    "A new appointment has been scheduled for you. Please review the details."
+                    "A new appointment has been scheduled for you. Please review the details.",
+                    referenceType: "appointment",
+                    referenceId: appointmentId  // FIX: was request.AppointmentId (undefined); use the newly created appointmentId
                 );
             }
 
@@ -69,7 +71,9 @@ namespace MediScope.Business.Services
             await _notificationService.CreateAsync(
                 targetUserId,
                 NotificationType.Info,
-                $"Your appointment request was {request.Action.ToLower()}."
+                $"Your appointment request was {request.Action.ToLower()}.",
+                referenceType: "appointment",
+                referenceId: request.AppointmentId
             );
         }
 
@@ -101,13 +105,17 @@ namespace MediScope.Business.Services
                 newStartTime: request.RescheduledTo,
                 rescheduleReason: request.RescheduleReason
             );
+
             var targetUserId = await GetOtherPartyUserIdAsync(request.AppointmentId);
             await _notificationService.CreateAsync(
                 targetUserId,
                 NotificationType.Info,
-                "The other party has requested to reschedule an upcoming appointment."
+                "The other party has requested to reschedule an upcoming appointment.",
+                referenceType: "appointment",
+                referenceId: request.AppointmentId  // FIX: was appointment.Id (undefined variable); use request.AppointmentId
             );
         }
+
         public async Task CancelAppointmentAsync(Guid appointmentId, string? reason)
         {
             var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId);
@@ -121,13 +129,17 @@ namespace MediScope.Business.Services
                 actorId: actorProfileId,
                 cancelReason: reason
             );
+
             var targetUserId = await GetOtherPartyUserIdAsync(appointmentId);
             await _notificationService.CreateAsync(
                 targetUserId,
                 NotificationType.Info,
-                "An upcoming appointment has been cancelled."
+                "An upcoming appointment has been cancelled.",
+                referenceType: "appointment",
+                referenceId: appointmentId
             );
         }
+
         public async Task<List<AppointmentSummaryDto>> GetAppointmentsByPatientForDoctorAsync(Guid patientId)
         {
             var doctor = await _uow.Doctors.GetByUserIdAsync(_currentUser.UserId)
@@ -167,13 +179,28 @@ namespace MediScope.Business.Services
             await _uow.SaveChangesAsync();
 
             var targetUserId = await GetOtherPartyUserIdAsync(appointmentId);
-
             await _notificationService.CreateAsync(
                 targetUserId,
                 NotificationType.Info,
-                "Your appointment has been marked as completed."
+                "Your appointment has been marked as completed.",
+                referenceType: "appointment",
+                referenceId: appointmentId
             );
         }
+
+        public async Task<List<DoctorAvailabilityResponseDto>> GetDoctorAvailabilityAsync(Guid doctorId)
+        {
+            var fullSchedule = await _uow.Appointments.GetDoctorScheduleAsync(doctorId);
+
+            return fullSchedule.Select(a => new DoctorAvailabilityResponseDto
+            {
+                AppointmentId = a.AppointmentId,
+                StartTime = a.StartTime,
+                EndTime = a.EndTime,
+                Status = a.Status
+            }).ToList();
+        }
+
         private async Task<Guid> GetOtherPartyUserIdAsync(Guid appointmentId)
         {
             var appointment = await _uow.Appointments.GetByIdAsync(appointmentId)

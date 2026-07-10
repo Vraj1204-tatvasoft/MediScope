@@ -110,7 +110,7 @@ export class DoctorAppointmentComponent implements OnInit {
 
   handleDateClick(arg: any) {
     const dialogRef = this.dialog.open(BookAppointmentDialogComponent, {
-      width: '500px',
+      width: '1000px',
       data: { selectedDate: arg.date },
       panelClass: 'mediscope-dialog'
     });
@@ -140,7 +140,7 @@ export class DoctorAppointmentComponent implements OnInit {
   }
   openBookingModal() {
     const dialogRef = this.dialog.open(BookAppointmentDialogComponent, {
-      width: '500px',
+      width: '1000px',
       data: { selectedDate: new Date() },
       panelClass: 'mediscope-dialog'
     });
@@ -149,7 +149,7 @@ export class DoctorAppointmentComponent implements OnInit {
 
   openRescheduleModal(appointment: DoctorAppointmentResponseDto) {
     const dialogRef = this.dialog.open(RescheduleDialogComponent, {
-      width: '450px',
+      width: '1000px',
       data: appointment
     });
     dialogRef.afterClosed().subscribe(res => { if(res) this.loadSchedule(); });

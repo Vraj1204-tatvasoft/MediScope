@@ -9,6 +9,8 @@ import { Subscription } from 'rxjs';
 import { SignalrService } from '../../services/signalr.service';
 import { NotificationDto } from '../../models/notification.model';
 import { PatientNotificationService } from '../../services/patient-notification.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Router, RouterModule } from '@angular/router';
 
 export type FilterType = 'ALL' | 'UNREAD' | 'ALERTS';
 
@@ -18,6 +20,7 @@ export type FilterType = 'ALL' | 'UNREAD' | 'ALERTS';
   imports: [
     CommonModule,
     MatCardModule,
+    RouterModule,
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
@@ -30,7 +33,8 @@ export class PatientNotificationComponent implements OnInit, OnDestroy {
   private notificationService = inject(PatientNotificationService);
   private signalrService = inject(SignalrService);
   private liveSubscription!: Subscription;
-
+  private router      = inject(Router);
+  private authService = inject(AuthService);
   isLoading = signal<boolean>(true);
   rawNotifications = signal<NotificationDto[]>([]);
   activeFilter = signal<FilterType>('ALL');
@@ -90,16 +94,19 @@ export class PatientNotificationComponent implements OnInit, OnDestroy {
     this.activeFilter.set(filter);
   }
   readSingleNotification(notification: NotificationDto): void {
-    if (notification.isRead) return;
-
-    this.notificationService.markAsRead(notification.id).subscribe({
-      next: () => {
-        this.rawNotifications.update(list => 
-          list.map(n => n.id === notification.id ? { ...n, isRead: true } : n)
-        );
-      },
-      error: (err) => console.error('Failed to update notification reading milestone state:', err)
-    });
+    if (!notification.isRead) {
+      this.notificationService.markAsRead(notification.id).subscribe({
+        next: () => {
+          this.rawNotifications.update(list =>
+            list.map(n => n.id === notification.id ? { ...n, isRead: true } : n)
+          );
+          this.navigateToSource(notification);
+        },
+        error: () => this.navigateToSource(notification)
+      });
+    } else {
+      this.navigateToSource(notification);
+    }
   }
   markAllAsRead(): void {
     if (this.unreadCount() === 0) return;
@@ -152,6 +159,23 @@ export class PatientNotificationComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.liveSubscription) {
       this.liveSubscription.unsubscribe();
+    }
+  }
+  private navigateToSource(notification: NotificationDto): void {
+    if (!notification.referenceType || !notification.referenceId) return;
+  
+    switch (notification.referenceType) {
+      case 'appointment':
+        this.router.navigate(['/patient/appointments']);
+        break;
+      case 'invoice':
+        this.router.navigate(['/patient/invoices', notification.referenceId]);
+        break;
+      case 'refund':
+        this.router.navigate(['/patient/invoices', notification.referenceId]);
+        break;
+      default:
+        break;
     }
   }
 }

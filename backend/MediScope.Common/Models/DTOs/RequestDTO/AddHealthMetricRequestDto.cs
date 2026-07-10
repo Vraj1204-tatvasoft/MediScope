@@ -5,6 +5,7 @@ namespace MediScope.Common.Models.DTOs.Request
 {
     public class AddHealthMetricRequestDto
     {
+        public Guid? SubmissionId { get; set; }
         [Required]
         public DateTime RecordedAt { get; set; }
 

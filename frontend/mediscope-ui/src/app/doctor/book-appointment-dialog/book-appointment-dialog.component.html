@@ -1,47 +1,95 @@
 <h2 mat-dialog-title>Book New Appointment</h2>
-<mat-dialog-content>
-  <form [formGroup]="bookingForm" class="dialog-form" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-    
-    <mat-form-field appearance="outline">
-      <mat-label>Select Patient</mat-label>
-      <mat-select formControlName="patientId">
-        <mat-option *ngFor="let p of patients" [value]="p.patientId">{{ p.fullName }}</mat-option>
-      </mat-select>
-    </mat-form-field>
 
-    <div style="display: flex; gap: 16px;">
-      <mat-form-field appearance="outline" style="flex: 1;">
-        <mat-label>Date</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="startTime" [min]="minDate">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+<mat-dialog-content class="dialog-content">
+  <div class="two-panel-layout">
 
-      <mat-form-field appearance="outline" style="flex: 1;">
-        <mat-label>Time (HH:MM)</mat-label>
-        <input matInput type="time" formControlName="timeString">
-      </mat-form-field>
+    <!-- LEFT — Booking Form -->
+    <div class="form-panel">
+      <p class="panel-label">
+        <mat-icon class="panel-icon">edit_calendar</mat-icon>
+        Appointment Details
+      </p>
+
+      <form [formGroup]="bookingForm" class="dialog-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Select Patient</mat-label>
+          <mat-select formControlName="patientId">
+            <mat-option *ngFor="let p of patients" [value]="p.patientId">
+              {{ p.fullName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="row-fields">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker"
+              formControlName="startTime" [min]="minDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Time (HH:MM)</mat-label>
+            <input matInput type="time" formControlName="timeString">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Duration</mat-label>
+          <mat-select formControlName="durationMinutes">
+            <mat-option [value]="10">10 Minutes</mat-option>
+            <mat-option [value]="20">20 Minutes</mat-option>
+            <mat-option [value]="30">30 Minutes</mat-option>
+            <mat-option [value]="45">45 Minutes</mat-option>
+            <mat-option [value]="60">1 Hour</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Doctor Notes</mat-label>
+          <textarea matInput formControlName="doctorNotes" rows="3"></textarea>
+        </mat-form-field>
+
+      </form>
     </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Duration</mat-label>
-      <mat-select formControlName="durationMinutes">
-        <mat-option [value]="10">10 Minutes</mat-option>
-        <mat-option [value]="20">20 Minutes</mat-option>
-        <mat-option [value]="30">30 Minutes</mat-option>
-        <mat-option [value]="45">45 Minutes</mat-option>
-        <mat-option [value]="60">1 Hour</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <!-- DIVIDER -->
+    <div class="panel-divider"></div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Doctor Notes</mat-label>
-      <textarea matInput formControlName="doctorNotes" rows="2"></textarea>
-    </mat-form-field>
+    <!-- RIGHT — Doctor's Schedule -->
+    <div class="calendar-panel">
+      <p class="panel-label">
+        <mat-icon class="panel-icon">event_busy</mat-icon>
+        Doctor's Availability
+      </p>
 
-  </form>
+      <div class="busy-legend">
+        <span class="legend-dot busy-dot"></span>
+        <span class="legend-text">Busy slots</span>
+      </div>
+
+      @if (isLoadingSchedule) {
+        <div class="calendar-loading">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Loading schedule...</span>
+        </div>
+      } @else {
+        <div class="calendar-wrap">
+          <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+        </div>
+      }
+    </div>
+
+  </div>
 </mat-dialog-content>
+
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="bookingForm.invalid">Book Slot</button>
+  <button mat-raised-button color="primary"
+    (click)="onSubmit()"
+    [disabled]="bookingForm.invalid">
+    Book Slot
+  </button>
 </mat-dialog-actions>

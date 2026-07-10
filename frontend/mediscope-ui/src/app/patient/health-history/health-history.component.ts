@@ -11,6 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HealthHistoryRow, HistorySummaryStats } from '../../models/health-history.model';
 import { HealthHistoryService } from '../../services/health-history.service';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDivider } from '@angular/material/divider';
+import { AddHealthDataComponent } from '../add-health-data/add-health-data.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-health-history',
@@ -25,7 +29,9 @@ import { HealthHistoryService } from '../../services/health-history.service';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatMenuModule,
+    MatDivider
   ],
   templateUrl: './health-history.component.html',
   styleUrls: ['./health-history.component.css']
@@ -77,7 +83,7 @@ export class HealthHistoryComponent implements OnInit {
     };
   });
 
-  constructor(private historyService: HealthHistoryService) {}
+  constructor(private historyService: HealthHistoryService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadPatientHistoryData();
@@ -182,6 +188,22 @@ export class HealthHistoryComponent implements OnInit {
     if (key === 'blood_pressure') return 'BP';
     if (key === 'heart_rate') return 'HR';
     return key.replace(/_/g, ' ').toUpperCase();
+  }
+
+  editRecord(row: any) {
+    const dialogRef = this.dialog.open(AddHealthDataComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: row, // Pass the row data here!
+      disableClose: true
+    });
+  
+    dialogRef.afterClosed().subscribe((success:any) => {
+      if (success) {
+        this.loadPatientHistoryData(); 
+      }
+    });
   }
 
   toggleRow(row: HealthHistoryRow): void {

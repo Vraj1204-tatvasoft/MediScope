@@ -1,29 +1,85 @@
-<h2 mat-dialog-title>Reschedule {{ data.patientName }}</h2>
-<mat-dialog-content>
-  <form [formGroup]="rescheduleForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-    
-    <div style="display: flex; gap: 16px;">
-      <mat-form-field appearance="outline" style="flex: 1;">
-        <mat-label>New Date</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="newDate" [min]="minDate">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+<h2 mat-dialog-title>Reschedule — {{ data.patientName }}</h2>
 
-      <mat-form-field appearance="outline" style="flex: 1;">
-        <mat-label>New Time</mat-label>
-        <input matInput type="time" formControlName="newTimeString">
-      </mat-form-field>
+<mat-dialog-content class="dialog-content">
+  <div class="two-panel-layout">
+
+    <!-- LEFT — Reschedule Form -->
+    <div class="form-panel">
+      <p class="panel-label">
+        <mat-icon class="panel-icon">edit_calendar</mat-icon>
+        Propose New Time
+      </p>
+
+      <form [formGroup]="rescheduleForm" class="dialog-form">
+
+        <div class="row-fields">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>New Date</mat-label>
+            <input matInput [matDatepicker]="picker"
+              formControlName="newDate" [min]="minDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>New Time</mat-label>
+            <input matInput type="time" formControlName="newTimeString">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Reason for Rescheduling</mat-label>
+          <textarea matInput formControlName="reason" rows="4"></textarea>
+        </mat-form-field>
+
+      </form>
+
+      <div class="current-slot-info">
+        <mat-icon class="info-icon">info_outline</mat-icon>
+        <div>
+          <span class="info-label">Current slot</span>
+          <span class="info-value">
+            {{ data.startTime | date:'MMM d, yyyy' }} at {{ data.startTime | date:'shortTime' }}
+          </span>
+        </div>
+      </div>
     </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Reason for Rescheduling</mat-label>
-      <textarea matInput formControlName="reason" rows="2"></textarea>
-    </mat-form-field>
+    <!-- DIVIDER -->
+    <div class="panel-divider"></div>
 
-  </form>
+    <!-- RIGHT — Doctor's Schedule -->
+    <div class="calendar-panel">
+      <p class="panel-label">
+        <mat-icon class="panel-icon">event_busy</mat-icon>
+        Doctor's Availability
+      </p>
+
+      <div class="busy-legend">
+        <span class="legend-dot busy-dot"></span>
+        <span class="legend-text">Busy slots</span>
+      </div>
+
+      @if (isLoadingSchedule) {
+        <div class="calendar-loading">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Loading schedule...</span>
+        </div>
+      } @else {
+        <div class="calendar-wrap">
+          <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+        </div>
+      }
+    </div>
+
+  </div>
 </mat-dialog-content>
+
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="rescheduleForm.invalid">Send Request</button>
+  <button mat-raised-button color="primary"
+    (click)="onSubmit()"
+    [disabled]="rescheduleForm.invalid">
+    Send Request
+  </button>
 </mat-dialog-actions>

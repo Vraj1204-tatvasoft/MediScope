@@ -1,0 +1,132 @@
+.dialog-content {
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  
+  .two-panel-layout {
+    display: flex;
+    gap: 0;
+    min-height: 480px;
+    max-height: 75vh;
+  }
+  
+  /* ── Left — form ────────────────────────────────────────── */
+  .form-panel {
+    width: 360px;
+    min-width: 320px;
+    padding: 20px 24px 8px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .full-width { width: 100%; }
+  
+  .row-fields {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .flex-1 { flex: 1; }
+  
+  /* ── Divider ─────────────────────────────────────────────── */
+  .panel-divider {
+    width: 1px;
+    background: #e8e8e8;
+    flex-shrink: 0;
+  }
+  
+  /* ── Right — calendar ───────────────────────────────────── */
+  .calendar-panel {
+    flex: 1;
+    min-width: 340px;
+    padding: 20px 20px 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .panel-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #6b7280;
+    margin: 0 0 12px;
+  }
+  
+  .panel-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .busy-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  
+  .busy-dot { background: #f87171; }
+  
+  .legend-text {
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+  
+  .calendar-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 0;
+    color: #9ca3af;
+    font-size: 0.88rem;
+  }
+  
+  .calendar-wrap {
+    flex: 1;
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+  }
+  
+  /* ── Busy slot styling ───────────────────────────────────── */
+  ::ng-deep .busy-slot {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 2px 0;
+    color: #b91c1c;
+  }
+  
+  /* ── FullCalendar overrides (scoped to this dialog) ─────── */
+  ::ng-deep .fc-toolbar-title {
+    font-size: 0.9rem !important;
+    font-weight: 600;
+  }
+  
+  ::ng-deep .fc-button {
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+  }
+  
+  ::ng-deep .fc-timegrid-slot {
+    height: 28px !important;
+  }

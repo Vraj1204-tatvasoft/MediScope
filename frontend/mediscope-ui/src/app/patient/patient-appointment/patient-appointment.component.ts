@@ -71,7 +71,7 @@ export class PatientAppointmentComponent implements OnInit {
 
   openRescheduleModal(appointment: PatientAppointmentResponseDto) {
     const dialogRef = this.dialog.open(RescheduleDialogComponent, {
-      width: '450px',
+      width: '1000px',
       data: { ...appointment, patientName: appointment.doctorName } 
     });
     dialogRef.afterClosed().subscribe(res => { 

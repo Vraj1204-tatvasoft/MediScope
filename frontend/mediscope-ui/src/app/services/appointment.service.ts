@@ -82,4 +82,10 @@ export class AppointmentService {
       map(res => res.data ? res.data : (Array.isArray(res) ? res : []))
     );
   }
+  getDoctorAvailability(doctorId: string): Observable<ApiResponse<any>> {
+    return this.http.get<any>(`appointments/doctor/${doctorId}/availability`, {
+      showError: true,
+      showSuccess: false
+    });
+  }
 }
