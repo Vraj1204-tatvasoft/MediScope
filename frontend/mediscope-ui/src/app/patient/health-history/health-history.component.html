@@ -84,28 +84,32 @@
                       </td>
 
                       <td class="center-text">
-                        <button mat-icon-button 
-                                [matMenuTriggerFor]="actionMenu" 
-                                [disabled]="deletingId() === row.submissionId"
-                                (click)="$event.stopPropagation()">
-                          @if (deletingId() === row.submissionId) {
-                            <mat-spinner diameter="16" class="inline-btn-spinner"></mat-spinner>
-                          } @else {
-                            <mat-icon>more_vert</mat-icon>
-                          }
-                        </button>
-                      
-                        <mat-menu #actionMenu="matMenu" xPosition="before" class="mediscope-action-menu">
-                          <button mat-menu-item (click)="editRecord(row)">
-                            <mat-icon color="primary">edit</mat-icon>
-                            <span>Edit</span>
+                        @if (row.canEdit) {
+                          <button mat-icon-button 
+                                  [matMenuTriggerFor]="actionMenu" 
+                                  [disabled]="deletingId() === row.submissionId"
+                                  (click)="$event.stopPropagation()">
+                            @if (deletingId() === row.submissionId) {
+                              <mat-spinner diameter="16" class="inline-btn-spinner"></mat-spinner>
+                            } @else {
+                              <mat-icon>more_vert</mat-icon>
+                            }
                           </button>
-                          <mat-divider></mat-divider>
-                          <button mat-menu-item (click)="openDeleteConfirmation(row.submissionId, $event)">
-                            <mat-icon color="warn">delete_outline</mat-icon>
-                            <span>Delete</span>
-                          </button>
-                        </mat-menu>
+                        
+                          <mat-menu #actionMenu="matMenu" xPosition="before" class="mediscope-action-menu">
+                            <button mat-menu-item (click)="editRecord(row)">
+                              <mat-icon color="primary">edit</mat-icon>
+                              <span>Edit</span>
+                            </button>
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item (click)="openDeleteConfirmation(row.submissionId, $event)">
+                              <mat-icon color="warn">delete_outline</mat-icon>
+                              <span>Delete</span>
+                            </button>
+                          </mat-menu>
+                        } @else {
+                          <span style="color: #94a3b8;">—</span>
+                        }
                       </td>
                       
                       <td class="center-text">

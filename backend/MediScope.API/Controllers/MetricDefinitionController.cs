@@ -23,7 +23,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Create([FromBody] CreateMetricDefinitionRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -62,7 +62,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateMetricDefinitionRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -79,7 +79,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPatch("{id:guid}/toggle-status")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> ToggleStatus(Guid id)
         {
             var result = await _metricDefinitionService.ToggleStatusAsync(id);

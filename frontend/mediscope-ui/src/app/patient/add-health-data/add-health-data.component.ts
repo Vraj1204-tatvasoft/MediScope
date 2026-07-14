@@ -113,10 +113,22 @@ export class AddHealthDataComponent implements OnInit {
         const metricsGroup = this.healthForm.get('metrics') as FormGroup;
 
         definitions.forEach(metric => {
-          metricsGroup.addControl(
-            metric.id.toString(),
-            this.fb.control(null)
-          );
+          metricsGroup.addControl(metric.id.toString(), this.fb.control(null));
+          
+          const mName = metric.displayName.toLowerCase();
+          if (mName.includes('weight') || mName.includes('height')) {
+            metricsGroup.addControl(metric.id.toString() + '_alt', this.fb.control(null));
+          }
+        });
+
+        definitions.forEach(metric => {
+          const mName = metric.displayName.toLowerCase();
+          if (mName.includes('weight')) {
+            // Weight: Primary(kg), Alt(lbs). (1 kg = 2.20462 lbs) -> Multiply for Alt
+            this.setupUnitConversion(metric.id.toString(), metric.id.toString() + '_alt', 2.20462, false);
+          } else if (mName.includes('height')) {
+            this.setupUnitConversion(metric.id.toString(), metric.id.toString() + '_alt', 30.48, true);
+          }
         });
 
         if (this.isEditMode()) {
@@ -274,6 +286,37 @@ export class AddHealthDataComponent implements OnInit {
       error: (err) => {
         this.isSaving.set(false);
       }
+    });
+  }
+  private setupUnitConversion(primaryId: string, altId: string, conversionFactor: number, divideForAlt: boolean): void {
+    const metricsGroup = this.healthForm.get('metrics') as FormGroup;
+    const primaryCtrl = metricsGroup.get(primaryId);
+    const altCtrl = metricsGroup.get(altId);
+
+    if (!primaryCtrl || !altCtrl) return;
+
+    primaryCtrl.valueChanges.subscribe(val => {
+      if (val === null || val === undefined || val === '') {
+        altCtrl.setValue(null, { emitEvent: false });
+        return;
+      }
+      const numericVal = parseFloat(val);
+      if (isNaN(numericVal)) return;
+
+      const converted = divideForAlt ? (numericVal / conversionFactor) : (numericVal * conversionFactor);
+      altCtrl.setValue(parseFloat(converted.toFixed(2)), { emitEvent: false });
+    });
+
+    altCtrl.valueChanges.subscribe(val => {
+      if (val === null || val === undefined || val === '') {
+        primaryCtrl.setValue(null, { emitEvent: false });
+        return;
+      }
+      const numericVal = parseFloat(val);
+      if (isNaN(numericVal)) return;
+
+      const converted = divideForAlt ? (numericVal * conversionFactor) : (numericVal / conversionFactor);
+      primaryCtrl.setValue(parseFloat(converted.toFixed(2)), { emitEvent: false });
     });
   }
 }

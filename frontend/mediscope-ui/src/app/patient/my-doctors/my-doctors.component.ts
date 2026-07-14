@@ -22,6 +22,7 @@ import { DoctorProfile }            from '../../models/doctor.model';
 import { UploadDocumentDialogComponent } from './upload-document-dialog/upload-document-dialog.component';
 import { ViewDocumentsDialogComponent }  from './view-documents-dialog/view-documents-dialog.component';
 import { PatientDoctorResponseDto, SendDoctorRequestDto } from '../../models/doctor-patient,model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-my-doctors',
@@ -43,7 +44,7 @@ export class MyDoctorsComponent implements OnInit, OnDestroy {
   private notify         = inject(NotificationService);
   private signalrService = inject(SignalrService);
   private dialog         = inject(MatDialog);
-
+  private route          = inject(ActivatedRoute);
   // ── State ─────────────────────────────────────────────────
   myDoctors    = signal<PatientDoctorResponseDto[]>([]);
   allDoctors   = signal<DoctorProfile[]>([]);
@@ -100,7 +101,20 @@ export class MyDoctorsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
 
     this.dpService.getMyDoctors().subscribe({
-      next:  d  => this.myDoctors.set(d),
+      next: (d) => {
+        this.myDoctors.set(d);
+        const targetDoctorId = this.route.snapshot.queryParamMap.get('openDocsFor');
+        
+        if (targetDoctorId) {
+          const targetDoctor = d.find(doc => doc.doctorId === targetDoctorId);
+          
+          if (targetDoctor && targetDoctor.doctorId && targetDoctor.fullName) {
+            setTimeout(() => {
+              this.openViewDocumentsDialog(targetDoctor.doctorId!, targetDoctor.fullName!);
+            }, 100);
+          }
+        }
+      },
       error: () => {}
     });
 

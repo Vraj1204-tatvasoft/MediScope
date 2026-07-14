@@ -23,6 +23,7 @@ namespace MediScope.API.Controllers
         //  GET /api/patient/profile
         /// <summary>Get logged-in patient's full profile</summary>
         [HttpGet("profile")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> GetMyProfile()
         {
             var profile = await _patientService.GetMyProfileAsync(CurrentUserId);
@@ -32,6 +33,7 @@ namespace MediScope.API.Controllers
         //  PUT /api/patient/profile 
         /// <summary>Update name, email, phone, blood group, gender, dob, address</summary>
         [HttpPut("profile")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -46,6 +48,7 @@ namespace MediScope.API.Controllers
         /// Change password — verifies current password.
         /// </summary>
         [HttpPatch("change-password")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -56,7 +59,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("admin/all")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAllPatients([FromQuery] AdminPatientFilterDto filter, [FromQuery] PaginationParams pagination)
         {
             var response =

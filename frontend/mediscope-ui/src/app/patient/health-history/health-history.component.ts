@@ -15,6 +15,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/divider';
 import { AddHealthDataComponent } from '../add-health-data/add-health-data.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-health-history',
@@ -52,7 +53,7 @@ export class HealthHistoryComponent implements OnInit {
   currentPage = signal<number>(1);
   pageSize = signal<number>(7);
   totalRecords = signal<number>(0);
-
+  currentUserId = computed(() => this.authService.currentUser()?.id || null);
   // Deletion State Trackers
   deletingId = signal<string | null>(null);
   showDeleteModal = signal<boolean>(false);
@@ -83,7 +84,8 @@ export class HealthHistoryComponent implements OnInit {
     };
   });
 
-  constructor(private historyService: HealthHistoryService, private dialog: MatDialog) {}
+  constructor(private historyService: HealthHistoryService, private dialog: MatDialog, private authService: AuthService) {
+  }
 
   ngOnInit(): void {
     this.loadPatientHistoryData();
@@ -192,7 +194,7 @@ export class HealthHistoryComponent implements OnInit {
 
   editRecord(row: any) {
     const dialogRef = this.dialog.open(AddHealthDataComponent, {
-      width: '800px',
+      width: '1050px',
       maxWidth: '95vw',
       maxHeight: '90vh',
       data: row, // Pass the row data here!
@@ -266,7 +268,8 @@ export class HealthHistoryComponent implements OnInit {
         status: submission.status === 'NORMAL' ? 'Normal' : submission.status === 'CRITICAL' ? 'Critical' : 'Elevated',
         flaggedMetrics: flaggedMetrics,
         isExpanded: false,
-        metrics: rowMetrics
+        metrics: rowMetrics,
+        canEdit: submission.recordedByUserId === this.currentUserId()
       };
     });
   }

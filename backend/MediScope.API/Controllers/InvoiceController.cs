@@ -23,7 +23,7 @@ namespace MediScope.API.Controllers
 
         // POST: api/invoices
         [HttpPost]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequestDto dto)
         {
             try
@@ -104,7 +104,7 @@ namespace MediScope.API.Controllers
 
         // POST: api/invoices/{id}/refund
         [HttpPost("{id:guid}/refund")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> IssueRefund(Guid id, [FromBody] IssueRefundRequestDto dto)
         {
             if (dto == null)
@@ -118,7 +118,7 @@ namespace MediScope.API.Controllers
             return Ok(new { success = true, message = "Refund processed successfully." });
         }
         [HttpPost("{id:guid}/payment/order")]
-        [Authorize(Roles = "Patient,Doctor")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> CreatePaymentOrder(
             Guid id, [FromBody] CreatePaymentOrderRequestDto dto)
         {
@@ -165,7 +165,7 @@ namespace MediScope.API.Controllers
         // POST: api/invoices/{id}/payment/verify
         // Step 2 — frontend calls this after Razorpay checkout completes
         [HttpPost("{id:guid}/payment/verify")]
-        [Authorize(Roles = "Patient,Doctor")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> VerifyAndRecordPayment(
             Guid id, [FromBody] VerifyPaymentRequestDto dto)
         {
@@ -215,7 +215,7 @@ namespace MediScope.API.Controllers
             }
         }
         [HttpGet("payment/tokens")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> GetCustomerTokens()
         {
             try

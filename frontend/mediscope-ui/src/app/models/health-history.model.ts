@@ -37,6 +37,7 @@ export interface HealthHistoryRow {
       rawVal: number;
     };
   };
+  canEdit?: boolean;
 }
 
 export interface HistorySummaryStats {

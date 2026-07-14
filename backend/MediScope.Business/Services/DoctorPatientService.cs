@@ -152,7 +152,9 @@ namespace MediScope.Business.Services
                 await _notificationService.CreateAsync(
                     link.Doctor!.UserId,
                     NotificationType.Alert,
-                    $"{link.Patient.User.FullName} revoked your access.");
+                    $"{link.Patient.User.FullName} revoked your access.",
+                    referenceType: "connection",
+                    referenceId: link.Id);
             }
         }
 
@@ -221,14 +223,18 @@ namespace MediScope.Business.Services
                 link.Patient.UserId,
                 NotificationType.Success,
                 $"Your connection request has been approved. " +
-                $"Dr. {doctor.User.FullName} will review it shortly.");
+                $"Dr. {doctor.User.FullName} will review it shortly.",
+                referenceType: "connection",
+                referenceId: link.Id);
 
             // Notify doctor — new patient assigned
             await _notificationService.CreateAsync(
                 doctor.UserId,
                 NotificationType.Info,
                 $"A new patient {link.Patient.User.FullName} has been assigned to you. " +
-                $"Please accept or decline.");
+                $"Please accept or decline.",
+                referenceType: "connection",
+                referenceId: link.Id);
 
             // Real-time push to doctor
             try
@@ -274,7 +280,7 @@ namespace MediScope.Business.Services
                 : $"Your connection request was not approved: {request.AdminNote}";
 
             await _notificationService.CreateAsync(
-                link.Patient.UserId, NotificationType.Alert, note);
+                link.Patient.UserId, NotificationType.Alert, note, referenceType: "connection", referenceId: link.Id);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -354,7 +360,7 @@ namespace MediScope.Business.Services
             await _notificationService.CreateAsync(
                 link.Patient.UserId,
                 request.Accept ? NotificationType.Success : NotificationType.Alert,
-                msg);
+                msg, referenceType: "connection", referenceId: link.Id);
 
             // Real-time push to patient
             try
@@ -416,7 +422,7 @@ namespace MediScope.Business.Services
             foreach (var admin in admins)
             {
                 await _notificationService.CreateAsync(
-                    admin.UserId, NotificationType.Info, message);
+                    admin.UserId, NotificationType.Info, message, referenceType: "connection");
             }
         }
 

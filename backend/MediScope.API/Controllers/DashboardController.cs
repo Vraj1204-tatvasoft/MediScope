@@ -22,7 +22,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("patient")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> GetPatientDashboard()
         {
             var result =
@@ -33,7 +33,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("admin")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAdminDashboard()
         {
             var result = await _adminDashboardService
@@ -43,7 +43,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("doctor")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> GetDoctorDashboard()
         {
             var result = await _doctorDashboardService
@@ -53,7 +53,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet("doctor/vital-trends")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> GetVitalTrends(
             [FromQuery] string metricType = "heart_rate",
             [FromQuery] string patientId = "all",

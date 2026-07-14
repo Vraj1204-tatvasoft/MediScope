@@ -144,6 +144,8 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Doctor", "Patient"));
     options.AddPolicy("DoctorOrAdmin", policy =>
         policy.RequireRole("Doctor", "Admin"));
+    options.AddPolicy("PatientOrAdmin", policy =>
+        policy.RequireRole("Patient", "Admin"));
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

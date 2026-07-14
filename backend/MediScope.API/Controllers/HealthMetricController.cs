@@ -23,7 +23,7 @@ namespace MediScope.API.Controllers
         // ADD HEALTH RECORD
 
         [HttpPost]
-        [Authorize(Roles = "Patient,Doctor")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> AddMetric([FromBody] AddHealthMetricRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -81,7 +81,7 @@ namespace MediScope.API.Controllers
         // GET LOGGED-IN PATIENT HISTORY
 
         [HttpGet("me/paged")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult>
             GetMyPagedMetrics([FromQuery] PaginationParams pagination)
         {
@@ -96,7 +96,7 @@ namespace MediScope.API.Controllers
 
         // Delete that particular submission
         [HttpDelete("{id:guid}")]
-        [Authorize(Roles = "Patient,Doctor")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> DeleteSubmission(Guid id)
         {
             await _healthMetricService.DeleteSubmissionAsync(id, CurrentUserId, CurrentUserRole);

@@ -180,33 +180,41 @@ namespace MediScope.Data.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task SaveCardTokenAsync(
-            Guid patientId, string tokenId, string last4, string network)
+        public async Task SaveCardTokenAsync(Guid patientId, string tokenId, string last4, string network)
         {
-            var existing = await _context.PatientCardTokens
-                .Where(t => t.PatientId == patientId && t.IsActive && !t.IsDeleted)
-                .ToListAsync();
+            var existingCard = await _context.PatientCardTokens
+                .FirstOrDefaultAsync(t => t.PatientId == patientId
+                                       && t.Last4Digits == last4
+                                       && t.CardNetwork == network
+                                       && !t.IsDeleted);
 
-            existing.ForEach(t =>
+            if (existingCard != null)
             {
-                t.UpdatedAt = DateTime.UtcNow;
-            });
+                existingCard.RazorpayTokenId = tokenId;
+                existingCard.IsActive = true;
+                existingCard.UpdatedAt = DateTime.UtcNow;
 
-            _context.PatientCardTokens.Add(new PatientCardToken
+                _context.PatientCardTokens.Update(existingCard);
+            }
+            else
             {
-                Id = Guid.NewGuid(),
-                PatientId = patientId,
-                RazorpayTokenId = tokenId,
-                Last4Digits = last4,
-                CardNetwork = network,
-                IsActive = true,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
+                _context.PatientCardTokens.Add(new PatientCardToken
+                {
+                    Id = Guid.NewGuid(),
+                    PatientId = patientId,
+                    RazorpayTokenId = tokenId,
+                    Last4Digits = last4,
+                    CardNetwork = network,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
 
             await _context.SaveChangesAsync();
         }
+
         public async Task<string?> GetRazorpayCustomerIdAsync(Guid patientId)
         {
             return await _context.Patients

@@ -126,7 +126,8 @@ namespace MediScope.Business.Services
                 doctor.UserId,
                 NotificationType.Info,
                 $"{patient.User.FullName} uploaded a new document: {command.FileName}.",
-                referenceType: "my-patients/patient.Id"
+                referenceType: "document",
+                referenceId: patient.Id
             );
         }
 
@@ -179,7 +180,8 @@ namespace MediScope.Business.Services
                             patient.UserId,
                             NotificationType.Success,
                             $"{doctorName} reviewed your document and left feedback.",
-                            referenceType: "my-doctors"
+                            referenceType: "document",
+                            referenceId: doctor.Id
                         );
                     }
                 }

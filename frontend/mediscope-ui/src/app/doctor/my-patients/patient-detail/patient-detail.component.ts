@@ -76,6 +76,16 @@ export class PatientDetailComponent implements OnInit {
     if (this.patientId) {
       this.loadPatientDeepContext();
     }
+
+    this.route.queryParams.subscribe(params => {
+      if (params['tab'] === 'documents') {
+        this.selectedTabIndex = 3; 
+      } else if (params['tab'] === 'charts') {
+        this.selectedTabIndex = 2;
+      } else if (params['tab'] === 'add-data') {
+        this.selectedTabIndex = 1; 
+      }
+    });
   }
 
   // ─────────────────────────────────────

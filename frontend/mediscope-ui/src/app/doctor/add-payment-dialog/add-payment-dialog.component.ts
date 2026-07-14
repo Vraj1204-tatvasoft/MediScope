@@ -186,7 +186,7 @@ export class AddPaymentDialogComponent implements OnInit {
           name:        'MediScope',
           description: 'Invoice Payment',
           customer_id: order.razorpayCustomerId ?? undefined,
-
+          remember_customer: true,
           // save: 1 — shows "Save this card as per RBI guidelines" checkbox
           // Razorpay also uses this to unlock saved cards list via OTP
           //save: 1,

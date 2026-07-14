@@ -24,7 +24,7 @@ namespace MediScope.API.Controllers
         // POST api/doctor-patient/request
         // Patient sends request (DoctorId optional)
         [HttpPost("request")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> SendRequest([FromBody] SendDoctorRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -38,7 +38,7 @@ namespace MediScope.API.Controllers
 
         // GET api/doctor-patient/my-doctors
         [HttpGet("my-doctors")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> GetMyDoctors()
         {
             var response = await _doctorPatientService.GetMyDoctorsAsync(CurrentUserId);
@@ -47,7 +47,7 @@ namespace MediScope.API.Controllers
 
         // PATCH api/doctor-patient/revoke
         [HttpPatch("revoke")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> RevokeAccess([FromBody] RevokeAccessDto request)
         {
             if (!ModelState.IsValid)
@@ -62,7 +62,7 @@ namespace MediScope.API.Controllers
         // GET api/doctor-patient/admin/pending
         // Admin views requests waiting for their review
         [HttpGet("admin/pending")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetPendingAdminRequests()
         {
             var response = await _doctorPatientService.GetPendingAdminRequestsAsync();
@@ -72,7 +72,7 @@ namespace MediScope.API.Controllers
         // GET api/doctor-patient/admin/all
         // Admin views all requests with optional filters
         [HttpGet("admin/all")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAllRequestsForAdmin(
             [FromQuery] AdminDoctorPatientFilterDto filter)
         {
@@ -84,7 +84,7 @@ namespace MediScope.API.Controllers
         // PATCH api/doctor-patient/admin/approve
         // Admin approves and assigns a doctor
         [HttpPatch("admin/approve")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> ApproveRequest([FromBody] AdminApproveRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -99,7 +99,7 @@ namespace MediScope.API.Controllers
         // PATCH api/doctor-patient/admin/reject
         // Admin rejects a request
         [HttpPatch("admin/reject")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RejectRequest([FromBody] AdminRejectRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -116,7 +116,7 @@ namespace MediScope.API.Controllers
         // GET api/doctor-patient/pending
         // Doctor views requests waiting for their acceptance
         [HttpGet("pending")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> GetPendingRequests()
         {
             var response = await _doctorPatientService
@@ -127,7 +127,7 @@ namespace MediScope.API.Controllers
         // PATCH api/doctor-patient/respond
         // Doctor accepts or declines
         [HttpPatch("respond")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> RespondToRequest([FromBody] RespondToRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -145,7 +145,7 @@ namespace MediScope.API.Controllers
 
         // GET api/doctor-patient/my-patients
         [HttpGet("my-patients")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> GetMyPatients()
         {
             var response = await _doctorPatientService

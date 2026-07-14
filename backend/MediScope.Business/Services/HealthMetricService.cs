@@ -63,7 +63,13 @@ namespace MediScope.Business.Services
             // (Your existing appointment validation code remains here...)
             if (request.AppointmentId.HasValue)
             {
-                // ... Keep your existing appointment logic here ...
+                var appointment = await _uow.Appointments.GetByIdAsync(request.AppointmentId.Value)
+                    ?? throw new KeyNotFoundException("The specified appointment does not exist.");
+
+                if (appointment.PatientId != targetPatientId)
+                {
+                    throw new UnauthorizedAccessException("The appointment provided does not belong to the target patient.");
+                }
             }
 
             // 2. PREPARE UPSERT VARIABLES
@@ -153,11 +159,8 @@ namespace MediScope.Business.Services
 
             // 6. NOTIFICATIONS
             // Only fire on new submissions, not edits, to avoid spamming.
-            // referenceType: "health-metric" — frontend routes to /patient/health-metrics/:submissionId
             if (!isUpdate)
             {
-                // Resolve the patient's UserId so the notification targets the right inbox.
-                // targetPatientId here is a Patient.Id (profile), not a UserId — look it up.
                 var patientProfile = await _uow.Patients.GetByIdAsync(targetPatientId);
                 var patientUserId = patientProfile?.UserId;
 
@@ -169,7 +172,7 @@ namespace MediScope.Business.Services
                             patientUserId.Value,
                             NotificationType.Alert,
                             "Critical health readings detected. Please consult your doctor immediately.",
-                            referenceType: "health-metric",
+                            referenceType: "health",
                             referenceId: sharedSubmissionId
                         );
                     }
@@ -179,25 +182,19 @@ namespace MediScope.Business.Services
                             patientUserId.Value,
                             NotificationType.Alert,
                             "Some health readings are outside the normal range.",
-                            referenceType: "health-metric",
+                            referenceType: "health",
                             referenceId: sharedSubmissionId
                         );
                     }
                 }
 
                 // If a doctor logged the metrics, also notify them so it appears in their feed.
-                if (callerRole.Equals("Doctor", StringComparison.OrdinalIgnoreCase) && (critical || elevated))
+                if (callerRole.Equals("Doctor", StringComparison.OrdinalIgnoreCase))
                 {
-                    await _notificationService.CreateAsync(
-                        callerUserId,
-                        NotificationType.Alert,
-                        critical
-                            ? "Critical readings recorded for your patient."
-                            : "Elevated readings recorded for your patient.",
-                        referenceType: "health-metric",
-                        referenceId: sharedSubmissionId
-                    );
+                    var doctorUser = await _uow.Users.GetByIdAsync(callerUserId);
+                    await _notificationService.CreateAsync(patientUserId.Value, NotificationType.Info, $"Dr. {doctorUser?.FullName ?? "Doctor"} added a health record on your behalf.", referenceType: "health");
                 }
+
             }
 
             return Map(metricsToProcess);

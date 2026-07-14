@@ -48,10 +48,28 @@
                 <span class="vital-range-tag">Normal: {{ metric.normalRangeDisplay }}</span>
               </div>
               
-              <mat-form-field appearance="outline" class="vital-form-field-wrapper">
-                <input matInput type="number" [formControlName]="metric.id.toString()" placeholder="e.g. {{ metric.normalMin || 0 }}">
-                <span matSuffix class="suffix-unit-label">{{ metric.defaultUnit }}</span>
-              </mat-form-field>
+              <div class="vital-input-row">
+                
+                <mat-form-field appearance="outline" class="vital-form-field-wrapper">
+                  <input matInput type="number" [formControlName]="metric.id.toString()" placeholder="e.g. {{ metric.normalMin || 0 }}">
+                  <span matSuffix class="suffix-unit-label">{{ metric.defaultUnit }}</span>
+                </mat-form-field>
+
+                @if (metric.displayName.toLowerCase().includes('weight')) {
+                  <mat-form-field appearance="outline" class="vital-form-field-wrapper">
+                    <input matInput type="number" [formControlName]="metric.id.toString() + '_alt'" placeholder="Lbs">
+                    <span matSuffix class="suffix-unit-label">lbs</span>
+                  </mat-form-field>
+                }
+
+                @if (metric.displayName.toLowerCase().includes('height')) {
+                  <mat-form-field appearance="outline" class="vital-form-field-wrapper">
+                    <input matInput type="number" [formControlName]="metric.id.toString() + '_alt'" placeholder="Feet">
+                    <span matSuffix class="suffix-unit-label">ft</span>
+                  </mat-form-field>
+                }
+
+              </div>
             </div>
           }
         </div>

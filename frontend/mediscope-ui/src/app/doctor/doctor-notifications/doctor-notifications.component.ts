@@ -160,18 +160,35 @@ export class DoctorNotificationsComponent implements OnInit, OnDestroy {
     }
   }
   private navigateToSource(notification: NotificationDto): void {
-    if (!notification.referenceType || !notification.referenceId) return;
+    if (!notification.referenceType) return;
   
     switch (notification.referenceType) {
       case 'appointment':
         this.router.navigate(['/doctor/appointments']);
         break;
+  
+        case 'document':
+          this.router.navigate(['/doctor/my-patients', notification.referenceId], {
+            queryParams: { tab: 'documents' }
+          });
+          break;
+  
+      case 'health':
+        this.router.navigate(['/doctor/my-patients']);
+        break;
+  
+      case 'connection':
+        this.router.navigate(['/doctor/my-patients']);
+        break;
+  
       case 'invoice':
         this.router.navigate(['/doctor/invoices', notification.referenceId]);
         break;
+  
       case 'refund':
         this.router.navigate(['/doctor/invoices', notification.referenceId]);
         break;
+  
       default:
         break;
     }

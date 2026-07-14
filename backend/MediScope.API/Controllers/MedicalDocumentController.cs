@@ -21,7 +21,7 @@ namespace MediScope.API.Controllers
         // PATIENT → UPLOAD DOCUMENT
 
         [HttpPost]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Upload([FromForm] UploadDocumentRequestDto request)
         {
@@ -51,7 +51,7 @@ namespace MediScope.API.Controllers
         // PATIENT → MY DOCUMENTS
 
         [HttpGet("my")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Policy = "PatientOnly")]
         public async Task<IActionResult> GetMyDocuments()
         {
             var result =
@@ -65,7 +65,7 @@ namespace MediScope.API.Controllers
         // DOCTOR → DOCUMENTS ASSIGNED TO ME
 
         [HttpGet("doctor")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> GetDoctorDocuments()
         {
             var result =
@@ -79,7 +79,7 @@ namespace MediScope.API.Controllers
         // DOCTOR → MARK VIEWED
 
         [HttpPost("{documentId:guid}/view")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> MarkViewed(
             Guid documentId)
         {
@@ -96,7 +96,7 @@ namespace MediScope.API.Controllers
         // DOCTOR → ADD FEEDBACK
 
         [HttpPost("feedback")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> AddFeedback(
             [FromBody]
             AddDocumentFeedbackRequestDto request)
@@ -118,7 +118,7 @@ namespace MediScope.API.Controllers
         // DOWNLOAD DOCUMENT
 
         [HttpGet("{documentId:guid}/download")]
-        [Authorize(Roles = "Patient,Doctor")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> Download(Guid documentId)
         {
             var file = await _documentService.DownloadAsync(CurrentUserId, CurrentUserRole, documentId);

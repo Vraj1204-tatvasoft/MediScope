@@ -1,11 +1,13 @@
 .metrics-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 1000px;
-    margin: 0 auto;
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1050px;
+  width: 100%; 
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
   
   /* ═════════════════════════════════════════════════════════════
      INFO BANNER ALIGNMENT
@@ -168,7 +170,7 @@
   .vital-input-card {
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 1rem 1.25rem;
+    padding: 1rem 0.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -213,9 +215,17 @@
     width: 100%;
   }
   
-  .vital-form-field-wrapper {
-    width: 100%;
-  }
+.vital-input-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.vital-form-field-wrapper {
+  width: 100%;
+  flex: 1; 
+  min-width: 0; 
+}
   
   .suffix-unit-label {
     font-size: 0.85rem;
@@ -279,8 +289,9 @@
     font-weight: 500;
   }
   .metrics-container.is-dialog-mode {
-    padding: 24px;
+    padding: 0; 
     margin: 0; 
+    max-width: 100%; 
     box-sizing: border-box;
   }
   

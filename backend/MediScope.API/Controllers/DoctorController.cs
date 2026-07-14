@@ -21,7 +21,7 @@ namespace MediScope.API.Controllers
 
         // ── CREATE DOCTOR — Admin only ───────────────────────────────
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateDoctor(
             [FromBody] CreateDoctorRequestDto request)
         {
@@ -38,7 +38,7 @@ namespace MediScope.API.Controllers
 
         // ── GET ALL DOCTORS — Admin + Patient ───────────────────────
         [HttpGet("all")]
-        [Authorize(Roles = "Admin,Patient")]
+        [Authorize(Policy = "PatientOrAdmin")]
         public async Task<IActionResult> GetAllDoctors()
         {
             var doctors =
@@ -49,7 +49,7 @@ namespace MediScope.API.Controllers
 
         // ── GET DOCTOR BY ID — Admin + Patient ──────────────────────
         [HttpGet("{doctorId:guid}")]
-        [Authorize(Roles = "Admin,Patient")]
+        [Authorize(Policy = "PatientOrAdmin")]
         public async Task<IActionResult> GetDoctorById(Guid doctorId)
         {
             var doctor =
@@ -60,7 +60,7 @@ namespace MediScope.API.Controllers
 
         // ── GET MY PROFILE — Doctor only ────────────────────────────
         [HttpGet("me")]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Policy = "DoctorOrAdmin")]
         public async Task<IActionResult> GetMyProfile()
         {
             var doctor =
@@ -71,7 +71,7 @@ namespace MediScope.API.Controllers
 
         // ── UPDATE MY PROFILE — Doctor only ─────────────────────────
         [HttpPut]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> UpdateMyProfile(
             [FromBody] UpdateDoctorRequestDto request)
         {
@@ -89,7 +89,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpPatch("change-password")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
         {
             if (!ModelState.IsValid)
