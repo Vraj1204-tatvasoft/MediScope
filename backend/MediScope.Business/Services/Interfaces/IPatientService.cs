@@ -7,11 +7,6 @@ using MediScope.Common.Models.Pagination;
 
 namespace MediScope.Business.Services.Interfaces
 {
-    /// <summary>
-    /// Patient-specific service.
-    /// Inherits standard CRUD from IGenericService.
-    /// Adds patient-specific operations below.
-    /// </summary>
     public interface IPatientService
         : IGenericService<Patient, PatientProfileResponseDto, UpdateProfileRequestDto, UpdateProfileRequestDto>
     {

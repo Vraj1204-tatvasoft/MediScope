@@ -1,0 +1,213 @@
+<div class="facility-container mat-app-background">
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-card-title>Hospital Facility Management</mat-card-title>
+        <mat-card-subtitle>Configure wards, rooms, room types, and manage live bed configurations.</mat-card-subtitle>
+      </mat-card-header>
+  
+      @if (isLoading()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      } @else {
+        <mat-progress-bar mode="determinate" value="100" style="visibility: hidden;"></mat-progress-bar>
+      }
+  
+      <mat-card-content class="mt-4">
+        <mat-tab-group 
+          animationDuration="200ms" 
+          [(selectedIndex)]="selectedTabIndex"
+          (selectedTabChange)="onTabChange($event)">
+          
+          <mat-tab label="Rooms">
+            <div class="tab-action-bar">
+              <mat-form-field appearance="outline" class="search-bar">
+                <mat-label>Search Rooms...</mat-label>
+                <input matInput (keyup)="onRoomSearch($any($event.target).value)">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+              
+              <button mat-raised-button color="primary" (click)="openRoomDialog()">
+                <mat-icon>add</mat-icon> Add New Room
+              </button>
+            </div>
+  
+            <table mat-table [dataSource]="rooms()" matSort (matSortChange)="onRoomSort($event)" class="mat-elevation-z1 width-100">
+              <ng-container matColumnDef="roomNumber">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="roomnumber">Room Number</th>
+                <td mat-cell *matCellDef="let element"> {{element.roomNumber}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="wardName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="wardname">Ward</th>
+                <td mat-cell *matCellDef="let element"> {{element.wardName}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="roomTypeName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="roomtypename">Room Type</th>
+                <td mat-cell *matCellDef="let element"> {{element.roomTypeName}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="bedCount">
+                <th mat-header-cell *matHeaderCellDef>Total Beds Assigned</th>
+                <td mat-cell *matCellDef="let element"> {{element.bedCount}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-right">Actions</th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                  <button mat-icon-button [matMenuTriggerFor]="roomMenu" (click)="$event.stopPropagation()">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #roomMenu="matMenu">
+                    <button mat-menu-item (click)="openRoomDialog(element)">
+                      <mat-icon>edit</mat-icon> <span>Edit Room</span>
+                    </button>
+                    <button mat-menu-item (click)="deleteRoom(element.id)">
+                      <mat-icon color="warn">delete</mat-icon> <span>Delete Room</span>
+                    </button>
+                  </mat-menu>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="roomColumns"></tr>
+              
+              <tr mat-row *matRowDef="let row; columns: roomColumns;" 
+                  class="clickable-row" 
+                  (click)="viewRoomBeds(row)">
+              </tr>
+            </table>
+            <mat-paginator [length]="totalRooms()" [pageSize]="roomParams.pageSize" [pageSizeOptions]="[5, 10, 25, 50]" (page)="onRoomPage($event)"></mat-paginator>
+          </mat-tab>
+  
+          <mat-tab label="Live Beds Grid">
+            <div class="tab-action-bar pt-3">
+              <mat-form-field appearance="outline" class="search-bar">
+                <mat-label>Search Beds...</mat-label>
+                <input matInput (keyup)="onBedSearch($any($event.target).value)">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+              <div></div>
+            </div>
+  
+            <table mat-table [dataSource]="beds()" matSort (matSortChange)="onBedSort($event)" class="mat-elevation-z1 width-100 mt-4">
+              <ng-container matColumnDef="bedNumber">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="bednumber">Bed Tag Identifier</th>
+                <td mat-cell *matCellDef="let element"><strong>{{element.bedNumber}}</strong></td>
+              </ng-container>
+  
+              <ng-container matColumnDef="roomNumber">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="roomnumber">Assigned Room</th>
+                <td mat-cell *matCellDef="let element"> {{element.roomNumber}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="wardName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="wardname">Located Ward</th>
+                <td mat-cell *matCellDef="let element"> {{element.wardName}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-chip-set>
+                    <mat-chip [color]="getChipColor(element.status)" highlighted="true">{{getBedStatusName(element.status)}}</mat-chip>
+                  </mat-chip-set>
+                </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-right">Manage</th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                  <button mat-icon-button [matMenuTriggerFor]="bedMenu"><mat-icon>more_vert</mat-icon></button>
+                  <mat-menu #bedMenu="matMenu">
+                    <button mat-menu-item (click)="openBedDialog(element)"><mat-icon>edit</mat-icon> <span>Edit Bed</span></button>
+                    <button mat-menu-item (click)="deleteBed(element.id)"><mat-icon color="warn">delete</mat-icon> <span style="color: #f44336">Delete</span></button>
+                  </mat-menu>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="bedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: bedColumns;"></tr>
+            </table>
+            <mat-paginator [length]="totalBeds()" [pageSize]="bedParams.pageSize" [pageSizeOptions]="[5, 10, 25, 50]" (page)="onBedPage($event)"></mat-paginator>
+          </mat-tab>
+  
+          <mat-tab label="Wards Structure">
+            <div class="tab-action-bar">
+              <mat-form-field appearance="outline" class="search-bar">
+                <mat-label>Search Wards...</mat-label>
+                <input matInput (keyup)="onWardSearch($any($event.target).value)">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+  
+              <button mat-raised-button color="primary" (click)="openWardDialog()">
+                <mat-icon>add</mat-icon> Create New Ward
+              </button>
+            </div>
+  
+            <table mat-table [dataSource]="wards()" matSort (matSortChange)="onWardSort($event)" class="mat-elevation-z1 width-100">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Ward Department</th>
+                <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Functional Details</th>
+                <td mat-cell *matCellDef="let element"> {{element.description || 'No special remarks.'}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-right">Actions</th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                  <button mat-icon-button [matMenuTriggerFor]="wardMenu"><mat-icon>more_vert</mat-icon></button>
+                  <mat-menu #wardMenu="matMenu">
+                    <button mat-menu-item (click)="openWardDialog(element)"><mat-icon>edit</mat-icon> <span>Edit Ward</span></button>
+                    <button mat-menu-item (click)="deleteWard(element.id)"><mat-icon color="warn">delete</mat-icon> <span>Delete</span></button>
+                  </mat-menu>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="wardColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: wardColumns;"></tr>
+            </table>
+            <mat-paginator [length]="totalWards()" [pageSize]="wardParams.pageSize" [pageSizeOptions]="[5, 10, 25, 50]" (page)="onWardPage($event)"></mat-paginator>
+          </mat-tab>
+  
+          <mat-tab label="Room Classification Subtypes">
+            <div class="tab-action-bar">
+              <mat-form-field appearance="outline" class="search-bar">
+                <mat-label>Search Room Types...</mat-label>
+                <input matInput (keyup)="onTypeSearch($any($event.target).value)">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+  
+              <button mat-raised-button color="primary" (click)="openRoomTypeDialog()">
+                <mat-icon>add</mat-icon> Add Classification Type
+              </button>
+            </div>
+  
+            <table mat-table [dataSource]="roomTypes()" matSort (matSortChange)="onTypeSort($event)" class="mat-elevation-z1 width-100">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Category Classification Designation</th>
+                <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-right">Actions</th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                  <button mat-icon-button [matMenuTriggerFor]="typeMenu"><mat-icon>more_vert</mat-icon></button>
+                  <mat-menu #typeMenu="matMenu">
+                    <button mat-menu-item (click)="openRoomTypeDialog(element)"><mat-icon>edit</mat-icon> <span>Edit Type</span></button>
+                    <button mat-menu-item (click)="deleteRoomType(element.id)"><mat-icon color="warn">delete</mat-icon> <span>Delete</span></button>
+                  </mat-menu>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="typeColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: typeColumns;"></tr>
+            </table>
+            <mat-paginator [length]="totalRoomTypes()" [pageSize]="typeParams.pageSize" [pageSizeOptions]="[5, 10, 25, 50]" (page)="onTypePage($event)"></mat-paginator>
+          </mat-tab>
+  
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </div>

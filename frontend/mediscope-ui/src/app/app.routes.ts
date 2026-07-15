@@ -34,6 +34,7 @@ import { PatientAppointmentComponent } from './patient/patient-appointment/patie
 import {  DoctorInvoicesComponent } from './doctor/doctor-invoices/doctor-invoices.component';
 import { InvoiceDetailComponent } from './doctor/invoice-detail.component/invoice-detail.component';
 import { PatientInvoicesComponent } from './patient/patient-invoice/patient-invoice.component';
+import { ManageRoomsComponent } from './admin/manage-rooms/manage-rooms.component';
 
 
 export const routes: Routes = [
@@ -195,6 +196,10 @@ export const routes: Routes = [
         path: 'doctor-patient-links',
         component: DoctorPatientLinksComponent,
       },
+      {
+        path: 'manage-rooms',
+        component: ManageRoomsComponent,
+      }
     ],
   },
 

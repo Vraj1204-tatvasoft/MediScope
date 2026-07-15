@@ -78,7 +78,7 @@ namespace MediScope.Business.Services
 
             await _uow.SaveChangesAsync();
 
-            // OPTIONAL LIVE UPDATE
+            // LIVE UPDATE
 
             await _hub.Clients
                 .Group(userId.ToString())
@@ -113,7 +113,7 @@ namespace MediScope.Business.Services
 
             await _uow.SaveChangesAsync();
 
-            // OPTIONAL REALTIME PUSH
+            // REALTIME PUSH
 
             await _hub.Clients
                 .Group(userId.ToString())

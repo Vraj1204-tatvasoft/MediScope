@@ -31,6 +31,10 @@ namespace MediScope.Data
         public DbSet<Refund> Refunds { get; set; }
         public DbSet<BillingItem> BillingItems { get; set; }
         public DbSet<PatientCardToken> PatientCardTokens { get; set; }
+        public DbSet<Ward> Wards { get; set; }
+        public DbSet<RoomType> RoomTypes { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Bed> Beds { get; set; }
         private static string ToSnakeCase(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
@@ -898,6 +902,61 @@ namespace MediScope.Data
 
                 entity.HasIndex(t => t.PatientId)
                             .HasDatabaseName("ix_card_tokens_patient_id");
+            });
+            modelBuilder.Entity<Ward>(entity =>
+            {
+                entity.ToTable("wards");
+
+                entity.Property(w => w.Name).HasColumnName("name").HasMaxLength(255).IsRequired();
+                entity.Property(w => w.Description).HasColumnName("description");
+            });
+            modelBuilder.Entity<RoomType>(entity =>
+            {
+                entity.ToTable("room_types");
+
+                entity.Property(rt => rt.Name).HasColumnName("name").HasMaxLength(255).IsRequired();
+            });
+            modelBuilder.Entity<Room>(entity =>
+            {
+                entity.ToTable("rooms");
+
+                entity.Property(r => r.RoomNumber).HasColumnName("room_number").HasMaxLength(50).IsRequired();
+                entity.Property(r => r.WardId).HasColumnName("ward_id");
+                entity.Property(r => r.RoomTypeId).HasColumnName("room_type_id");
+
+                entity.HasOne(r => r.Ward)
+                      .WithMany(w => w.Rooms)
+                      .HasForeignKey(r => r.WardId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.RoomType)
+                      .WithMany(rt => rt.Rooms)
+                      .HasForeignKey(r => r.RoomTypeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes for fast lookups
+                entity.HasIndex(r => r.WardId);
+                entity.HasIndex(r => r.RoomTypeId);
+                entity.HasIndex(r => r.RoomNumber).IsUnique();
+            });
+            modelBuilder.Entity<Bed>(entity =>
+            {
+                entity.ToTable("beds");
+
+                entity.Property(b => b.BedNumber).HasColumnName("bed_number").HasMaxLength(50).IsRequired();
+                entity.Property(b => b.RoomId).HasColumnName("room_id");
+
+                entity.Property(b => b.Status)
+                      .HasColumnName("status")
+                      .HasDefaultValue(BedStatus.Available);
+
+                entity.HasOne(b => b.Room)
+                      .WithMany(r => r.Beds)
+                      .HasForeignKey(b => b.RoomId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(b => b.RoomId);
+                entity.HasIndex(b => new { b.RoomId, b.BedNumber }).IsUnique();
             });
         }
     }

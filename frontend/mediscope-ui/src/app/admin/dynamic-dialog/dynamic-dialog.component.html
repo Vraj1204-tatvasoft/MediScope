@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="pt-2">
+    
+    @for (field of data.fields; track field.key) {
+      <mat-form-field appearance="outline" class="width-100 mb-2">
+        <mat-label>{{ field.label }}</mat-label>
+
+        @if (field.type === 'text') {
+          <input matInput [formControlName]="field.key">
+        }
+
+        @if (field.type === 'number') {
+          <input matInput type="number" [formControlName]="field.key">
+        }
+
+        @if (field.type === 'textarea') {
+          <textarea matInput [formControlName]="field.key" rows="3"></textarea>
+        }
+
+        @if (field.type === 'select') {
+          <mat-select [formControlName]="field.key">
+            @for (opt of field.options; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        }
+        
+      </mat-form-field>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="save()">Save</button>
+</mat-dialog-actions>
