@@ -11,5 +11,6 @@ namespace MediScope.Common.Models.DTOs.Response
         public IEnumerable<string> Doctors { get; set; } = new List<string>();
         public int TotalRecords { get; set; }
         public string LatestStatus { get; set; } = "Normal";
+        public bool IsCurrentlyAdmitted { get; set; }
     }
 }

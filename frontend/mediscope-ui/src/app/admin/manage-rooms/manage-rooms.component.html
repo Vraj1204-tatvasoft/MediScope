@@ -35,7 +35,10 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header="roomnumber">Room Number</th>
                 <td mat-cell *matCellDef="let element"> {{element.roomNumber}} </td>
               </ng-container>
-  
+              <ng-container matColumnDef="floor">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="floor">Floor</th>
+                <td mat-cell *matCellDef="let element"> {{element.floor}} </td>
+              </ng-container>
               <ng-container matColumnDef="wardName">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header="wardname">Ward</th>
                 <td mat-cell *matCellDef="let element"> {{element.wardName}} </td>

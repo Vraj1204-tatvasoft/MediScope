@@ -26,4 +26,5 @@ export interface AdminPatientOverviewContainer {
     doctors: string[];
     totalRecords: number;
     latestStatus: 'Normal' | 'Warning' | 'Critical' | string;
+    isCurrentlyAdmitted: boolean;
   }

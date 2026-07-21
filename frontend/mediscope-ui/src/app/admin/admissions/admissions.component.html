@@ -1,0 +1,412 @@
+<div class="admissions-container mat-app-background">
+  
+    @if (isLoading()) { <mat-progress-bar mode="indeterminate"></mat-progress-bar> } 
+    @else { <mat-progress-bar mode="determinate" value="100" style="visibility: hidden;"></mat-progress-bar> }
+  
+    <mat-card class="dashboard-card mt-4">
+      <mat-card-content>
+        
+        <div class="filters d-flex align-items-center gap-2">
+            <mat-form-field appearance="outline" class="search-bar mb-0">
+              <mat-icon matPrefix>search</mat-icon>
+              <mat-label>Search patients, doctors, or Adm No...</mat-label>
+              
+              <input matInput name="search" 
+                     [ngModel]="params.search" 
+                     (input)="onSearchChange($event)"> 
+                     
+              @if (params.search) {
+                <button matSuffix mat-icon-button aria-label="Clear" (click)="params.search=''; searchSubject.next('')">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </mat-form-field>
+          
+            <mat-form-field appearance="outline" class="status-filter mb-0 ms-2">
+              <mat-label>Admission Status</mat-label>
+              <mat-select name="status" [(ngModel)]="params.status" (selectionChange)="onFilterChange()"> 
+                <mat-option [value]="null">All Statuses</mat-option> 
+                <mat-option [value]="0">Active</mat-option>
+                <mat-option [value]="1">Discharged</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+  
+        <table mat-table [dataSource]="admissions()" class="width-100">
+          
+          <ng-container matColumnDef="admissionNumber">
+            <th mat-header-cell *matHeaderCellDef>Adm. No</th>
+            <td mat-cell *matCellDef="let element"> <strong>{{element.admissionNumber}}</strong> </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="patientName">
+            <th mat-header-cell *matHeaderCellDef>Patient</th>
+            <td mat-cell *matCellDef="let element"> {{element.patientName}} </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="doctorName">
+            <th mat-header-cell *matHeaderCellDef>Attending Doctor</th>
+            <td mat-cell *matCellDef="let element"> {{element.doctorName}} </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef>Location</th>
+            <td mat-cell *matCellDef="let element"> 
+              <span class="text-muted">{{element.wardName}} • </span>
+              {{element.roomNumber}} - {{element.bedNumber}}
+            </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="admissionDate">
+            <th mat-header-cell *matHeaderCellDef>Admission Date</th>
+            <td mat-cell *matCellDef="let element"> {{element.admissionDate | date:'mediumDate'}} </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-chip-set>
+                <mat-chip [color]="getStatusColor(element.status)" highlighted="true">
+                  {{getStatusName(element.status)}}
+                </mat-chip>
+              </mat-chip-set>
+            </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-right">Manage</th>
+            <td mat-cell *matCellDef="let element" class="text-right">
+              <button mat-icon-button [matMenuTriggerFor]="actionMenu" [disabled]="element.status !== 0">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #actionMenu="matMenu">
+                <button mat-menu-item (click)="openTransferDialog(element)">
+                  <mat-icon color="primary">swap_horiz</mat-icon> <span>Transfer Bed</span>
+                </button>
+                <button mat-menu-item (click)="openDischargeDialog(element)">
+                  <mat-icon color="accent">directions_walk</mat-icon> <span>Discharge Patient</span>
+                </button>
+                <button mat-menu-item (click)="openEditAdmission(element)">
+                    <mat-icon color="primary"> edit </mat-icon> <span>Edit Admission</span> 
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+  
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+          
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-state" [attr.colspan]="columns.length">
+              No admissions found matching your filters.
+            </td>
+          </tr>
+        </table>
+  
+        <mat-paginator 
+          [length]="totalCount()" 
+          [pageSize]="params.pageSize" 
+          [pageSizeOptions]="[5, 10, 25, 50]" 
+          (page)="onPage($event)">
+        </mat-paginator>
+  
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <ng-template #admitDialogTpl>
+    <h2 mat-dialog-title> {{ isEditMode ? 'Edit Admission' : 'Admit New Patient' }} </h2>
+    <mat-dialog-content>
+      <form [formGroup]="admitForm" class="dialog-form pt-2">
+        
+        <div class="row">
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Select Patient</mat-label>
+                <mat-select formControlName="patientId" [disabled]="isEditMode">
+                  @for (p of patients(); track p.patientId) { 
+                    <mat-option [value]="p.patientId">{{ p.fullName }}</mat-option> 
+                  }
+                </mat-select>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Attending Doctor</mat-label>
+                <mat-select formControlName="doctorId">
+                  @for (d of doctors(); track d.doctorId) { 
+                    <mat-option [value]="d.doctorId">{{ d.fullName }}</mat-option> 
+                  }
+                </mat-select>
+              </mat-form-field>
+          </div>
+  
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Admission Reason / Diagnosis</mat-label>
+          <input matInput formControlName="admissionReason">
+        </mat-form-field>
+  
+        <div class="allocation-container mb-3 d-flex align-items-center" *ngIf="!isEditMode">
+          <button mat-stroked-button color="primary" type="button" (click)="openBedAllocationModal()">
+            <mat-icon>bed</mat-icon> Allocate Bed
+          </button>
+          
+          <div class="ms-3" *ngIf="selectedAllocationDetails">
+
+            <div class="text-success fw-bold d-flex align-items-center">
+              <mat-icon inline>check_circle</mat-icon>
+              <span class="ms-1">Bed Allocated</span>
+            </div>
+          
+            <div class="small text-muted mt-1">
+              <strong>Ward:</strong> {{ selectedAllocationDetails.wardName }}
+              &nbsp;|&nbsp;
+              <strong>Room:</strong> {{ selectedAllocationDetails.roomNumber }}
+              &nbsp;|&nbsp;
+              <strong>Bed:</strong> {{ selectedAllocationDetails.bedNumber }}
+            </div>
+          
+          </div>
+        </div>
+  
+        <!-- Admission -->
+
+      <div class="row">
+      
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Admission Date</mat-label>
+          
+            <input
+              matInput
+              [matDatepicker]="admitPicker"
+              formControlName="admissionDate"
+              [min]="today">
+          
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="admitPicker">
+            </mat-datepicker-toggle>
+          
+            <mat-datepicker #admitPicker></mat-datepicker>
+          </mat-form-field>
+      
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Admission Time</mat-label>
+          
+            <input
+              matInput
+              type="time"
+              formControlName="admissionTime">
+          </mat-form-field>
+      
+        </div>
+        <div class="row">
+      
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Expected Discharge Date</mat-label>
+          
+            <input
+              matInput
+              [matDatepicker]="dischargePicker"
+              formControlName="expectedDischargeDate"
+              [min]="minDischargeDate">
+          
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="dischargePicker">
+            </mat-datepicker-toggle>
+          
+            <mat-datepicker #dischargePicker></mat-datepicker>
+          </mat-form-field>
+      
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Expected Discharge Time</mat-label>
+          
+            <input
+              matInput
+              type="time"
+              formControlName="expectedDischargeTime">
+          </mat-form-field>
+      
+        </div>
+  
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Additional Remarks</mat-label>
+          <textarea matInput formControlName="remarks" rows="2"></textarea>
+        </mat-form-field>
+  
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button color="primary" [disabled]="admitForm.invalid" (click)="submitAdmission()">{{ isEditMode ? 'Save Changes' : 'Admit Patient' }}</button>
+    </mat-dialog-actions>
+  </ng-template>
+  
+  <ng-template #transferDialogTpl>
+    <h2 mat-dialog-title>Transfer Bed: {{ selectedAdmission?.patientName }}</h2>
+    <mat-dialog-content>
+      <div class="mb-3 text-muted">
+        <strong>Current Location:</strong> {{ selectedAdmission?.wardName }} • {{ selectedAdmission?.roomNumber }} • {{ selectedAdmission?.bedNumber }}
+      </div>
+  
+      <form [formGroup]="transferForm" class="dialog-form pt-2">
+        <div class="row">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>New Ward</mat-label>
+            <mat-select formControlName="newWardId" (selectionChange)="onWardChange($event.value, transferForm)">
+              @for (w of wards(); track w.id) { <mat-option [value]="w.id">{{w.name}}</mat-option> }
+            </mat-select>
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>New Room</mat-label>
+            <mat-select formControlName="newRoomId" (selectionChange)="onRoomChange($event.value, transferForm)" [disabled]="!transferForm.get('newWardId')?.value">
+              @for (r of filteredRooms(); track r.id) { <mat-option [value]="r.id">{{r.roomNumber}}</mat-option> }
+            </mat-select>
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Available Bed</mat-label>
+            <mat-select formControlName="newBedId" [disabled]="!transferForm.get('newRoomId')?.value">
+              @for (b of filteredBeds(); track b.id) { <mat-option [value]="b.id">{{b.bedNumber}}</mat-option> }
+            </mat-select>
+          </mat-form-field>
+        </div>
+  
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Transfer Reason</mat-label>
+          <input matInput formControlName="transferReason">
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button color="primary" [disabled]="transferForm.invalid" (click)="submitTransfer()">Confirm Transfer</button>
+    </mat-dialog-actions>
+  </ng-template>
+  
+  <ng-template #dischargeDialogTpl>
+    <h2 mat-dialog-title>Discharge Patient</h2>
+    <mat-dialog-content>
+      <p class="mb-3 text-muted">You are about to discharge <strong>{{ selectedAdmission?.patientName }}</strong>. This will instantly free up Bed <strong>{{selectedAdmission?.bedNumber}}</strong>.</p>
+      
+      <form [formGroup]="dischargeForm" class="dialog-form pt-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Discharge Notes / Instructions</mat-label>
+          <textarea matInput formControlName="dischargeNotes" rows="4"></textarea>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button color="accent" [disabled]="dischargeForm.invalid" (click)="submitDischarge()">Confirm Discharge</button>
+    </mat-dialog-actions>
+  </ng-template>
+  <ng-template #bedAllocationDialogTpl>
+    <div class="d-flex justify-content-between align-items-center pr-3 pt-3 pl-3">
+      <h2 mat-dialog-title class="m-0">Room Allocation</h2>
+      <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+    </div>
+    
+    <mat-dialog-content>
+      <!-- Filters Row -->
+      <div class="row mt-2">
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Ward</mat-label>
+          <mat-select [(ngModel)]="allocationFilters.wardId" (selectionChange)="applyAllocationFilters()">
+            <mat-option [value]="null">All Wards</mat-option>
+            @for (w of wards(); track w.id) { 
+              <mat-option [value]="w.id">{{w.name}}</mat-option> 
+            }
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Room Type</mat-label>
+            <mat-select [(ngModel)]="allocationFilters.roomType" (selectionChange)="applyAllocationFilters()">
+              <mat-option [value]="null">All Types</mat-option>
+              
+              <!-- Dynamic loop through room types -->
+              @for (rt of roomTypes(); track rt.id) { 
+                <mat-option [value]="rt.id">{{rt.name}}</mat-option> 
+              }
+              
+            </mat-select>
+          </mat-form-field>
+      </div>
+  
+      <!-- Scrollable Grid Container -->
+      <div class="allocation-grid-container mat-elevation-z1 mt-2">
+        <table mat-table [dataSource]="filteredRoomsDataSource()" class="width-100">
+          
+          <!-- Room Number Column -->
+          <ng-container matColumnDef="roomNumber">
+            <th mat-header-cell *matHeaderCellDef> Room Number </th>
+            <td mat-cell *matCellDef="let element"> {{element.roomNumber}} </td>
+          </ng-container>
+  
+          <!-- Floor Column -->
+          <ng-container matColumnDef="floor">
+            <th mat-header-cell *matHeaderCellDef> Floor </th>
+            <td mat-cell *matCellDef="let element"> {{element.floor}} </td>
+          </ng-container>
+  
+          <!-- Capacity Column -->
+          <ng-container matColumnDef="capacity">
+            <th mat-header-cell *matHeaderCellDef> Capacity </th>
+            <td mat-cell *matCellDef="let element"> {{element.bedCount}} </td>
+          </ng-container>
+  
+          <!-- Available Column -->
+          <ng-container matColumnDef="available">
+            <th mat-header-cell *matHeaderCellDef> Available </th>
+            <td mat-cell *matCellDef="let element"> {{element.availableBeds}} </td> 
+          </ng-container>
+  
+          <!-- Action Column -->
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef> Action </th>
+            <td mat-cell *matCellDef="let element">
+              <!-- Show Delete/Minus if this row is currently selected -->
+              @if (selectedAllocationRoom?.id === element.id) {
+                <button mat-icon-button color="warn" (click)="toggleRoomSelection(element)">
+                  <mat-icon>remove_circle_outline</mat-icon>
+                </button>
+              } @else {
+                <!-- Show Add/Plus if not selected -->
+                <button mat-icon-button style="color: #2e7d32;" (click)="toggleRoomSelection(element)">
+                  <mat-icon>add_circle_outline</mat-icon>
+                </button>
+              }
+            </td>
+          </ng-container>
+  
+          <tr mat-header-row *matHeaderRowDef="['roomNumber', 'floor', 'capacity', 'available', 'action']; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['roomNumber', 'floor', 'capacity', 'available', 'action'];"
+              [class.selected-bg]="selectedAllocationRoom?.id === row.id">
+          </tr>
+          
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell text-center py-4" colspan="5">
+              No rooms available for the selected filters.
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-md-7">
+        @if(selectedAllocationRoom){
+          <app-room-calendar
+            [roomId]="selectedAllocationRoom.id"
+            [roomNumber]="selectedAllocationRoom.roomNumber">
+          </app-room-calendar>
+        } @else {
+          <div class="text-center text-muted mt-5">
+            Select a room to view its occupancy schedule.
+          </div>
+        }
+      </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end" class="pb-3 pr-3">
+      <button mat-stroked-button mat-dialog-close>Close</button>
+      <button mat-raised-button color="primary" [disabled]="!selectedAllocationRoom" (click)="saveBedAllocation()">Save Allocation</button>
+    </mat-dialog-actions>
+  </ng-template>

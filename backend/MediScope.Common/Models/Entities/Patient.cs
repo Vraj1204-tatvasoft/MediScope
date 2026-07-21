@@ -17,7 +17,6 @@ namespace MediScope.Common.Models.Entities
         public string? Address { get; set; }
 
         public bool ConsentProfileVisible { get; set; } = false;
-        // In Patient.cs
         public string? RazorpayCustomerId { get; set; }
 
         // Navigation Properties
@@ -27,5 +26,6 @@ namespace MediScope.Common.Models.Entities
         public ICollection<HealthAlert> HealthAlerts { get; set; } = new List<HealthAlert>();
         public ICollection<PatientAuditLog> AuditLogs { get; set; } = new List<PatientAuditLog>();
         public ICollection<MedicalDocument> MedicalDocuments { get; set; } = new List<MedicalDocument>();
+        public ICollection<PatientAdmission> PatientAdmissions { get; set; } = new List<PatientAdmission>();
     }
 }

@@ -297,7 +297,11 @@ namespace MediScope.Business.Services
                         .Distinct()
                         .DefaultIfEmpty("—"),
                     TotalRecords = totalEncounters,
-                    LatestStatus = latestStatus
+                    LatestStatus = latestStatus,
+                    IsCurrentlyAdmitted = p.PatientAdmissions.Any(a =>
+                    !a.IsDeleted &&
+                    a.Status == AdmissionStatus.Active
+            ),
                 };
             }).ToList();
 

@@ -26,6 +26,7 @@ namespace MediScope.Business.Services
 
             await _repository.CreateRoomWithBedsAsync(
                 request.RoomNumber,
+                request.Floor,
                 request.WardId,
                 request.RoomTypeId,
                 request.NumberOfBeds);
@@ -75,7 +76,7 @@ namespace MediScope.Business.Services
             if (string.IsNullOrWhiteSpace(request.RoomNumber))
                 throw new ArgumentException("Room number cannot be empty.");
 
-            await _repository.UpdateRoomAsync(id, request.RoomNumber, request.WardId, request.RoomTypeId);
+            await _repository.UpdateRoomAsync(id, request.RoomNumber, request.Floor, request.WardId, request.RoomTypeId);
             return true;
         }
 

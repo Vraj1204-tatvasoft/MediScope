@@ -12,6 +12,7 @@ export interface PaginationParams {
   search?: string;
   sortBy?: string;
   sortDir?: 'asc' | 'desc';
+  status?: number;
 }
 
 export interface WardSummary { id: string; name: string; description?: string; }
@@ -24,20 +25,22 @@ export interface UpdateRoomTypePayload { name: string; }
 
 export interface RoomSummary {
   id: string;
-  wardId: string;        
+  ward_Id: string;        
   roomTypeId: string;
   roomNumber: string;
   wardName: string;
   roomTypeName: string;
   bedCount: number;
+  floor: number;
+  availableBeds: number;
 }
-export interface CreateRoomPayload { roomNumber: string; wardId: string; roomTypeId: string; numberOfBeds: number; }
-export interface UpdateRoomPayload { roomNumber: string; wardId: string; roomTypeId: string; }
+export interface CreateRoomPayload { roomNumber: string; floor: number; wardId: string; roomTypeId: string; numberOfBeds: number; }
+export interface UpdateRoomPayload { roomNumber: string; floor: number; wardId: string; roomTypeId: string; }
 
 export interface BedSummary {
   id: string;
   bedNumber: string;
-  status: BedStatus;
+  status: string;
   roomNumber: string;
   wardName: string;
 }

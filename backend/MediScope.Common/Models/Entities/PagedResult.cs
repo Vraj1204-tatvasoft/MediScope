@@ -16,12 +16,10 @@ namespace MediScope.Common.Models.Pagination
         public int ElevatedCount { get; set; }
         public int CriticalCount { get; set; }
     }
-    /// Incoming pagination parameters from query string.
-    /// Validated in controller before passing to service.
     public class PaginationParams
     {
         private const int MaxPageSize = 50;
-        private int _pageSize = 7;   // default 7 records per page as requested
+        private int _pageSize = 7;
 
         public int PageNumber { get; set; } = 1;
 

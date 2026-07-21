@@ -1,0 +1,31 @@
+.calendar-wrapper {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  ::ng-deep .fc {
+    font-size: 14px;
+  }
+  
+  ::ng-deep .fc-event {
+    cursor: pointer;
+  }
+  
+  ::ng-deep .fc-toolbar-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  ::ng-deep .fc-timegrid-slot {
+    height: 45px;
+  }
+  
+  ::ng-deep .fc-event-title {
+    white-space: normal;
+  }
+  
+  .mat-mdc-card {
+    margin-top: 16px;
+  }

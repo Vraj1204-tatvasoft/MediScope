@@ -24,7 +24,7 @@ namespace MediScope.Data.Repositories
 
                 .Include(p => p.HealthMetrics)
                     .ThenInclude(m => m.MetricDefinition)
-
+                .Include(p => p.PatientAdmissions)
                 .Where(p => !p.IsDeleted)
 
                 .OrderByDescending(p => p.CreatedAt)

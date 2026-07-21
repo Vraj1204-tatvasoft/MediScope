@@ -71,6 +71,7 @@
                   <th>Doctors</th>
                   <th>Records</th>
                   <th>Latest Status</th>
+                  <th class="text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -103,7 +104,13 @@
                         {{ p.latestStatus }}
                       </span>
                     </td>
+                    <td class="text-right">
+                      <button mat-button color="primary" [disabled]="p.isCurrentlyAdmitted" (click)="goToAdmit(p.patientId)">
+                        <mat-icon>add_box</mat-icon> Admit
+                      </button>
+                    </td>
                   </tr>
+
                 } @empty {
                   <tr>
                     <td colspan="6" class="empty-results-fallback-row">

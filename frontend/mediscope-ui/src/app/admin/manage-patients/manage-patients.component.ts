@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AdminPatientOverviewContainer, AdminPatientRowItem } from '../../models/manage-patients.model';
 import { ManagePatientsService } from '../../services/manage-patients.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-manage-patients',
@@ -26,7 +27,7 @@ import { ManagePatientsService } from '../../services/manage-patients.service';
 })
 export class ManagePatientsComponent implements OnInit, OnDestroy { 
   private patientService = inject(ManagePatientsService);
-
+  private router = inject(Router);
   // Layout View State Handlers
   isLoading = signal<boolean>(true);
   dashboardData = signal<AdminPatientOverviewContainer | null>(null);
@@ -90,7 +91,7 @@ export class ManagePatientsComponent implements OnInit, OnDestroy {
   // ── UPDATED EVENT HANDLERS
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
-    this.searchSubject.next(value); // Push keystroke value into the debounce stream
+    this.searchSubject.next(value); 
   }
 
   onGenderFilterChange(): void {
@@ -112,8 +113,11 @@ export class ManagePatientsComponent implements OnInit, OnDestroy {
   getDoctorsList(doctors: string[]): string {
     if (!doctors || doctors.length === 0 || doctors[0] === '—') return '—';
     return doctors.join(', ');
-  }
+  } 
 
+  goToAdmit(patientId: string): void {
+    this.router.navigate(['/admin/admissions'], { queryParams: { prefillPatient: patientId } });
+  }
   ngOnDestroy(): void {
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();

@@ -55,7 +55,7 @@ export class ManageRoomsComponent implements OnInit {
   bedParams: PaginationParams = { pageNumber: 1, pageSize: 10, sortBy: 'bednumber', sortDir: 'asc' };
 
   wardColumns: string[] = ['name', 'description', 'actions'];
-  roomColumns: string[] = ['roomNumber', 'wardName', 'roomTypeName', 'bedCount', 'actions'];
+  roomColumns: string[] = ['roomNumber', 'floor', 'wardName', 'roomTypeName', 'bedCount', 'actions'];
   bedColumns: string[] = ['bedNumber', 'roomNumber', 'wardName', 'status', 'actions'];
   typeColumns: string[] = ['name', 'actions'];
 
@@ -195,7 +195,8 @@ export class ManageRoomsComponent implements OnInit {
         title: room?.id ? 'Edit Room' : 'Add New Room',
         fields: [
           { key: 'roomNumber', label: 'Room Number', type: 'text', value: room?.roomNumber, required: true },
-          { key: 'wardId', label: 'Ward', type: 'select', value: room?.wardId, required: true, 
+          { key: 'floor', label: 'Floor Level', type: 'number', value: room?.floor, required: true },
+          { key: 'wardId', label: 'Ward', type: 'select', value: room?.ward_Id, required: true, 
             options: allWards.map(w => ({ label: w.name, value: w.id })) },
           { key: 'roomTypeId', label: 'Room Type', type: 'select', value: room?.roomTypeId, required: true, 
             options: allTypes.map(t => ({ label: t.name, value: t.id })) }

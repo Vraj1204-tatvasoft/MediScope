@@ -6,11 +6,11 @@ namespace MediScope.Data.Repositories
 {
     public interface IRoomBedRepository
     {
-        Task CreateRoomWithBedsAsync(string roomNumber, Guid wardId, Guid roomTypeId, int numberOfBeds);
+        Task CreateRoomWithBedsAsync(string roomNumber, int floor, Guid wardId, Guid roomTypeId, int numberOfBeds);
         Task CreateWardAsync(string name, string? description);
         Task UpdateWardAsync(Guid id, string name, string? description);
         Task DeleteWardAsync(Guid id);
-        Task UpdateRoomAsync(Guid id, string roomNumber, Guid wardId, Guid roomTypeId);
+        Task UpdateRoomAsync(Guid id, string roomNumber, int floor, Guid wardId, Guid roomTypeId);
         Task DeleteRoomAsync(Guid id);
         Task DeleteBedAsync(Guid id);
         Task UpdateBedAsync(Guid id, string bedNumber, int status);
