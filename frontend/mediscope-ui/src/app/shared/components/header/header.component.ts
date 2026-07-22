@@ -38,13 +38,32 @@ export class HeaderComponent {
   );
 
   pageTitle = computed(() => {
-    const role   = this.user()?.role as UserRole;
+    const role = this.user()?.role as UserRole;
     const config = NAV_CONFIG[role];
-    if (!config) return 'Dashboard';
-
-    const url  = this.currentUrl();
-    const item = config.items.find(i => url.startsWith(i.route));
-    return item?.label ?? 'Dashboard';
+  
+    if (!config) {
+      return 'Dashboard';
+    }
+  
+    const url = this.currentUrl();
+  
+    for (const item of config.items) {
+      if (item.route && url.startsWith(item.route)) {
+        return item.label;
+      }
+  
+      if (item.children) {
+        const child = item.children.find(c =>
+          c.route && url.startsWith(c.route)
+        );
+  
+        if (child) {
+          return child.label;
+        }
+      }
+    }
+  
+    return 'Dashboard';
   });
 
   navigateToNotifications(): void {

@@ -36,6 +36,7 @@ import { InvoiceDetailComponent } from './doctor/invoice-detail.component/invoic
 import { PatientInvoicesComponent } from './patient/patient-invoice/patient-invoice.component';
 import { ManageRoomsComponent } from './admin/manage-rooms/manage-rooms.component';
 import { AdmissionsComponent } from './admin/admissions/admissions.component';
+import { HospitalDashboardComponent } from './admin/hospital-dashboard/hospital-dashboard.component';
 
 
 export const routes: Routes = [
@@ -204,6 +205,10 @@ export const routes: Routes = [
       {
         path: 'admissions',
         component: AdmissionsComponent,
+      },
+      {
+        path: 'hospital-dashboard',
+        component: HospitalDashboardComponent,
       }
     ],
   },

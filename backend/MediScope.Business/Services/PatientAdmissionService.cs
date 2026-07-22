@@ -21,6 +21,7 @@ namespace MediScope.Business.Services
                 throw new ArgumentException("Patient and Bed must be selected.");
 
             await _repository.AdmitPatientAsync(request);
+            await _hubContext.Clients.All.SendAsync("DashboardUpdated");
             return true;
         }
 
@@ -30,12 +31,15 @@ namespace MediScope.Business.Services
                 throw new ArgumentException("A new bed must be selected for transfer.");
 
             await _repository.TransferPatientBedAsync(admissionId, request);
+            await _hubContext.Clients.All.SendAsync("DashboardUpdated");
             return true;
         }
 
         public async Task<bool> DischargePatientAsync(Guid admissionId, DischargePatientRequestDto request)
         {
             await _repository.DischargePatientAsync(admissionId, request.DischargeNotes);
+            Console.WriteLine("Sending DashboardUpdated");
+            await _hubContext.Clients.All.SendAsync("DashboardUpdated");
             return true;
         }
 
@@ -59,7 +63,7 @@ namespace MediScope.Business.Services
             UpdateAdmissionRequestDto request)
         {
             await _repository.UpdateAdmissionAsync(admissionId, request);
-
+            await _hubContext.Clients.All.SendAsync("DashboardUpdated");
             return true;
         }
 

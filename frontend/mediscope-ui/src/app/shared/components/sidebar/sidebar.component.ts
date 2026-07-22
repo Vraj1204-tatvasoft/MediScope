@@ -17,7 +17,7 @@ export class SidebarComponent implements OnInit {
   authService = inject(AuthService);
   private notificationService = inject(PatientNotificationService);
   private doctorPatientService = inject(DoctorPatientService);
-
+  expandedMenu = '';
   user   = computed(() => this.authService.currentUser());
   config = computed(() => NAV_CONFIG[this.user()?.role as UserRole] ?? NAV_CONFIG['Patient']);
 
@@ -35,6 +35,11 @@ export class SidebarComponent implements OnInit {
     return name.charAt(0).toUpperCase();
   });
 
+  toggleMenu(label: string) {
+    this.expandedMenu =
+      this.expandedMenu === label ? '' : label;
+  }
+  
   ngOnInit(): void {
     if (this.user()) {
       this.notificationService.syncUnreadCount();

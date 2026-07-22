@@ -25,24 +25,56 @@
     <!-- Nav items -->
     <nav class="nav">
       <span class="nav-label">NAVIGATION</span>
-      @for (item of config().items; track item.route) {
-        <a
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          class="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               [innerHTML]="item.icon">
-          </svg>
-          {{ item.label }}
-          
-          @if (item.label === 'Notifications' && notificationCount() > 0) {
-            <span class="badge alert-badge">{{ notificationCount() }}</span>
-          }
+      @for (item of config().items; track item.label) {
 
-          @if (item.label === 'Pending Requests' && pendingRequestsCount() > 0) {
-            <span class="badge pending-badge">{{ pendingRequestsCount() }}</span>
+        @if (!item.children) {
+          <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              [innerHTML]="item.icon">
+            </svg>
+            {{ item.label }}
+          </a>
+        } @else {
+          <button
+            type="button"
+            class="nav-item nav-dropdown"
+            (click)="toggleMenu(item.label)">
+        
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              [innerHTML]="item.icon">
+            </svg>
+        
+            <span>{{ item.label }}</span>
+        
+            <span
+              class="arrow"
+              [class.open]="expandedMenu === item.label">
+              ▼
+            </span>
+        
+          </button>
+        
+          @if (expandedMenu === item.label) {
+            <div class="submenu">
+              @for (child of item.children; track child.route) {
+                <a
+                  [routerLink]="child.route"
+                  routerLinkActive="active"
+                  class="submenu-item">
+                  {{ child.label }}
+                </a>
+              }
+            </div>
           }
-        </a>
+        }
       }
     </nav>
 

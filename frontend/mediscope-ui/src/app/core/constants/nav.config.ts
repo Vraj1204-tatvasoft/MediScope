@@ -3,8 +3,9 @@ import { UserRole } from "../models/auth.model";
 
 export interface NavItem {
   label: string;
-  route: string;
+  route?: string;
   icon:  string; // SVG path string
+  children?: NavItem[];
 }
 
 export interface NavConfig {
@@ -68,9 +69,27 @@ export const NAV_CONFIG: Record<UserRole, NavConfig> = {
       { label: 'Patients',       route: '/admin/manage-patients',        icon: ICONS.users   },
       { label: 'Metrics',     route: '/admin/manage-metrics',    icon: ICONS.metrics},
       { label: 'Doctor-Patient',     route: '/admin/doctor-patient-links',      icon: ICONS.analytics },
-      {label:'Rooms', route:'/admin/manage-rooms', icon: ICONS.analytics},
-      {label:'Admissions', route:'/admin/admissions', icon: ICONS.analytics}
-    ],
-  },
-
+      {
+        label: 'Hospitalization',
+        icon: ICONS.records,
+        children: [
+          {
+            label: 'Hospital Dashboard',
+            route: '/admin/hospital-dashboard',
+            icon: ICONS.dashboard
+          },
+          {
+            label: 'Rooms',
+            route: '/admin/manage-rooms',
+            icon: ICONS.records
+          },
+          {
+            label: 'Admissions',
+            route: '/admin/admissions',
+            icon: ICONS.records
+          }
+        ]
+      }
+    ]
+  }
 };

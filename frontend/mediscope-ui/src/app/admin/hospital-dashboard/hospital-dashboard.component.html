@@ -1,0 +1,279 @@
+<div class="dashboard-container">
+    @if (summary(); as summary) {
+      <section class="summary-section">
+        <mat-card class="summary-card blue">
+          <div class="summary-icon">
+            <mat-icon>meeting_room</mat-icon>
+          </div>
+  
+          <div class="summary-content">
+            <span class="summary-title">Total Rooms</span>
+            <h2>{{ summary.totalRooms }}</h2>
+            <span class="summary-subtitle">All rooms</span>
+          </div>
+        </mat-card>
+  
+        <mat-card class="summary-card cyan">
+          <div class="summary-icon">
+            <mat-icon>hotel</mat-icon>
+          </div>
+  
+          <div class="summary-content">
+            <span class="summary-title">Total Beds</span>
+            <h2>{{ summary.totalBeds }}</h2>
+            <span class="summary-subtitle">All beds</span>
+          </div>
+        </mat-card>
+  
+        <mat-card class="summary-card red">
+          <div class="summary-icon">
+            <mat-icon>bed</mat-icon>
+          </div>
+  
+          <div class="summary-content">
+            <span class="summary-title">Occupied Beds</span>
+            <h2>{{ summary.occupiedBeds }}</h2>
+            <span class="summary-subtitle">
+              {{ totalOccupancy() }}%
+            </span>
+          </div>
+        </mat-card>
+  
+        <mat-card class="summary-card green">
+          <div class="summary-icon">
+            <mat-icon>bedroom_parent</mat-icon>
+          </div>
+  
+          <div class="summary-content">
+            <span class="summary-title">Available Beds</span>
+            <h2>{{ summary.availableBeds }}</h2>
+            <span class="summary-subtitle">
+              {{ 100 - totalOccupancy() }}%
+            </span>
+          </div>
+        </mat-card>
+  
+        <mat-card class="summary-card purple">
+          <div class="summary-icon">
+            <mat-icon>groups</mat-icon>
+          </div>
+  
+          <div class="summary-content">
+            <span class="summary-title">Admitted Patients</span>
+            <h2>{{ summary.admittedPatients }}</h2>
+            <span class="summary-subtitle">
+              Currently admitted
+            </span>
+          </div>
+        </mat-card>
+  
+        <mat-card class="summary-card orange">
+          <div class="summary-icon">
+            <mat-icon>logout</mat-icon>
+          </div>
+  
+          <div class="summary-content">
+            <span class="summary-title">Discharged Today</span>
+            <h2>{{ summary.dischargedPatientsToday }}</h2>
+            <span class="summary-subtitle">
+              Today
+            </span>
+          </div>
+        </mat-card>
+      </section>
+    }
+  
+    <mat-card class="filter-card">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Ward</mat-label>
+  
+          <mat-select
+            [ngModel]="filter().wardId"
+            (ngModelChange)="updateWard($event)">
+            <mat-option value="">All Wards</mat-option>
+            @for (ward of wards(); track ward.id) {
+                <mat-option [value]="ward.id">
+                  {{ ward.name }}
+                </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline">
+          <mat-label>Room Type</mat-label>
+  
+          <mat-select
+            [ngModel]="filter().roomTypeId"
+            (ngModelChange)="updateRoomType($event)">
+            <mat-option value="">All Types</mat-option>
+            @for (roomType of roomTypes(); track roomType.id) {
+              <mat-option [value]="roomType.id">
+                {{ roomType.name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline">
+          <mat-label>Floor</mat-label>
+  
+          <mat-select
+            [ngModel]="filter().floor"
+            (ngModelChange)="updateFloor($event)">
+            <mat-option [value]="null">All Floors</mat-option>
+
+            @for (floor of [1, 2, 3, 4, 5, 6]; track floor) {
+              <mat-option [value]="floor">
+                Floor {{ floor }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline">
+          <mat-label>Occupancy Status</mat-label>
+  
+          <mat-select
+            [ngModel]="filter().occupancyStatus"
+            (ngModelChange)="updateOccupancyStatus($event)">
+            <mat-option [value]="null">All Status</mat-option>
+            <mat-option [value]="0">Empty</mat-option>
+            <mat-option [value]="1">Partially Occupied</mat-option>
+            <mat-option [value]="2">Full</mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <div class="filter-actions">
+          <button mat-flat-button color="primary" (click)="applyFilters()">
+            <mat-icon>filter_alt</mat-icon>
+            Filter
+          </button>
+        </div>
+      </div>
+    </mat-card>
+  
+    <mat-card class="table-card">
+      <div class="table-header">
+        <h2>Room Occupancy</h2>
+      </div>
+      @if (loading()) {
+        <div class="loading-container">
+          <mat-spinner diameter="45"></mat-spinner>
+        </div>
+      } @else {
+        @if (rooms().length > 0) {
+          <div class="table-container">
+            <table mat-table [dataSource]="rooms()" class="occupancy-table">
+  
+              <ng-container matColumnDef="ward">
+                <th mat-header-cell *matHeaderCellDef>Ward</th>
+                <td mat-cell *matCellDef="let room">{{ room.wardName }}</td>
+              </ng-container>
+  
+              <ng-container matColumnDef="roomNumber">
+                <th mat-header-cell *matHeaderCellDef>Room Number</th>
+                <td mat-cell *matCellDef="let room">{{ room.roomNumber }}</td>
+              </ng-container>
+  
+              <ng-container matColumnDef="roomType">
+                <th mat-header-cell *matHeaderCellDef>Room Type</th>
+                <td mat-cell *matCellDef="let room">{{ room.roomTypeName }}</td>
+              </ng-container>
+  
+              <ng-container matColumnDef="floor">
+                <th mat-header-cell *matHeaderCellDef>Floor</th>
+                <td mat-cell *matCellDef="let room">{{ room.floor }}</td>
+              </ng-container>
+  
+              <ng-container matColumnDef="totalBeds">
+                <th mat-header-cell *matHeaderCellDef>Total Beds</th>
+                <td mat-cell *matCellDef="let room">{{ room.totalBeds }}</td>
+              </ng-container>
+  
+              <ng-container matColumnDef="occupiedBeds">
+                <th mat-header-cell *matHeaderCellDef>Occupied Beds</th>
+  
+                <td mat-cell *matCellDef="let room">
+                  <div class="progress-cell">
+                    <span>{{ room.occupiedBeds }}</span>
+  
+                    <mat-progress-bar
+                      mode="determinate"
+                      color="warn"
+                      [value]="getOccupancyPercentage(room)">
+                    </mat-progress-bar>
+                  </div>
+                </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="availableBeds">
+                <th mat-header-cell *matHeaderCellDef>Available Beds</th>
+  
+                <td mat-cell *matCellDef="let room">
+                  <div class="progress-cell">
+                    <span>{{ room.availableBeds }}</span>
+  
+                    <mat-progress-bar
+                      mode="determinate"
+                      color="primary"
+                      [value]="getAvailabilityPercentage(room)">
+                    </mat-progress-bar>
+                  </div>
+                </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Occupancy Status</th>
+  
+                <td mat-cell *matCellDef="let room">
+                  <span class="status-chip" [ngClass]="{
+                    'status-full': room.occupancyStatus === 'Full',
+                    'status-partial': room.occupancyStatus === 'Partially Occupied',
+                    'status-empty': room.occupancyStatus === 'Empty'
+                  }">
+                    {{ room.occupancyStatus }}
+                  </span>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  
+              <tr
+                mat-row
+                *matRowDef="let row; columns: displayedColumns; trackBy: trackByRoom">
+              </tr>
+  
+            </table>
+          </div>
+  
+          <div class="table-footer">
+            <span>
+                Showing {{ startRecord() }} - {{ endRecord() }}
+                of {{ pagination()?.totalCount ?? 0 }} rooms
+            </span>
+  
+            <mat-paginator
+              [length]="pagination()?.totalCount ?? 0"
+              [pageIndex]="(pagination()?.pageNumber ?? 1) - 1"
+              [pageSize]="pagination()?.pageSize ?? 10"
+              [pageSizeOptions]="[5, 10, 20, 50]"
+              (page)="changePage($event.pageIndex + 1); changePageSize($event.pageSize)">
+            </mat-paginator>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>meeting_room</mat-icon>
+  
+            <h3>No Rooms Found</h3>
+  
+            <p>No rooms match the selected filters.</p>
+  
+            <button mat-flat-button color="primary" (click)="resetFilters()">
+              Reset Filters
+            </button>
+          </div>
+        }
+      }
+    </mat-card>
+  </div>

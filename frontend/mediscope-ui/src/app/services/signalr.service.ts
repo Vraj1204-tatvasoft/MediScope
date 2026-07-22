@@ -20,6 +20,8 @@ export class SignalrService {
   public notification$ =  this.notificationSubject.asObservable();
   private forceLogoutSubject = new Subject<{ reason: string }>();
   public forceLogout$ = this.forceLogoutSubject.asObservable();
+  private dashboardUpdatedSubject = new Subject<void>();
+  public dashboardUpdated$ = this.dashboardUpdatedSubject.asObservable();
   /* Initializes WebSocket handshakes securely targeting user authorization claims */
   public startConnection(): void {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) return;
@@ -69,6 +71,10 @@ export class SignalrService {
       this.hubConnection?.on('ForceLogout', (payload: { reason: string }) => {
         console.log('Force logout triggered:', payload);
         this.forceLogoutSubject.next(payload);
+    });
+    this.hubConnection?.on('DashboardUpdated', () => {
+      console.log('DashboardUpdated received');
+      this.dashboardUpdatedSubject.next();
     });
     }
 
