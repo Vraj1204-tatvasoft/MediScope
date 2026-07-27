@@ -123,16 +123,25 @@
   
   .table-header {
     display: flex;
-    justify-content: space-between;
+    padding: 16px 24px; 
+    margin-bottom: 8px;
+    background-color: #ffffff; 
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08); 
+    display: flex;
     align-items: center;
-    margin-bottom: 24px;
+    justify-content: space-between;
   }
   
   .table-header h2 {
     margin: 0;
-    font-size: 1.35rem;
+    font-size: 1.25rem; 
     font-weight: 600;
-    color: #1e293b;
+    color: #1e293b; 
+    letter-spacing: -0.3px; 
+  }
+
+  .table-header button mat-icon {
+    margin-right: 6px;
   }
   
   .view-toggle {

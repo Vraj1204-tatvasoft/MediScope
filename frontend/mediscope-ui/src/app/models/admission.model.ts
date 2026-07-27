@@ -2,7 +2,8 @@
 export enum AdmissionStatus {
     Active = 0,
     Discharged = 1,
-    Cancelled = 2
+    Scheduled = 2,
+    Cancelled = 3
   }
   
   export interface AdmissionSummary {
@@ -41,6 +42,7 @@ export enum AdmissionStatus {
   // Payload for Discharge
   export interface DischargePatientPayload {
     dischargeNotes: string;
+    dischargeDate: string;
   }
 
   export interface AdmissionDetails {
@@ -75,4 +77,9 @@ export enum AdmissionStatus {
     admissionReason: string;
   
     status: number;
+  }
+
+  export interface AvailableBedResponse {
+    id: string;
+    bedNumber: string;
   }

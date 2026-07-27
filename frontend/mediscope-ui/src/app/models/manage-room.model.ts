@@ -13,6 +13,8 @@ export interface PaginationParams {
   sortBy?: string;
   sortDir?: 'asc' | 'desc';
   status?: number;
+  admissionDate?: string; 
+  expectedDischargeDate?: string;
 }
 
 export interface WardSummary { id: string; name: string; description?: string; }

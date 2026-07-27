@@ -4,7 +4,7 @@ namespace MediScope.Common.Models.Enums
     {
         Active,
         Discharged,
-        Transferred,
+        Scheduled,
         Cancelled
     }
 }

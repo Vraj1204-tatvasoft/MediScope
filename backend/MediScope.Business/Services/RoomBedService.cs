@@ -5,6 +5,9 @@ using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
 using MediScope.Common.Models.Pagination;
 using MediScope.Common.Models.Enums;
+using Microsoft.AspNetCore.SignalR;
+using MediScope.Business.Hubs;
+using MediScope.Common.Models.Entities;
 
 namespace MediScope.Business.Services
 {

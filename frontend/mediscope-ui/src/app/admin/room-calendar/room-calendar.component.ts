@@ -1,47 +1,51 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, EventClickArg } from '@fullcalendar/core';
-import interactionPlugin from '@fullcalendar/interaction';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { CalendarOptions } from '@fullcalendar/core';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { AdmissionService } from '../../services/admission.service';
-import { RoomPatient } from '../../models/admission.model';
-import { MatCardModule } from '@angular/material/card';
-
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 @Component({
   selector: 'app-room-calendar',
-  standalone: true,
-  imports: [CommonModule, FullCalendarModule, MatCardModule
-],
   templateUrl: './room-calendar.component.html',
-  styleUrls: ['./room-calendar.component.css']
+  styleUrls: ['./room-calendar.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,          
+    FormsModule,           
+    MatButtonToggleModule, 
+    MatIconModule,         
+    MatTableModule,        
+    MatTooltipModule,      
+    FullCalendarModule     
+  ]
 })
 export class RoomCalendarComponent implements OnChanges {
-
   @Input() roomId!: string;
-  @Input() roomNumber = '';
+  @Input() roomNumber!: string;
 
-  private admissionService = inject(AdmissionService);
-
-  selectedPatient: RoomPatient | null = null;
+  viewMode: 'calendar' | 'list' = 'calendar';
+  admissions: any[] = []; 
 
   calendarOptions: CalendarOptions = {
-    plugins: [timeGridPlugin, interactionPlugin],
+    plugins: [timeGridPlugin],
     initialView: 'timeGridDay',
-    allDaySlot: false,
-    nowIndicator: true,
-    editable: false,
-    height: 500,
-    slotMinTime: '00:00:00',
-    slotMaxTime: '24:00:00',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'timeGridDay,timeGridWeek'
+      right: 'timeGridWeek,timeGridDay'
     },
-    events: [],
-    eventClick: this.onEventClick.bind(this)
+    allDaySlot: false,
+    slotMinTime: '00:00:00',
+    slotMaxTime: '24:00:00',
+    events: [], 
   };
+
+  constructor(private admissionService: AdmissionService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['roomId'] && this.roomId) {
@@ -49,28 +53,31 @@ export class RoomCalendarComponent implements OnChanges {
     }
   }
 
-  loadRoomSchedule(): void {
+  private loadRoomSchedule() {
+    if (!this.roomId) return;
+
     this.admissionService.getActivePatients(this.roomId).subscribe({
-      next: res => {
-        const patients = res.data;
+      next: (response : any) => {
+        const data = response.data || response;
+        this.admissions = data || []; 
+
+        const mappedEvents = this.admissions.map(adm => ({
+          title: `${adm.patientName} (Bed ${adm.bedNumber})`,
+          start: adm.admissionDate,
+          end: adm.expectedDischargeDate || new Date(new Date().setHours(23, 59, 59)), 
+          color: adm.status === 0 ? '#1976d2' : '#ff9800' 
+        }));
 
         this.calendarOptions = {
           ...this.calendarOptions,
-          events: patients.map(p => ({
-            id: p.admissionId,
-            title: p.patientName,
-            start: p.admissionDate,
-            end: p.expectedDischargeDate,
-            extendedProps: {
-              patient: p
-            }
-          }))
+          events: mappedEvents
         };
+      },
+      error: (err) => {
+        console.error('Failed to load room schedule:', err);
+        this.admissions = [];
+        this.calendarOptions = { ...this.calendarOptions, events: [] };
       }
     });
   }
-  onEventClick(arg: EventClickArg): void {
-    this.selectedPatient = arg.event.extendedProps['patient'];
-  }
-
 }

@@ -33,5 +33,7 @@ namespace MediScope.Common.Models.Pagination
         public string? Source { get; set; }
         public string? SortBy { get; set; } = "date";
         public string? SortDir { get; set; } = "desc";
+        public DateTime? AdmissionDate { get; set; }
+        public DateTime? ExpectedDischargeDate { get; set; }
     }
 }

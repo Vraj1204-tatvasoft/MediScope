@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { BaseHttpService } from './base-http.service';
-import { AdmissionDetails, AdmissionSummary, AdmitPatientPayload, DischargePatientPayload, TransferBedPayload } from '../models/admission.model';
+import { AdmissionDetails, AdmissionSummary, AdmitPatientPayload, AvailableBedResponse, DischargePatientPayload, TransferBedPayload } from '../models/admission.model';
 import { PaginationParams } from '../models/manage-room.model';
 import { PagedResponse } from '../models/paged-response.model';
 
@@ -43,7 +43,7 @@ export class AdmissionService {
   }
 
   dischargePatient(admissionId: string, payload: DischargePatientPayload) {
-    return this.baseHttp.post<any>(`admissions/${admissionId}/discharge`, payload, { showSuccess: true });
+    return this.baseHttp.post<any>(`admissions/${admissionId}/discharge`, payload, { showSuccess: true, showError: true });
   }
 
   getAdmissionById(admissionId: string) {
@@ -56,5 +56,14 @@ export class AdmissionService {
 
   getActivePatients(roomId: string) {
     return this.baseHttp.get<any[]>(`admissions/${roomId}/active-patients`);
+  }
+  checkInPatient(admissionId: string) {
+    return this.baseHttp.put(`admissions/${admissionId}/check-in`, {});
+  }
+  cancelAdmission(admissionId: string) {
+    return this.baseHttp.put(`admissions/${admissionId}/cancel`, {});
+  }
+  getFirstAvailableBed(roomId: string, start: string, end: string) {
+    return this.baseHttp.get<AvailableBedResponse>(`admissions/${roomId}/first-available-bed?start=${start}&end=${end}`);
   }
 }

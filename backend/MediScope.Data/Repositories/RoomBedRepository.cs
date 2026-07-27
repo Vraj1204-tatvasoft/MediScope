@@ -138,10 +138,13 @@ namespace MediScope.Data.Repositories
 
         public async Task<PagedResult<RoomSummaryResponseDto>> GetRoomsPagedAsync(PaginationParams request)
         {
-            var sql = "SELECT * FROM fn_get_rooms_summary_paged(@p0, @p1, @p2, @p3, @p4)";
+            var sql = "SELECT * FROM fn_get_rooms_summary_paged(@p0, @p1, @p2, @p3, @p4, @p5, @p6)";
+
             var items = await _context.Database.SqlQueryRaw<RoomSummaryResponseDto>(
                 sql,
                 request.Search ?? (object)DBNull.Value,
+                request.AdmissionDate ?? (object)DBNull.Value,
+                request.ExpectedDischargeDate ?? (object)DBNull.Value,
                 request.SortBy ?? "roomnumber",
                 request.SortDir ?? "asc",
                 request.PageNumber,

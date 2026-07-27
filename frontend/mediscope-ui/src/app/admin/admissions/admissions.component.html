@@ -23,13 +23,14 @@
             </mat-form-field>
           
             <mat-form-field appearance="outline" class="status-filter mb-0 ms-2">
-              <mat-label>Admission Status</mat-label>
-              <mat-select name="status" [(ngModel)]="params.status" (selectionChange)="onFilterChange()"> 
-                <mat-option [value]="null">All Statuses</mat-option> 
-                <mat-option [value]="0">Active</mat-option>
-                <mat-option [value]="1">Discharged</mat-option>
-              </mat-select>
-            </mat-form-field>
+                <mat-label>Admission Status</mat-label>
+                <mat-select name="status" [(ngModel)]="params.status" (selectionChange)="onFilterChange()"> 
+                  <mat-option [value]="null">All Statuses</mat-option> 
+                  <mat-option [value]="0">Active</mat-option>
+                  <mat-option [value]="1">Discharged</mat-option>
+                  <mat-option [value]="2">Scheduled</mat-option> 
+                </mat-select>
+              </mat-form-field>
           </div>
   
         <table mat-table [dataSource]="admissions()" class="width-100">
@@ -76,20 +77,34 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-right">Manage</th>
             <td mat-cell *matCellDef="let element" class="text-right">
-              <button mat-icon-button [matMenuTriggerFor]="actionMenu" [disabled]="element.status !== 0">
+              <button mat-icon-button [matMenuTriggerFor]="actionMenu" [disabled]="element.status === 1 || element.status === 3">
                 <mat-icon>more_vert</mat-icon>
               </button>
+          
               <mat-menu #actionMenu="matMenu">
-                <button mat-menu-item (click)="openTransferDialog(element)">
-                  <mat-icon color="primary">swap_horiz</mat-icon> <span>Transfer Bed</span>
-                </button>
-                <button mat-menu-item (click)="openDischargeDialog(element)">
-                  <mat-icon color="accent">directions_walk</mat-icon> <span>Discharge Patient</span>
-                </button>
+                @if (element.status === 2) {
+                  <button mat-menu-item (click)="checkInPatient(element)">
+                    <mat-icon style="color: #2e7d32;">how_to_reg</mat-icon> 
+                    <span>Check-In Patient</span>
+                  </button>
+                  <button mat-menu-item (click)="cancelAdmission(element)">
+                    <mat-icon color="warn">cancel</mat-icon> 
+                    <span>Cancel Admission</span>
+                  </button>
+                }
+                @if (element.status === 0) {
+                  <button mat-menu-item (click)="openTransferDialog(element)">
+                    <mat-icon color="primary">swap_horiz</mat-icon> <span>Transfer Bed</span>
+                  </button>
+                  <button mat-menu-item (click)="openDischargeDialog(element)">
+                    <mat-icon color="accent">directions_walk</mat-icon> <span>Discharge Patient</span>
+                  </button>
+                }
                 <button mat-menu-item (click)="openEditAdmission(element)">
                     <mat-icon color="primary"> edit </mat-icon> <span>Edit Admission</span> 
                 </button>
               </mat-menu>
+              
             </td>
           </ng-container>
   
@@ -143,29 +158,6 @@
           <input matInput formControlName="admissionReason">
         </mat-form-field>
   
-        <div class="allocation-container mb-3 d-flex align-items-center" *ngIf="!isEditMode">
-          <button mat-stroked-button color="primary" type="button" (click)="openBedAllocationModal()">
-            <mat-icon>bed</mat-icon> Allocate Bed
-          </button>
-          
-          <div class="ms-3" *ngIf="selectedAllocationDetails">
-
-            <div class="text-success fw-bold d-flex align-items-center">
-              <mat-icon inline>check_circle</mat-icon>
-              <span class="ms-1">Bed Allocated</span>
-            </div>
-          
-            <div class="small text-muted mt-1">
-              <strong>Ward:</strong> {{ selectedAllocationDetails.wardName }}
-              &nbsp;|&nbsp;
-              <strong>Room:</strong> {{ selectedAllocationDetails.roomNumber }}
-              &nbsp;|&nbsp;
-              <strong>Bed:</strong> {{ selectedAllocationDetails.bedNumber }}
-            </div>
-          
-          </div>
-        </div>
-  
         <!-- Admission -->
 
       <div class="row">
@@ -206,7 +198,7 @@
               matInput
               [matDatepicker]="dischargePicker"
               formControlName="expectedDischargeDate"
-              [min]="minDischargeDate">
+              [min]="minExpectedDischargeDate">
           
             <mat-datepicker-toggle
               matIconSuffix
@@ -218,7 +210,11 @@
       
           <mat-form-field appearance="outline" class="flex-1">
             <mat-label>Expected Discharge Time</mat-label>
-          
+            @if (admitForm.hasError('minimumDischargeGap') && (admitForm.dirty || admitForm.touched)) {
+                <mat-error>
+                  Expected discharge date and time must be at least 30 minutes after the admission date and time.
+                </mat-error>
+            }
             <input
               matInput
               type="time"
@@ -226,7 +222,35 @@
           </mat-form-field>
       
         </div>
+        
+        <div class="allocation-container mb-3 d-flex align-items-center" *ngIf="!isEditMode">
+            <button mat-stroked-button color="primary" type="button" 
+                    (click)="openBedAllocationModal()"
+                    [disabled]="!admitForm.get('admissionDate')?.value || 
+                                !admitForm.get('admissionTime')?.value || 
+                                !admitForm.get('expectedDischargeDate')?.value || 
+                                !admitForm.get('expectedDischargeTime')?.value">
+              <mat-icon>bed</mat-icon> Allocate Bed
+            </button>
+            
+            <div class="ms-3" *ngIf="selectedAllocationDetails">
   
+              <div class="text-success fw-bold d-flex align-items-center">
+                <mat-icon inline>check_circle</mat-icon>
+                <span class="ms-1">Bed Allocated</span>
+              </div>
+            
+              <div class="small text-muted mt-1">
+                <strong>Ward:</strong> {{ selectedAllocationDetails.wardName }}
+                &nbsp;|&nbsp;
+                <strong>Room:</strong> {{ selectedAllocationDetails.roomNumber }}
+                &nbsp;|&nbsp;
+                <strong>Bed:</strong> {{ selectedAllocationDetails.bedNumber }}
+              </div>
+            
+            </div>
+          </div>
+
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Additional Remarks</mat-label>
           <textarea matInput formControlName="remarks" rows="2"></textarea>
@@ -236,7 +260,7 @@
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-raised-button color="primary" [disabled]="admitForm.invalid" (click)="submitAdmission()">{{ isEditMode ? 'Save Changes' : 'Admit Patient' }}</button>
+       <button mat-raised-button color="primary" [disabled]="admitForm.invalid" (click)="submitAdmission()"> {{ isEditMode ? 'Save Changes' : 'Admit Patient' }}</button>
     </mat-dialog-actions>
   </ng-template>
   
@@ -289,10 +313,26 @@
       <p class="mb-3 text-muted">You are about to discharge <strong>{{ selectedAdmission?.patientName }}</strong>. This will instantly free up Bed <strong>{{selectedAdmission?.bedNumber}}</strong>.</p>
       
       <form [formGroup]="dischargeForm" class="dialog-form pt-2">
-        <mat-form-field appearance="outline" class="w-100">
+        
+        <div class="row">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Discharge Date</mat-label>
+            <input matInput [matDatepicker]="dischargePicker" formControlName="dischargeDate" [min]="minDischargeDate" [max]="maxDischargeDate" required>
+            <mat-datepicker-toggle matIconSuffix [for]="dischargePicker"></mat-datepicker-toggle>
+            <mat-datepicker #dischargePicker></mat-datepicker>
+          </mat-form-field>
+      
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Discharge Time</mat-label>
+            <input matInput type="time" formControlName="dischargeTime" required>
+          </mat-form-field>
+        </div>
+  
+        <mat-form-field appearance="outline" class="w-100 mt-2">
           <mat-label>Discharge Notes / Instructions</mat-label>
           <textarea matInput formControlName="dischargeNotes" rows="4"></textarea>
         </mat-form-field>
+  
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">

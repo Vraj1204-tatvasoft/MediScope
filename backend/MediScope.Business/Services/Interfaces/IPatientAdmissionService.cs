@@ -15,5 +15,8 @@ namespace MediScope.Business.Services.Interfaces
         Task<AdmissionDetailsDto> GetAdmissionByIdAsync(Guid admissionId);
         Task<bool> UpdateAdmissionAsync(Guid admissionId, UpdateAdmissionRequestDto request);
         Task<List<RoomPatientDto>> GetActivePatientsByRoomAsync(Guid roomId);
+        Task CheckInPatientAsync(Guid admissionId);
+        Task CancelAdmissionAsync(Guid admissionId);
+        Task<AvailableBedResponseDto?> GetFirstAvailableBedAsync(Guid roomId, DateTime start, DateTime end);
     }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatError, MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -20,7 +20,7 @@ import { ManagePatientsService } from '../../services/manage-patients.service';
 import { DoctorService } from '../../services/doctor.service';
 import { AdmissionService } from '../../services/admission.service';
 import { ManageRoomService } from '../../services/manage-room.service';
-import { AdmissionStatus, AdmissionSummary, RoomPatient } from '../../models/admission.model';
+import { AdmissionStatus, AdmissionSummary, AvailableBedResponse, DischargePatientPayload, RoomPatient } from '../../models/admission.model';
 import { BedSummary, PaginationParams, RoomSummary, WardSummary } from '../../models/manage-room.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
@@ -32,7 +32,7 @@ import { RoomCalendarComponent } from '../room-calendar/room-calendar.component'
     CommonModule, FormsModule, ReactiveFormsModule, MatCardModule, MatTableModule, MatButtonModule, 
     MatIconModule, MatChipsModule, MatMenuModule, MatPaginatorModule, 
     MatProgressBarModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDialogModule,
-    MatDatepickerModule, MatNativeDateModule, RoomCalendarComponent
+    MatDatepickerModule, MatNativeDateModule, RoomCalendarComponent, MatError, MatNativeDateModule
   ],
   templateUrl: './admissions.component.html',
   styleUrls: ['./admissions.component.css']
@@ -81,7 +81,6 @@ export class AdmissionsComponent implements OnInit {
   today = new Date();
   isEditMode = false;
   editingAdmissionId: string | null = null;
-  // NEW: State for Bed Allocation Grid
   allocationFilters = { wardId: null as string | null, roomType: null as string | null };
   filteredRoomsDataSource = signal<any[]>([]);
   selectedAllocationRoom: any | null = null;
@@ -91,11 +90,12 @@ export class AdmissionsComponent implements OnInit {
     roomNumber: string;
     bedNumber: string;
   } | null = null;
-  get minDischargeDate(): Date {
+  get minExpectedDischargeDate(): Date {
     const admitDate = this.admitForm?.get('admissionDate')?.value;
     return admitDate ? new Date(admitDate) : this.today;
   }
-
+  minDischargeDate!: Date;
+  maxDischargeDate: Date = new Date();
   ngOnInit(): void {
     this.initForms();
     this.loadDashboardData();
@@ -115,6 +115,18 @@ export class AdmissionsComponent implements OnInit {
         this.router.navigate([], { queryParams: { prefillPatient: null }, queryParamsHandling: 'merge' });
       }
     });
+    this.route.queryParams.subscribe(params => {
+      if (params['action'] === 'admit') {
+        setTimeout(() => {
+          this.openAdmitDialog(); 
+          this.router.navigate([], {
+            queryParams: { action: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true 
+          });
+        }, 100); 
+      }
+    });
   }
 
   private initForms() {
@@ -127,10 +139,13 @@ export class AdmissionsComponent implements OnInit {
       admissionReason: ['', Validators.required],
       admissionDate: [null, [Validators.required, this.futureDateValidator()]],
       admissionTime: ['09:00', Validators.required],
-      expectedDischargeDate: [null],
-      expectedDischargeTime: ['09:00'],
+      expectedDischargeDate: [null, Validators.required],
+      expectedDischargeTime: [null, Validators.required],
       remarks: ['']
-    });
+    },
+      {
+        validators: this.expectedDischargeValidator()
+      });
 
     this.transferForm = this.fb.group({
       newWardId: ['', Validators.required],
@@ -140,7 +155,9 @@ export class AdmissionsComponent implements OnInit {
     });
 
     this.dischargeForm = this.fb.group({
-      dischargeNotes: ['', Validators.required]
+      dischargeDate: [null, Validators.required],
+      dischargeTime: ['', Validators.required],
+      dischargeNotes: ['']
     });
   }
   private getCleanParams(): any {
@@ -202,30 +219,30 @@ export class AdmissionsComponent implements OnInit {
 
   // DIALOG ACTIONS & CASCADING LOGIC
   
-  private loadFacilityData() {
-    const dropdownParams: PaginationParams = { pageNumber: 1, pageSize: 1000 };
+  private loadFacilityData(targetDate?: Date, targetDischargeDate?: Date) {
+    // 1. Pass the target date into the parameters
+    const dropdownParams: any = { 
+      pageNumber: 1, 
+      pageSize: 1000,
+      admissionDate: targetDate ? targetDate.toISOString() : null,
+      expectedDischargeDate: targetDischargeDate ? targetDischargeDate.toISOString() : null
+    };
 
     forkJoin({
       w: this.roomService.getWards(dropdownParams),
-      r: this.roomService.getRooms(dropdownParams),
+      r: this.roomService.getRooms(dropdownParams), 
       b: this.roomService.getBeds(dropdownParams),
-      
       rt: this.roomService.getRoomTypes(dropdownParams), 
-      
       docs: this.doctorService.getAllDoctors(),
       pats: this.patientService.getAdminPatients(1, 1000) 
     }).subscribe(res => {
       if(res.w.success) this.wards.set(res.w.data.items);
-      
       if(res.r.success) {
         this.allRooms.set(res.r.data.items);
         this.filteredRoomsDataSource.set(res.r.data.items); 
       }
-      
       if(res.b.success) this.allBeds.set(res.b.data.items);
-      
       if(res.rt?.success) this.roomTypes.set(res.rt.data.items); 
-
       if(res.docs) this.doctors.set(res.docs); 
       if(res.pats.success) this.patients.set(res.pats.data.patients.items); 
     });
@@ -310,11 +327,37 @@ export class AdmissionsComponent implements OnInit {
   // BED ALLOCATION LOGIC 
 
   openBedAllocationModal() {
-    // Reset filters and selection when opening the modal
+    const rawAdmitDate = this.admitForm.get('admissionDate')?.value;
+    const rawAdmitTime = this.admitForm.get('admissionTime')?.value; 
+    let targetDate: Date | undefined = undefined;
+
+    if (rawAdmitDate) {
+      targetDate = new Date(rawAdmitDate);
+      if (rawAdmitTime) {
+        const [hours, minutes] = rawAdmitTime.split(':');
+        targetDate.setHours(Number(hours), Number(minutes), 0, 0);
+      }
+    }
+
+    const rawDischargeDate = this.admitForm.get('expectedDischargeDate')?.value;
+    const rawDischargeTime = this.admitForm.get('expectedDischargeTime')?.value;
+    let targetDischargeDate: Date | undefined = undefined;
+    if (!rawAdmitDate || !rawAdmitTime || !rawDischargeDate || !rawDischargeTime) {
+      return; 
+    }
+    if (rawDischargeDate) {
+      targetDischargeDate = new Date(rawDischargeDate);
+      if (rawDischargeTime) {
+        const [hours, minutes] = rawDischargeTime.split(':');
+        targetDischargeDate.setHours(Number(hours), Number(minutes), 0, 0);
+      }
+    }
+
+    this.loadFacilityData(targetDate, targetDischargeDate);
+
     this.allocationFilters = { wardId: null, roomType: null };
     this.selectedAllocationRoom = null;
-    this.roomPatients = [];
-    this.applyAllocationFilters(); // Applies default (no filters)
+    this.applyAllocationFilters(); 
 
     this.allocationDialogRef = this.dialog.open(this.bedAllocationDialogTpl, { 
       width: '800px',
@@ -322,6 +365,40 @@ export class AdmissionsComponent implements OnInit {
     });
   }
 
+  private expectedDischargeValidator() {
+    return (group: AbstractControl): ValidationErrors | null => {
+  
+      const admissionDate = group.get('admissionDate')?.value;
+      const admissionTime = group.get('admissionTime')?.value;
+      const dischargeDate = group.get('expectedDischargeDate')?.value;
+      const dischargeTime = group.get('expectedDischargeTime')?.value;
+  
+      // Expected discharge is optional
+      if (!dischargeDate) {
+        return null;
+      }
+  
+      if (!admissionDate || !admissionTime || !dischargeTime) {
+        return null;
+      }
+  
+      const admission = new Date(admissionDate);
+      const [aHour, aMinute] = admissionTime.split(':').map(Number);
+      admission.setHours(aHour, aMinute, 0, 0);
+  
+      const discharge = new Date(dischargeDate);
+      const [dHour, dMinute] = dischargeTime.split(':').map(Number);
+      discharge.setHours(dHour, dMinute, 0, 0);
+  
+      const differenceInMinutes =
+        (discharge.getTime() - admission.getTime()) / (1000 * 60);
+  
+      return differenceInMinutes >= 30
+        ? null
+        : { minimumDischargeGap: true };
+    };
+  }
+  
   applyAllocationFilters() {
     let filtered = this.allRooms();
 
@@ -362,52 +439,76 @@ export class AdmissionsComponent implements OnInit {
       return;
     }
   
-    const availableBed = this.allBeds().find(
-      b =>
-        b.roomNumber === this.selectedAllocationRoom.roomNumber &&
-        b.status === 'Available'
-    );
+    // 1. Reconstruct the requested start and end dates from the form
+    const formVals = this.admitForm.value;
+    
+    const requestedStart = new Date(formVals.admissionDate);
+    if (formVals.admissionTime) {
+      const [startHrs, startMins] = formVals.admissionTime.split(':');
+      requestedStart.setHours(Number(startHrs), Number(startMins), 0, 0);
+    }
   
-    this.admitForm.patchValue({
-      wardId: this.selectedAllocationRoom.ward_Id,
-      roomId: this.selectedAllocationRoom.id,
-      bedId: availableBed?.id ?? null
+    const requestedEnd = new Date(formVals.expectedDischargeDate);
+    if (formVals.expectedDischargeTime) {
+      const [endHrs, endMins] = formVals.expectedDischargeTime.split(':');
+      requestedEnd.setHours(Number(endHrs), Number(endMins), 0, 0);
+    }
+  
+    // 2. Ask the backend for a specific free bed
+    this.admissionService.getFirstAvailableBed(
+      this.selectedAllocationRoom.id, 
+      requestedStart.toISOString(), 
+      requestedEnd.toISOString()
+    ).subscribe({
+      // 1. Accept 'any' to satisfy the rigid baseHttp signature
+      next: (response: any) => { 
+        
+        // 2. Cast the response to your interface so autocomplete and compilation work!
+        const safeBed = response as AvailableBedResponse; 
+    
+        if (!safeBed || !safeBed.id) {
+           alert('No bed available in this room.');
+           return;
+        }
+    
+        // 3. TypeScript now knows these properties exist and will compile perfectly
+        this.admitForm.patchValue({
+          wardId: this.selectedAllocationRoom.ward_Id, 
+          roomId: this.selectedAllocationRoom.id,
+          bedId: safeBed.id 
+        });
+    
+        this.selectedAllocationDetails = {
+          wardName: this.wards().find(w => w.id === this.selectedAllocationRoom.ward_Id)?.name ?? '',
+          roomNumber: this.selectedAllocationRoom.roomNumber,
+          bedNumber: safeBed.bedNumber 
+        };
+    
+        this.allocationDialogRef?.close();
+      },
+      error: (err) => {
+        console.error("API ERROR:", err);
+        alert('Failed to allocate bed. Please select another room.');
+      }
     });
-  
-    this.selectedAllocationDetails = {
-      wardName:
-        this.wards().find(w => w.id === this.selectedAllocationRoom.ward_Id)?.name ?? '',
-      roomNumber: this.selectedAllocationRoom.roomNumber,
-      bedNumber: availableBed?.bedNumber ?? ''
-    };
-  
-    this.allocationDialogRef?.close();
   }
-
   submitAdmission() {
-
     if (!this.admitForm.valid) {
       return;
     }
-  
     const rawValue = this.admitForm.getRawValue();
   
     const admissionDate = new Date(rawValue.admissionDate);
     const [admissionHour, admissionMinute] = rawValue.admissionTime.split(':').map(Number);
   
-    admissionDate.setHours(admissionHour);
+    admissionDate.setHours(admissionHour);  
     admissionDate.setMinutes(admissionMinute);
     admissionDate.setSeconds(0);
-  
-    // Expected discharge datetime
     let expectedDischarge: string | null = null;
   
     if (rawValue.expectedDischargeDate) {
-  
       const dischargeDate = new Date(rawValue.expectedDischargeDate);
-  
-      const [dischargeHour, dischargeMinute] =
-        rawValue.expectedDischargeTime.split(':').map(Number);
+      const [dischargeHour, dischargeMinute] = rawValue.expectedDischargeTime.split(':').map(Number);
   
       dischargeDate.setHours(dischargeHour);
       dischargeDate.setMinutes(dischargeMinute);
@@ -430,16 +531,12 @@ export class AdmissionsComponent implements OnInit {
   
     if (this.isEditMode) {
       this.admissionService
-          .updateAdmission(
-              this.editingAdmissionId!,
-              payload
-          )
+          .updateAdmission(this.editingAdmissionId!, payload)
           .subscribe(() => {
               this.activeDialogRef?.close();
               this.loadDashboardData();
           });
-    }
-    else {
+    } else {
       this.admissionService
           .admitPatient(payload)
           .subscribe(() => {
@@ -467,29 +564,66 @@ export class AdmissionsComponent implements OnInit {
     }
   }
 
-  openDischargeDialog(admission: AdmissionSummary) {
+  openDischargeDialog(admission: any) {
     this.selectedAdmission = admission;
+    
+    this.minDischargeDate = new Date(admission.admissionDate); 
+    this.maxDischargeDate = new Date();                        
+    const now = new Date();
+    
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const currentTime = `${hours}:${minutes}`;
+  
     this.dischargeForm.reset();
-    this.activeDialogRef = this.dialog.open(this.dischargeDialogTpl, { width: '400px' });
+    this.dischargeForm.patchValue({
+      dischargeDate: now,
+      dischargeTime: currentTime,
+      dischargeNotes: ''
+    });
+  
+    this.activeDialogRef = this.dialog.open(this.dischargeDialogTpl, { width: '500px' });
   }
-
+  
   submitDischarge() {
+    this.dischargeForm.markAllAsTouched(); 
+  
     if (this.dischargeForm.valid && this.selectedAdmission) {
-      this.admissionService.dischargePatient(this.selectedAdmission.id, this.dischargeForm.value).subscribe(() => {
-        this.activeDialogRef?.close();
-        this.loadDashboardData(); // Refreshes counts
+      const formVals = this.dischargeForm.value;
+      
+      const combinedDate = new Date(formVals.dischargeDate);
+      const [hours, minutes] = formVals.dischargeTime.split(':');
+      combinedDate.setHours(Number(hours), Number(minutes), 0, 0);
+  
+      const payload = {
+        dischargeNotes: formVals.dischargeNotes || '', 
+        dischargeDate: combinedDate.toISOString()      
+      };
+  
+      this.admissionService.dischargePatient(this.selectedAdmission.id, payload).subscribe({
+        next: () => {
+          this.activeDialogRef?.close();
+          this.loadDashboardData(); 
+        },
+        error: (err) => {
+          console.error("Discharge failed:", err);
+          alert("Failed to discharge patient.");
+        }
       });
     }
   }
 
   getStatusName(status: AdmissionStatus): string {
     return status === AdmissionStatus.Active ? 'Active' : 
+           status === AdmissionStatus.Scheduled ? 'Scheduled' :
            status === AdmissionStatus.Discharged ? 'Discharged' : 'Cancelled';
   }
 
   getStatusColor(status: AdmissionStatus): string {
     return status === AdmissionStatus.Active ? 'primary' : 
-           status === AdmissionStatus.Discharged ? 'accent' : 'warn';
+           status === AdmissionStatus.Discharged ? 'accent' : 
+           status === AdmissionStatus.Scheduled ? 'warn' : 
+           'warn' ;
   }
 
   futureDateValidator() {
@@ -499,5 +633,19 @@ export class AdmissionsComponent implements OnInit {
       today.setHours(0, 0, 0, 0);
       return selected >= today ? null : { pastDate: true };
     };
+  }
+  checkInPatient(admission: any) {
+    if (admission && admission.id) {
+      this.admissionService.checkInPatient(admission.id).subscribe(() => {
+        this.loadGridOnly();
+      });
+    }
+  }
+  cancelAdmission(admission: any) {
+    if (confirm(`Are you sure you want to cancel the scheduled admission for ${admission.patientName}?`)) {
+      this.admissionService.cancelAdmission(admission.id).subscribe(() => {
+        this.loadGridOnly(); 
+      });
+    }
   }
 } 

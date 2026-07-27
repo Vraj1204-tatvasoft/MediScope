@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,9 +17,14 @@ import { NgClass } from '@angular/common';
 import { ManageRoomService } from '../../services/manage-room.service';
 import { PaginationParams, RoomType, WardSummary } from '../../models/manage-room.model';
 import { SignalrService } from '../../services/signalr.service';
-
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-hospital-dashboard',
+  templateUrl: './hospital-dashboard.component.html',
+  styleUrl: './hospital-dashboard.component.css',
   standalone: true,
   imports: [
     MatCardModule,
@@ -34,14 +39,16 @@ import { SignalrService } from '../../services/signalr.service';
     MatProgressBarModule,
     MatProgressSpinnerModule,
     FormsModule,
-    NgClass
+    NgClass,
+    FullCalendarModule,
+    MatDialogModule,
+    RoomCalendarComponent
   ],
-  templateUrl: './hospital-dashboard.component.html',
-  styleUrl: './hospital-dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HospitalDashboardComponent implements OnInit {
-
+  @ViewChild('roomCalendarDialogTpl') roomCalendarDialogTpl!: TemplateRef<any>;
+  constructor(private dialog: MatDialog, private router: Router) {}
   private readonly dashboardService = inject(HospitalDashboardService);
   private readonly manageRoomService = inject(ManageRoomService);
   private readonly signalrService = inject(SignalrService);
@@ -49,7 +56,7 @@ export class HospitalDashboardComponent implements OnInit {
   readonly summary = this.dashboardService.summary;
   readonly rooms = this.dashboardService.rooms;
   readonly pagination = this.dashboardService.pagination;
-
+  selectedDashboardRoom: any = null;
   readonly filter = signal({
     search: '',
     wardId: '',
@@ -97,6 +104,7 @@ export class HospitalDashboardComponent implements OnInit {
     'availableBeds',
     'status'
   ];
+  
   ngOnInit(): void {
     this.loadDropdownData();
     this.dashboardService.loadDashboard();
@@ -178,7 +186,9 @@ export class HospitalDashboardComponent implements OnInit {
       wardId
     }));
   }
-  
+  goToAdmitPatient() {
+    this.router.navigate(['/admin/admissions'], { queryParams: { action: 'admit' } });
+  }
   updateRoomType(roomTypeId: string): void {
     this.filter.update(filter => ({
       ...filter,
@@ -213,6 +223,15 @@ export class HospitalDashboardComponent implements OnInit {
   
     this.manageRoomService.getRoomTypes(params).subscribe({
       next: response => this.roomTypes.set(response.data. items)
+    });
+  }
+  openRoomCalendar(room: any) {
+    this.selectedDashboardRoom = room; 
+    this.dialog.open(this.roomCalendarDialogTpl, {
+      width: '850px',       
+      maxWidth: '95vw',
+      disableClose: false,  
+      autoFocus: false      
     });
   }
 }

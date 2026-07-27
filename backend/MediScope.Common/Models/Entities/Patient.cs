@@ -27,5 +27,6 @@ namespace MediScope.Common.Models.Entities
         public ICollection<PatientAuditLog> AuditLogs { get; set; } = new List<PatientAuditLog>();
         public ICollection<MedicalDocument> MedicalDocuments { get; set; } = new List<MedicalDocument>();
         public ICollection<PatientAdmission> PatientAdmissions { get; set; } = new List<PatientAdmission>();
+        public ICollection<QuestionnaireSubmission> QuestionnaireSubmissions { get; set; } = new List<QuestionnaireSubmission>();
     }
 }

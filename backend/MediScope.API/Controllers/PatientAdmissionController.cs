@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MediScope.Business.Services.Interfaces;
 using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.Pagination;
+using Npgsql;
 
 namespace MediScope.API.Controllers
 {
@@ -72,6 +73,45 @@ namespace MediScope.API.Controllers
                 await _admissionService.GetActivePatientsByRoomAsync(roomId);
 
             return Success(response);
+        }
+        [HttpPut("{id}/check-in")]
+        public async Task<IActionResult> CheckInPatient(Guid id)
+        {
+            try
+            {
+                await _admissionService.CheckInPatientAsync(id);
+                return Ok(new { message = "Patient successfully checked in." });
+            }
+            catch (Exception ex)
+            {
+                if (ex is PostgresException pgEx && pgEx.SqlState == "P0001")
+                {
+                    return BadRequest(new { message = pgEx.MessageText });
+                }
+                if (ex.InnerException is PostgresException innerPgEx && innerPgEx.SqlState == "P0001")
+                {
+                    return BadRequest(new { message = innerPgEx.MessageText });
+                }
+                throw;
+            }
+        }
+        [HttpPut("{id}/cancel")]
+        public async Task<IActionResult> CancelAdmission(Guid id)
+        {
+            await _admissionService.CancelAdmissionAsync(id);
+            return Success("Scheduled admission cancelled successfully.");
+        }
+        [HttpGet("{roomId}/first-available-bed")]
+        public async Task<IActionResult> GetFirstAvailableBed(Guid roomId, [FromQuery] DateTime start, [FromQuery] DateTime end)
+        {
+            var bed = await _admissionService.GetFirstAvailableBedAsync(roomId, start, end);
+
+            if (bed == null)
+            {
+                return NotFound(new { message = "No beds are available in this room during the selected timeframe." });
+            }
+
+            return Ok(bed);
         }
     }
 }

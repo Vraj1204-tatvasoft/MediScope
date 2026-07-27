@@ -15,16 +15,17 @@ import { PagedResponse } from '../models/paged-response.model';
 export class ManageRoomService {
   private readonly baseHttp = inject(BaseHttpService);
 
-  private buildParams(p: PaginationParams): HttpParams {
-    let params = new HttpParams()
-      .set('PageNumber', p.pageNumber)
-      .set('PageSize', p.pageSize);
+  private buildParams(params: PaginationParams): HttpParams {
+    let httpParams = new HttpParams();
     
-    if (p.search) params = params.set('Search', p.search);
-    if (p.sortBy) params = params.set('SortBy', p.sortBy);
-    if (p.sortDir) params = params.set('SortDir', p.sortDir);
+    Object.keys(params).forEach(key => {
+      const value = (params as any)[key];
+      if (value !== null && value !== undefined && value !== '') {
+        httpParams = httpParams.append(key, value.toString());
+      }
+    });
     
-    return params;
+    return httpParams;
   }
 
   // --- WARDS ---
