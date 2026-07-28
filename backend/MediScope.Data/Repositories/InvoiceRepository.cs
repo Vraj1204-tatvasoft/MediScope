@@ -15,7 +15,6 @@ namespace MediScope.Data.Repositories
     public class InvoiceRepository : IInvoiceRepository
     {
         private readonly AppDbContext _context;
-
         public InvoiceRepository(AppDbContext context)
         {
             _context = context;

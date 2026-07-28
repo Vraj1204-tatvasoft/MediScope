@@ -1,0 +1,281 @@
+/* ── Design Tokens (match MediScope palette) ─────────────────────────────── */
+:host {
+    --primary:       #2563eb;   /* teal-600 — brand primary */
+    --primary-dark:  #0c48ca;   /* teal-700 — hover */
+    --primary-light: #f0fdfa;   /* teal-50  — soft bg */
+    --danger:        #ef4444;   /* red-500 */
+    --danger-light:  #fef2f2;   /* red-50 */
+    --text-primary:  #111827;   /* gray-900 */
+    --text-secondary:#6b7280;   /* gray-500 */
+    --text-muted:    #9ca3af;   /* gray-400 */
+    --border:        #e5e7eb;   /* gray-200 */
+    --surface:       #ffffff;
+    --bg:            #f9fafb;   /* gray-50 */
+    --radius-card:   12px;
+    --radius-btn:    8px;
+    --shadow-card:   0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+  }
+  
+  /* ── Page layout ─────────────────────────────────────────────────────────── */
+  .aq-page {
+    padding: 32px 40px;
+    background: var(--bg);
+    min-height: 100%;
+  }
+  
+  .aq-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .aq-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 2px;
+    letter-spacing: -0.01em;
+  }
+  .aq-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  /* ── Primary Button ──────────────────────────────────────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-btn);
+    padding: 10px 18px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  
+  /* ── Loading ─────────────────────────────────────────────────────────────── */
+  .aq-loading {
+    display: flex;
+    justify-content: center;
+    padding: 64px 0;
+  }
+  ::ng-deep .aq-loading .mat-mdc-progress-spinner circle {
+    stroke: var(--primary);
+  }
+  
+  /* ── Empty State ─────────────────────────────────────────────────────────── */
+  .aq-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    text-align: center;
+  }
+  .aq-empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .aq-empty-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+  }
+  .aq-empty-sub {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+  }
+  
+  /* ── Card List ───────────────────────────────────────────────────────────── */
+  .aq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .aq-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.18s, border-color 0.18s;
+  }
+  .aq-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,.09);
+    border-color: #d1d5db;
+  }
+  
+  /* ── Card Left ───────────────────────────────────────────────────────────── */
+  .aq-card-left { flex: 1; min-width: 0; }
+  
+  .aq-card-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .aq-card-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  /* Status Badge */
+  .aq-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+  }
+  .aq-badge--active {
+    background: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
+  }
+  .aq-badge--inactive {
+    background: #f9fafb;
+    color: #6b7280;
+    border-color: #e5e7eb;
+  }
+  .aq-badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  
+  /* Department Tag */
+  .aq-dept-tag {
+    padding: 2px 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: 'Courier New', monospace;
+  }
+  
+  /* Description */
+  .aq-card-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 620px;
+  }
+  
+  /* Meta */
+  .aq-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+  .aq-meta-dot { color: var(--border); }
+  
+  /* ── Card Actions ────────────────────────────────────────────────────────── */
+  .aq-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  
+  .btn-questions {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: var(--radius-btn);
+    padding: 7px 12px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-questions:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .btn-questions mat-icon {
+    font-size: 17px; width: 17px; height: 17px;
+  }
+  
+  .btn-menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-menu:hover {
+    background: var(--bg);
+    color: var(--text-primary);
+  }
+  .btn-menu mat-icon { font-size: 20px; }
+  
+  /* ── Mat Menu overrides ──────────────────────────────────────────────────── */
+  ::ng-deep .mat-mdc-menu-panel {
+    border-radius: 10px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12) !important;
+    border: 1px solid var(--border) !important;
+    min-width: 160px !important;
+  }
+  ::ng-deep .mat-mdc-menu-item {
+    font-size: 0.875rem !important;
+    min-height: 40px !important;
+  }
+  ::ng-deep .mat-mdc-menu-item mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: 10px !important;
+  }
+  .menu-item--danger {
+    color: var(--danger) !important;
+  }
+  ::ng-deep .menu-item--danger mat-icon {
+    color: var(--danger) !important;
+  }
+  
+  /* ── Snackbar ────────────────────────────────────────────────────────────── */
+  ::ng-deep .snack-success .mdc-snackbar__surface {
+    background: #065f46 !important;
+  }
+  ::ng-deep .snack-error .mdc-snackbar__surface {
+    background: #991b1b !important;
+  }
+  

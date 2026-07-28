@@ -154,6 +154,7 @@ builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IRoomBedRepository, RoomBedRepository>();
 builder.Services.AddScoped<IPatientAdmissionRepository, PatientAdmissionRepository>();
 builder.Services.AddScoped<IHospitalizationDashboardRepository, HospitalizationDashboardRepository>();
+builder.Services.AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
 // ── 5. SERVICES ──────────────────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -178,6 +179,7 @@ builder.Services.AddScoped<IRazorpayService, RazorpayService>();
 builder.Services.AddScoped<IRoomBedService, RoomBedService>();
 builder.Services.AddScoped<IPatientAdmissionService, PatientAdmissionService>();
 builder.Services.AddScoped<IHospitalizationDashboardService, HospitalizationDashboardService>();
+builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 // ── 6. CORS (for Angular frontend) ───────────────────────────────────
 builder.Services.AddCors(options =>
 {

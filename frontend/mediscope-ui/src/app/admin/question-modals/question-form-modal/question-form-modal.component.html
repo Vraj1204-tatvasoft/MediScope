@@ -1,0 +1,192 @@
+<div class="qfq-wrap">
+
+    <!-- Header -->
+    <div class="qfq-header">
+      <div class="qfq-header-top">
+        <button class="qfq-back" (click)="cancel()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2 class="qfq-title">{{ title }}</h2>
+      </div>
+      <p class="qfq-subtitle">{{ data.questionnaireName }}</p>
+    </div>
+  
+    <!-- Form Card -->
+    <div class="qfq-card">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate autocomplete="off">
+  
+        <!-- Question Label -->
+        <div class="form-field">
+          <label class="form-label">Question Label <span class="req">*</span></label>
+          <input
+            class="form-input"
+            [class.form-input--error]="hasError('label','required')"
+            formControlName="label"
+            placeholder="e.g. How would you rate your pain?"
+            type="text"
+          />
+          @if (hasError('label', 'required')) {
+            <span class="form-error">Question label is required.</span>
+          }
+        </div>
+  
+        <!-- Field Type -->
+        <div class="form-field">
+          <label class="form-label">Field Type</label>
+          <select class="form-input form-select" formControlName="fieldType">
+            @for (ft of fieldTypes; track ft.value) {
+              <option [value]="ft.value">{{ ft.label }}</option>
+            }
+          </select>
+        </div>
+  
+        <!-- Placeholder (not shown for choice types) -->
+        @if (!isChoiceType) {
+          <div class="form-field">
+            <label class="form-label">Placeholder</label>
+            <input
+              class="form-input"
+              formControlName="placeholder"
+              placeholder="Hint text shown inside the field"
+              type="text"
+            />
+          </div>
+        }
+  
+        <!-- Required -->
+        <div class="form-field">
+          <label class="form-label">Required</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" formControlName="isRequired" [value]="true" />
+              <span class="radio-custom"></span>
+              Yes
+            </label>
+            <label class="radio-label">
+              <input type="radio" formControlName="isRequired" [value]="false" />
+              <span class="radio-custom"></span>
+              No
+            </label>
+          </div>
+        </div>
+  
+        <!-- Default Value (not for choice types) -->
+        @if (!isChoiceType) {
+          <div class="form-field">
+            <label class="form-label">Default Value <span class="optional">(Optional)</span></label>
+            <input
+              class="form-input"
+              formControlName="defaultValue"
+              placeholder="Pre-filled value"
+              type="text"
+            />
+          </div>
+        }
+  
+        <!-- Validations for Number -->
+        @if (form.get('fieldType')?.value === 'Number') {
+          <div class="form-field" style="display: flex; gap: 16px;">
+            <div style="flex: 1;">
+              <label class="form-label">Min Value <span class="optional">(Optional)</span></label>
+              <input class="form-input" formControlName="minValue" type="number" placeholder="e.g. 0" />
+            </div>
+            <div style="flex: 1;">
+              <label class="form-label">Max Value <span class="optional">(Optional)</span></label>
+              <input class="form-input" formControlName="maxValue" type="number" placeholder="e.g. 100" />
+            </div>
+          </div>
+        }
+  
+        <!-- Validations for Text -->
+        @if (form.get('fieldType')?.value === 'TextBox' || form.get('fieldType')?.value === 'TextArea') {
+          <div class="form-field" style="display: flex; gap: 16px;">
+            <div style="flex: 1;">
+              <label class="form-label">Min Length <span class="optional">(Optional)</span></label>
+              <input class="form-input" formControlName="minLength" type="number" placeholder="Min chars" />
+            </div>
+            <div style="flex: 1;">
+              <label class="form-label">Max Length <span class="optional">(Optional)</span></label>
+              <input class="form-input" formControlName="maxLength" type="number" placeholder="Max chars" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Validation Regex <span class="optional">(Optional)</span></label>
+            <input class="form-input" formControlName="regexPattern" type="text" placeholder="e.g. ^[0-9]{5}$ for zip code" />
+          </div>
+        }
+  
+        <!-- Options (Dropdown / Radio / Checkbox) -->
+        @if (isChoiceType) {
+          <div class="form-field">
+            <label class="form-label">
+              Options <span class="req">*</span>
+              <span class="optional"> (min. 2)</span>
+            </label>
+  
+            <!-- Existing Options -->
+            <div class="options-list">
+              @for (opt of options.controls; track $index) {
+                <div class="option-row">
+                  <span class="option-num">{{ $index + 1 }}.</span>
+                  <input
+                    class="form-input option-input"
+                    [formControl]="$any(optionAt($index).get('label'))"
+                    [placeholder]="'Option ' + ($index + 1)"
+                    type="text"
+                  />
+                  <button
+                    type="button"
+                    class="btn-remove-option"
+                    (click)="removeOption($index)"
+                    aria-label="Remove option"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+  
+            <!-- Add New Option -->
+            <div class="option-add-row">
+              <input
+                class="form-input option-add-input"
+                [value]="newOptionText()"
+                (input)="newOptionText.set($any($event.target).value)"
+                (keydown)="addOptionOnEnter($event)"
+                placeholder="Add an option..."
+                type="text"
+              />
+              <button type="button" class="btn-add-option" (click)="addOption()">
+                <mat-icon>add</mat-icon>
+                Add
+              </button>
+            </div>
+  
+            @if (errorMsg() && isChoiceType) {
+              <span class="form-error">{{ errorMsg() }}</span>
+            }
+          </div>
+        }
+  
+        <!-- Global error -->
+        @if (errorMsg() && !isChoiceType) {
+          <div class="form-error-box">{{ errorMsg() }}</div>
+        }
+  
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" [disabled]="saving()">
+            @if (saving()) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              <mat-icon>check</mat-icon>
+            }
+            {{ submitLabel }}
+          </button>
+          <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+        </div>
+  
+      </form>
+    </div>
+  
+  </div>

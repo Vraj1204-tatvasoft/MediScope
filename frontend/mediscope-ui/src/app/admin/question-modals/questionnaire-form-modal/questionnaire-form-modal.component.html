@@ -1,0 +1,92 @@
+<div class="qfm-wrap">
+
+    <!-- Header -->
+    <div class="qfm-header">
+      <div class="qfm-header-left">
+        <button class="qfm-back" (click)="cancel()" [attr.aria-label]="'Close'">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2 class="qfm-title">{{ title }}</h2>
+      </div>
+    </div>
+  
+    <!-- Form Card -->
+    <div class="qfm-card">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate autocomplete="off">
+  
+        <!-- Questionnaire Name -->
+        <div class="form-field">
+          <label class="form-label">Questionnaire Name <span class="req">*</span></label>
+          <input
+            class="form-input"
+            [class.form-input--error]="hasError('name','required') || hasError('name','maxlength')"
+            formControlName="name"
+            placeholder="e.g. General Health Assessment"
+            type="text"
+          />
+          @if (hasError('name', 'required')) {
+            <span class="form-error">Questionnaire name is required.</span>
+          }
+          @if (hasError('name', 'maxlength')) {
+            <span class="form-error">Name must not exceed 255 characters.</span>
+          }
+        </div>
+  
+        <!-- Description -->
+        <div class="form-field">
+          <label class="form-label">Description <span class="req">*</span></label>
+          <textarea
+            class="form-input form-textarea"
+            formControlName="description"
+            placeholder="Brief description of this questionnaire's purpose..."
+            rows="4"
+          ></textarea>
+        </div>
+  
+        <!-- Department -->
+        <div class="form-field">
+          <label class="form-label">Department <span class="optional">(Optional)</span></label>
+          <select class="form-input form-select" formControlName="department">
+            <option value="">— Select department —</option>
+            @for (dept of departments; track dept) {
+              <option [value]="dept">{{ dept }}</option>
+            }
+          </select>
+        </div>
+  
+        <!-- Status -->
+        <div class="form-field">
+          <label class="form-label">Status</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" formControlName="status" value="Active" />
+              <span class="radio-custom"></span>
+              Active
+            </label>
+            <label class="radio-label">
+              <input type="radio" formControlName="status" value="Inactive" />
+              <span class="radio-custom"></span>
+              Inactive
+            </label>
+          </div>
+        </div>
+  
+        <!-- Actions -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="saving()"
+          >
+            {{ submitLabel }}
+          </button>
+          <button type="button" class="btn-cancel" (click)="cancel()">
+            Cancel
+          </button>
+        </div>
+  
+      </form>
+    </div>
+  
+  </div>
+  

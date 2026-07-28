@@ -1,0 +1,124 @@
+<div class="aqq-page">
+
+    <div class="aqq-header">
+      <div class="aqq-header-left">
+        <button class="aqq-back" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h1 class="aqq-title">Questions</h1>
+          <p class="aqq-subtitle">{{ questionnaireName() }}</p>
+        </div>
+      </div>
+  
+      <div class="aqq-header-right">
+        @if (reordering()) {
+          <span class="reorder-saving">
+            <mat-spinner diameter="14"></mat-spinner>
+            Saving order...
+          </span>
+        }
+        <!-- The button now uses the styled btn-primary class -->
+        <button class="btn-primary" (click)="openAddModal()">
+          <mat-icon>add</mat-icon>
+          Add Question
+        </button>
+      </div>
+    </div>
+  
+    @if (loading()) {
+      <div class="aqq-loading">
+        <mat-spinner diameter="36"></mat-spinner>
+      </div>
+    }
+  
+    @if (!loading() && questions().length === 0) {
+      <div class="aqq-empty">
+        <mat-icon class="aqq-empty-icon">quiz</mat-icon>
+        <p class="aqq-empty-title">No questions yet</p>
+        <p class="aqq-empty-sub">Add your first question to this questionnaire.</p>
+        <button class="btn-primary" (click)="openAddModal()">
+          <mat-icon>add</mat-icon>
+          Add Question
+        </button>
+      </div>
+    }
+  
+    @if (!loading() && questions().length > 0) {
+      <div
+        cdkDropList
+        [cdkDropListData]="questions()"
+        (cdkDropListDropped)="onDrop($event)"
+        class="aqq-list"
+      >
+        @for (q of questions(); track trackById($index, q); let i = $index) {
+          <div class="aqq-card" cdkDrag [cdkDragData]="q">
+            
+            <div class="aqq-reorder-col">
+              <div class="reorder-arrows">
+                <button class="reorder-btn" (click)="moveUp(i)" [disabled]="i === 0">
+                  <mat-icon>keyboard_arrow_up</mat-icon>
+                </button>
+                <button class="reorder-btn" (click)="moveDown(i)" [disabled]="i === questions().length - 1">
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </button>
+              </div>
+              <div class="drag-handle" cdkDragHandle>
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+            </div>
+  
+            <div class="aqq-card-content">
+              <div class="aqq-card-title-row">
+                <span class="aqq-card-num">#{{ i + 1 }}</span>
+                <span class="aqq-card-label">{{ q.label }}</span>
+                @if (q.isRequired) {
+                  <span class="aqq-required-badge">Required</span>
+                }
+              </div>
+  
+              <div class="aqq-card-meta">
+                <span class="aqq-field-type">{{ fieldTypeLabel(q.fieldType) }}</span>
+                @if (hasOptions(q)) {
+                  <span class="aqq-meta-sep">·</span>
+                  <span class="aqq-opt-count">{{ q.options.length }} options</span>
+                } @else if (q.placeholder) {
+                  <span class="aqq-meta-sep">·</span>
+                  <span class="aqq-placeholder">"{{ q.placeholder }}"</span>
+                }
+              </div>
+  
+              @if (hasOptions(q) && q.options.length > 0) {
+                <div class="aqq-chips">
+                  @for (opt of q.options; track opt.id) {
+                    <span class="aqq-chip">{{ opt.label }}</span>
+                  }
+                </div>
+              }
+            </div>
+  
+            <div class="aqq-card-actions">
+              <button class="btn-menu" [matMenuTriggerFor]="actionMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #actionMenu="matMenu" xPosition="before">
+                <button mat-menu-item (click)="openEditModal(q)">
+                  <mat-icon>edit</mat-icon>
+                  Edit
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item class="menu-item--danger" (click)="openDeleteModal(q)">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </mat-menu>
+            </div>
+  
+            <div class="cdk-drag-placeholder" *cdkDragPlaceholder></div>
+  
+          </div>
+        }
+      </div>
+    }
+  
+  </div>

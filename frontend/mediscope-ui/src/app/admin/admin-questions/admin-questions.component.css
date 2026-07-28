@@ -1,0 +1,151 @@
+:host {
+    --primary: #2563eb;   
+    --primary-dark: #1d4ed8;   
+    --danger: #ef4444;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f9fafb;
+    --surface: #ffffff;
+    --radius: 8px;
+    display: block;
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  
+  /* Header */
+  .aqq-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .aqq-header-left { display: flex; align-items: center; gap: 16px; }
+  .aqq-header-right { display: flex; align-items: center; gap: 16px; }
+  
+  .aqq-back {
+    background: var(--surface); border: 1px solid var(--border); 
+    cursor: pointer; color: var(--text-secondary); 
+    width: 40px; height: 40px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .aqq-back:hover { background: var(--bg); color: var(--text-primary); }
+  
+  .aqq-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+  .aqq-subtitle { font-size: 0.875rem; color: var(--text-secondary); margin: 4px 0 0; }
+  
+  /* Buttons */
+  .btn-primary {
+    background: var(--primary); color: #fff; border: none;
+    border-radius: var(--radius); padding: 10px 20px;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background 0.2s ease;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  
+  .reorder-saving {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.875rem; color: var(--text-secondary);
+  }
+  
+  /* List & Cards */
+  .aqq-list { display: flex; flex-direction: column; gap: 12px; }
+  
+  .aqq-card {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 16px; border-radius: var(--radius);
+    transition: box-shadow 0.2s ease;
+  }
+  .aqq-card:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+  
+  /* Reorder Column */
+  .aqq-reorder-col {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    width: 32px;
+  }
+  .reorder-arrows { display: flex; flex-direction: column; }
+  .reorder-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-secondary); padding: 0;
+    height: 20px; line-height: 20px; display: flex; align-items: center; justify-content: center;
+  }
+  .reorder-btn:hover:not(:disabled) { color: var(--primary); }
+  .reorder-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  
+  .drag-handle { 
+    cursor: grab; color: #cbd5e1; display: flex; 
+    align-items: center; justify-content: center; margin-top: 4px;
+  }
+  .drag-handle:active { cursor: grabbing; }
+  
+  /* Card Content */
+  .aqq-card-content { flex: 1; min-width: 0; }
+  .aqq-card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .aqq-card-num { color: var(--text-secondary); font-weight: 500; font-size: 0.875rem; }
+  .aqq-card-label { font-weight: 600; color: var(--text-primary); font-size: 1rem; }
+  
+  .aqq-required-badge {
+    font-size: 0.7rem; background: #fee2e2; color: var(--danger);
+    padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .aqq-card-meta { font-size: 0.875rem; color: var(--text-secondary); display: flex; align-items: center; }
+  .aqq-meta-sep { margin: 0 6px; color: #cbd5e1; }
+  .aqq-placeholder { font-style: italic; }
+  
+  /* Chips */
+  .aqq-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .aqq-chip {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 4px 10px; border-radius: 16px; font-size: 0.75rem; font-weight: 500;
+  }
+  
+  /* Actions Menu Button */
+  .aqq-card-actions { display: flex; align-items: center; }
+  .btn-menu {
+    background: none; border: none; cursor: pointer; color: var(--text-secondary);
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-menu:hover { background: var(--bg); color: var(--text-primary); }
+  
+  ::ng-deep .menu-item--danger { color: var(--danger) !important; }
+  ::ng-deep .menu-item--danger mat-icon { color: var(--danger) !important; }
+  
+  /* Drag Placeholder */
+  .cdk-drag-placeholder {
+    background: #eff6ff; border: 2px dashed var(--primary);
+    opacity: 0.6; height: 90px; border-radius: var(--radius);
+  }
+  .cdk-drag-preview {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: var(--radius);
+  }
+  
+  /* Empty & Loading States */
+  .aqq-loading {
+    display: flex; justify-content: center; padding: 60px 0;
+  }
+  .aqq-empty {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 60px 24px; background: var(--surface);
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    text-align: center;
+  }
+  .aqq-empty-icon {
+    font-size: 48px; width: 48px; height: 48px;
+    color: #cbd5e1; margin-bottom: 16px;
+  }
+  .aqq-empty-title {
+    font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin: 0 0 8px;
+  }
+  .aqq-empty-sub {
+    color: var(--text-secondary); margin: 0 0 24px; font-size: 0.9rem;
+  }

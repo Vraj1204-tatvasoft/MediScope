@@ -1,0 +1,25 @@
+<div class="cdm-wrap">
+
+    <div class="cdm-header">
+      <h2 class="cdm-title">{{ data.title }}</h2>
+      <button class="cdm-close" (click)="cancel()" aria-label="Close">
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </div>
+  
+    <div class="cdm-divider"></div>
+  
+    <div class="cdm-body">
+      <p class="cdm-message">{{ data.message }}</p>
+    </div>
+  
+    <div class="cdm-footer">
+      <button class="btn-cancel" (click)="cancel()">Cancel</button>
+      <button class="btn-delete" (click)="confirm()">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </div>
+  
+  </div>
+  

@@ -89,7 +89,10 @@ export const NAV_CONFIG: Record<UserRole, NavConfig> = {
             icon: ICONS.records
           }
         ]
-      }
+      },
+      {label: 'Questionnaire', route: '/admin/admin-questionnaire', icon: ICONS.analytics}
     ]
-  }
+  },
+  
+
 };

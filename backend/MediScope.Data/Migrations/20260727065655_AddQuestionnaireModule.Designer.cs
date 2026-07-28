@@ -3,6 +3,7 @@ using System;
 using MediScope.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MediScope.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260727065655_AddQuestionnaireModule")]
+    partial class AddQuestionnaireModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2033,22 +2036,6 @@ namespace MediScope.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("label");
 
-                    b.Property<int?>("MaxLength")
-                        .HasColumnType("integer")
-                        .HasColumnName("max_length");
-
-                    b.Property<int?>("MaxValue")
-                        .HasColumnType("integer")
-                        .HasColumnName("max_value");
-
-                    b.Property<int?>("MinLength")
-                        .HasColumnType("integer")
-                        .HasColumnName("min_length");
-
-                    b.Property<int?>("MinValue")
-                        .HasColumnType("integer")
-                        .HasColumnName("min_value");
-
                     b.Property<string>("Placeholder")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)")
@@ -2057,10 +2044,6 @@ namespace MediScope.Data.Migrations
                     b.Property<Guid>("QuestionnaireId")
                         .HasColumnType("uuid")
                         .HasColumnName("questionnaire_id");
-
-                    b.Property<string>("RegexPattern")
-                        .HasColumnType("text")
-                        .HasColumnName("regex_pattern");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()

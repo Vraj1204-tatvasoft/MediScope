@@ -37,6 +37,8 @@ import { PatientInvoicesComponent } from './patient/patient-invoice/patient-invo
 import { ManageRoomsComponent } from './admin/manage-rooms/manage-rooms.component';
 import { AdmissionsComponent } from './admin/admissions/admissions.component';
 import { HospitalDashboardComponent } from './admin/hospital-dashboard/hospital-dashboard.component';
+import { AdminQuestionnaireComponent } from './admin/admin-questionnaire/admin-questionnaire.component';
+import { AdminQuestionsComponent } from './admin/admin-questions/admin-questions.component';
 
 
 export const routes: Routes = [
@@ -209,6 +211,14 @@ export const routes: Routes = [
       {
         path: 'hospital-dashboard',
         component: HospitalDashboardComponent,
+      },
+      {
+        path: 'admin-questionnaire',
+        component: AdminQuestionnaireComponent,
+      },
+      {
+        path: 'admin-questions/:id',
+        component: AdminQuestionsComponent,
       }
     ],
   },
