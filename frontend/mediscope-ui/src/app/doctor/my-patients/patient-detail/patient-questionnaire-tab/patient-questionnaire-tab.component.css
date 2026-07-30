@@ -1,0 +1,296 @@
+
+/* ── Wrapper ─────────────────────────────────────────────────── */
+.pqt-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  /* ── Toolbar ─────────────────────────────────────────────────── */
+  .pqt-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .pqt-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  
+  .pqt-stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    border: 1px solid transparent;
+  }
+  .pqt-stat-pill mat-icon {
+    font-size: 15px; width: 15px; height: 15px;
+  }
+  
+  .pqt-stat-total {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+  }
+  .pqt-stat-pending {
+    background: #fffbeb;
+    color: #d97706;
+    border-color: #fde68a;
+  }
+  .pqt-stat-submitted {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #bbf7d0;
+  }
+  
+  /* ── Assign Button ───────────────────────────────────────────── */
+  .btn-assign {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #2563eb;
+    color:#f0fdf4;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s;
+    white-space: nowrap;
+  }
+  .btn-assign:hover { background: #2563eb; }
+  .btn-assign mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  
+  /* ── Assignment List ─────────────────────────────────────────── */
+  .pqt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* ── Assignment Card ─────────────────────────────────────────── */
+  .pqt-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: all 0.15s ease-in-out;
+  }
+  .pqt-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
+  
+  /* ── Card Left ───────────────────────────────────────────────── */
+  .pqt-card-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .pqt-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #64748b;
+  }
+  .pqt-card-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  
+  .pqt-card-info { flex: 1; min-width: 0; }
+  
+  /* Name + badges row */
+  .pqt-card-name-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  .pqt-card-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  /* Status badges — extends the existing .status-chip-badge */
+  .status-chip-badge {
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .status-pending {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+  }
+  .status-draft {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+  }
+  .status-submitted {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+  
+  /* Department tag */
+  .dept-tag {
+    padding: 2px 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+  }
+  
+  /* Meta row */
+  .pqt-card-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .meta-item mat-icon {
+    font-size: 13px; width: 13px; height: 13px; color: #94a3b8;
+  }
+  .meta-bullet { color: #cbd5e1; }
+  .meta-submitted { color: #16a34a; }
+  .meta-submitted mat-icon { color: #16a34a; }
+  
+  /* Notes bubble — matches .table-embedded-notes-bubble */
+  .pqt-notes-bubble {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 5px;
+    background: #f8fafc;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #475569;
+    border-left: 3px solid #cbd5e1;
+    margin-top: 4px;
+  }
+  .pqt-notes-bubble mat-icon {
+    font-size: 14px; width: 14px; height: 14px;
+    color: #94a3b8; flex-shrink: 0; margin-top: 1px;
+  }
+  
+  /* ── Card Actions ────────────────────────────────────────────── */
+  .pqt-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-action mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  
+  .btn-action--view {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #bbf7d0;
+  }
+  .btn-action--view:hover {
+    background: #dcfce7;
+    border-color: #86efac;
+  }
+  
+  .btn-action--pdf {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+  }
+  .btn-action--pdf:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+  }
+  
+  .btn-action--remove {
+    background: none;
+    color: #ef4444;
+    border-color: #fecaca;
+    padding: 6px 8px;
+  }
+  .btn-action--remove:hover:not(:disabled) {
+    background: #fef2f2;
+  }
+  .btn-action--remove:disabled { opacity: 0.5; cursor: not-allowed; }
+  
+  /* Status indicators (non-button) */
+  .draft-indicator,
+  .pending-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .draft-indicator {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+  .draft-indicator mat-icon {
+    font-size: 15px; width: 15px; height: 15px;
+  }
+  .pending-indicator {
+    background: #fffbeb;
+    color: #d97706;
+  }
+  .pending-indicator mat-icon {
+    font-size: 15px; width: 15px; height: 15px;
+  }
+  
+  /* ── Spinner inside remove button ────────────────────────────── */
+  ::ng-deep .btn-action--remove .mat-mdc-progress-spinner circle {
+    stroke: #ef4444;
+  }
+  

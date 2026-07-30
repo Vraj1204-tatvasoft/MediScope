@@ -1,0 +1,74 @@
+.page-container {
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  
+  .list-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #f3f4f6;
+  }
+  
+  mat-card-header {
+    margin-bottom: 24px;
+    padding-top: 8px;
+  }
+  
+  .header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e0f2f1;
+    border-radius: 50%;
+  }
+  
+  .questionnaire-table {
+    width: 100%;
+    box-shadow: none;
+  }
+  
+  .table-row:hover {
+    background-color: #f9fafb;
+    transition: background-color 0.2s ease;
+  }
+  
+  .fw-bold {
+    font-weight: 500;
+    color: #111827;
+  }
+  
+  .text-muted {
+    color: #6b7280;
+  }
+  
+  .text-right {
+    text-align: right !important;
+    padding-right: 16px !important;
+  }
+  
+  /* Ensure action buttons are a uniform width so the table doesn't jitter */
+  .action-btn {
+    min-width: 120px;
+    border-radius: 8px;
+  }
+  
+  /* Custom Mat-Chip Colors */
+  ::ng-deep .status-chip {
+    font-weight: 600 !important;
+  }
+  
+  ::ng-deep .status-chip.pending {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+  }
+  
+  ::ng-deep .status-chip.draft {
+    background-color: #fef3c7 !important;
+    color: #b45309 !important;
+  }
+  
+  ::ng-deep .status-chip.submitted {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+  }

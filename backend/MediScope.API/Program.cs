@@ -146,6 +146,8 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Doctor", "Admin"));
     options.AddPolicy("PatientOrAdmin", policy =>
         policy.RequireRole("Patient", "Admin"));
+    options.AddPolicy("PatientOrDoctorOrAdmin", policy =>
+        policy.RequireRole("Patient", "Doctor", "Admin"));
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -155,6 +157,7 @@ builder.Services.AddScoped<IRoomBedRepository, RoomBedRepository>();
 builder.Services.AddScoped<IPatientAdmissionRepository, PatientAdmissionRepository>();
 builder.Services.AddScoped<IHospitalizationDashboardRepository, HospitalizationDashboardRepository>();
 builder.Services.AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
+builder.Services.AddScoped<IQuestionnaireAssignmentRepository, QuestionnaireAssignmentRepository>();
 // ── 5. SERVICES ──────────────────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -180,6 +183,8 @@ builder.Services.AddScoped<IRoomBedService, RoomBedService>();
 builder.Services.AddScoped<IPatientAdmissionService, PatientAdmissionService>();
 builder.Services.AddScoped<IHospitalizationDashboardService, HospitalizationDashboardService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
+builder.Services.AddScoped<IQuestionnaireAssignmentService, QuestionnaireAssignmentService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
 // ── 6. CORS (for Angular frontend) ───────────────────────────────────
 builder.Services.AddCors(options =>
 {

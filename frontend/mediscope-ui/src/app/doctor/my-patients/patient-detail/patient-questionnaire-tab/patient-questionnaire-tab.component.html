@@ -1,0 +1,165 @@
+<div class="pqt-wrapper">
+
+  <div class="pqt-toolbar">
+    <div class="pqt-stats">
+      <div class="pqt-stat-pill pqt-stat-total">
+        <mat-icon>assignment</mat-icon>
+        <span><strong>{{ totalCount() }}</strong> Total</span>
+      </div>
+      <div class="pqt-stat-pill pqt-stat-pending">
+        <mat-icon>schedule</mat-icon>
+        <span><strong>{{ pendingCount() }}</strong> Pending</span>
+      </div>
+      <div class="pqt-stat-pill pqt-stat-submitted">
+        <mat-icon>check_circle</mat-icon>
+        <span><strong>{{ submittedCount() }}</strong> Submitted</span>
+      </div>
+    </div>
+
+    <button class="btn-assign" (click)="openAssignModal()">
+      <mat-icon>add</mat-icon>
+      Assign Questionnaire
+    </button>
+  </div>
+
+  <!-- ── Loading ───────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="loading-fallback-spinner-zone">
+      <mat-spinner diameter="36"></mat-spinner>
+      <p>Loading questionnaire assignments...</p>
+    </div>
+  }
+
+  <!-- ── Empty State ───────────────────────────────────────────────────── -->
+  @if (!loading() && assignments().length === 0) {
+    <div class="center-empty-layout-diagnostics">
+      <mat-icon style="font-size:48px;width:48px;height:48px;color:#cbd5e1;margin-bottom:12px">
+        assignment_late
+      </mat-icon>
+      <p style="font-weight:600;color:#475569;margin:0 0 6px">No questionnaires assigned yet</p>
+      <p style="font-size:0.85rem;color:#94a3b8;margin:0 0 20px">
+        Assign a questionnaire to gather structured clinical information from this patient.
+      </p>
+      <button class="btn-assign" (click)="openAssignModal()">
+        <mat-icon>add</mat-icon>
+        Assign Questionnaire
+      </button>
+    </div>
+  }
+
+  <!-- ── Assignment List ───────────────────────────────────────────────── -->
+  @if (!loading() && assignments().length > 0) {
+    <div class="pqt-list">
+
+      @for (a of assignments(); track trackById($index, a)) {
+        <div class="pqt-card">
+
+          <!-- Left: Icon + Info -->
+          <div class="pqt-card-left">
+            <div class="pqt-card-icon">
+              <mat-icon>{{ statusIcon(a.fillStatus) }}</mat-icon>
+            </div>
+
+            <div class="pqt-card-info">
+              <div class="pqt-card-name-row">
+                <span class="pqt-card-name">{{ a.questionnaireName }}</span>
+                <span class="status-chip-badge" [ngClass]="statusClass(a.fillStatus)">
+                  {{ a.fillStatus }}
+                </span>
+                @if (a.department) {
+                  <span class="dept-tag">{{ a.department }}</span>
+                }
+              </div>
+
+              <div class="pqt-card-meta">
+                <span class="meta-item">
+                  <mat-icon>person</mat-icon>
+                  Assigned by {{ a.assignedByName }}
+                </span>
+                <span class="meta-bullet">·</span>
+                <span class="meta-item">
+                  <mat-icon>calendar_today</mat-icon>
+                  {{ a.assignedAt | date: 'dd MMM yyyy' }}
+                </span>
+                @if (a.fillStatus === 'Submitted' && a.submittedAt) {
+                  <span class="meta-bullet">·</span>
+                  <span class="meta-item meta-submitted">
+                    <mat-icon>check_circle</mat-icon>
+                    Submitted {{ a.submittedAt | date: 'dd MMM yyyy' }}
+                  </span>
+                }
+              </div>
+
+              @if (a.assignmentNotes) {
+                <div class="pqt-notes-bubble">
+                  <mat-icon>notes</mat-icon>
+                  {{ a.assignmentNotes }}
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Right: Actions -->
+          <div class="pqt-card-actions">
+
+            <button
+              class="btn-action btn-action--preview"
+              (click)="previewQuestions(a)"
+              matTooltip="Preview questionnaire questions"
+            >
+              <mat-icon>preview</mat-icon>
+              Questions
+            </button>
+
+            <!-- ── Submitted actions ── -->
+            @if (a.fillStatus === 'Submitted') {
+              <button
+                class="btn-action btn-action--view"
+                (click)="viewSubmission(a)"
+                matTooltip="View patient's submitted responses"
+              >
+                <mat-icon>visibility</mat-icon>
+                Responses
+              </button>
+            }
+
+            <!-- ── Draft / Pending indicators ── -->
+            @if (a.fillStatus === 'Draft') {
+              <span class="draft-indicator">
+                <mat-icon>edit_note</mat-icon>
+                In progress
+              </span>
+            }
+
+            @if (a.fillStatus === 'Pending') {
+              <span class="pending-indicator">
+                <mat-icon>hourglass_empty</mat-icon>
+                Awaiting patient
+              </span>
+            }
+
+            <!-- ── Remove (only if not submitted) ── -->
+            @if (a.fillStatus !== 'Submitted') {
+              <button
+                class="btn-action btn-action--remove"
+                (click)="openRemoveModal(a)"
+                [disabled]="removingId() === a.assignmentId"
+                matTooltip="Remove assignment"
+              >
+                @if (removingId() === a.assignmentId) {
+                  <mat-spinner diameter="14"></mat-spinner>
+                } @else {
+                  <mat-icon>delete</mat-icon>
+                }
+              </button>
+            }
+
+          </div>
+
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

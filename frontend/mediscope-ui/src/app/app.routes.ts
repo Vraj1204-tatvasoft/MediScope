@@ -39,6 +39,8 @@ import { AdmissionsComponent } from './admin/admissions/admissions.component';
 import { HospitalDashboardComponent } from './admin/hospital-dashboard/hospital-dashboard.component';
 import { AdminQuestionnaireComponent } from './admin/admin-questionnaire/admin-questionnaire.component';
 import { AdminQuestionsComponent } from './admin/admin-questions/admin-questions.component';
+import { PatientQuestionnaireListComponent } from './patient/patient-questionnaire-list/patient-questionnaire-list.component';
+import { QuestionnaireRendererComponent } from './patient/questionnaire-renderer/questionnaire-renderer.component';
 
 
 export const routes: Routes = [
@@ -105,6 +107,14 @@ export const routes: Routes = [
       {
         path: 'patient-notifications',
         component: PatientNotificationComponent
+      },
+      {
+        path: 'patient-questionnaire-list',
+        component: PatientQuestionnaireListComponent
+      },
+      {
+        path: 'questionnaire-renderer/:assignmentId',
+        component: QuestionnaireRendererComponent
       },
       {
         path: 'profile',

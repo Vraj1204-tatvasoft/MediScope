@@ -1,0 +1,105 @@
+<div class="aqm-wrap">
+
+    <!-- Header -->
+    <div class="aqm-header">
+      <div class="aqm-header-top">
+        <button class="aqm-close" (click)="cancel()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h2 class="aqm-title">Assign Questionnaire</h2>
+          <p class="aqm-subtitle">{{ data.patientName }}</p>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Card -->
+    <div class="aqm-card">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate autocomplete="off">
+  
+        <!-- Questionnaire Select -->
+        <div class="form-field">
+          <label class="form-label">
+            Select Questionnaire <span class="req">*</span>
+          </label>
+        
+          @if (loadingList()) {
+            <div class="loading-row">
+              <mat-spinner diameter="16"></mat-spinner>
+              <span>Loading active questionnaires...</span>
+            </div>
+          } @else {
+            <!-- Wrap select and button in a flex container -->
+            <div class="select-with-preview">
+              <select
+                class="form-input form-select"
+                [class.form-input--error]="hasError('questionnaireId', 'required')"
+                formControlName="questionnaireId"
+              >
+                <option value="">— Select a questionnaire —</option>
+                @for (q of questionnaires(); track q.id) {
+                  <option [value]="q.id">
+                    {{ q.name }}{{ q.department ? ' (' + q.department + ')' : '' }}
+                  </option>
+                }
+              </select>
+        
+              <!-- New Preview Button -->
+              <button 
+                type="button" 
+                class="btn-preview-inline" 
+                (click)="previewSelected()"
+                [disabled]="!form.get('questionnaireId')?.value"
+                matTooltip="Preview selected questionnaire">
+                <mat-icon>preview</mat-icon>
+              </button>
+            </div>
+          }
+        
+          @if (hasError('questionnaireId', 'required')) {
+            <span class="form-error">Please select a questionnaire.</span>
+          }
+          @if (!loadingList() && questionnaires().length === 0) {
+            <span class="form-hint">No active questionnaires found. Create one in the Admin panel first.</span>
+          }
+        </div>
+  
+        <!-- Notes -->
+        <div class="form-field">
+          <label class="form-label">
+            Notes for Patient <span class="optional">(Optional)</span>
+          </label>
+          <textarea
+            class="form-input form-textarea"
+            formControlName="notes"
+            placeholder="e.g. Please complete this before your next appointment."
+            rows="3"
+          ></textarea>
+        </div>
+  
+        <!-- Error -->
+        @if (errorMsg()) {
+          <div class="form-error-box">
+            <mat-icon>error_outline</mat-icon>
+            {{ errorMsg() }}
+          </div>
+        }
+  
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" [disabled]="saving() || loadingList()">
+            @if (saving()) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              <mat-icon>assignment_turned_in</mat-icon>
+            }
+            Assign Questionnaire
+          </button>
+          <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+        </div>
+  
+      </form>
+    </div>
+  
+  </div>
+  

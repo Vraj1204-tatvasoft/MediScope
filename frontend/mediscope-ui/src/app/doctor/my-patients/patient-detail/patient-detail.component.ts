@@ -18,6 +18,9 @@ import { AddHealthDataComponent } from '../../../patient/add-health-data/add-hea
 import { TrendChartsComponent } from './trend-charts/trend-charts.component';
 import { PatientDocumentsTabComponent } from './patient-documents-tab/patient-documents-tab.component';
 
+// ── NEW: Questionnaire Tab ────────────────────────────────────────────────────
+import { PatientQuestionnaireTabComponent } from './patient-questionnaire-tab/patient-questionnaire-tab.component';
+
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
@@ -32,89 +35,74 @@ import { PatientDocumentsTabComponent } from './patient-documents-tab/patient-do
     HealthHistoryComponent,
     AddHealthDataComponent,
     TrendChartsComponent,
-    PatientDocumentsTabComponent
+    PatientDocumentsTabComponent,
+    PatientQuestionnaireTabComponent,   // ← NEW
   ],
   templateUrl: './patient-detail.component.html',
   styleUrls: ['./patient-detail.component.css']
 })
 export class PatientDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
+  private route     = inject(ActivatedRoute);
   private dpService = inject(DoctorPatientService);
-  private notify = inject(NotificationService);
+  private notify    = inject(NotificationService);
+
   @ViewChild(HealthHistoryComponent) historyTab!: HealthHistoryComponent;
-  // STATE DEFINITIONS
-  patientId = '';
-  isLoading = signal<boolean>(true);
-  patientProfile = signal<DoctorPatientResponseDto | null>(null);
+
+  patientId        = '';
+  isLoading        = signal<boolean>(true);
+  patientProfile   = signal<DoctorPatientResponseDto | null>(null);
   selectedTabIndex = 0;
-  // ── ADDED: DYNAMIC AGE COMPUTED SIGNAL ──────────────────────────────
+
+  private readonly TAB = {
+    healthHistory:   0,
+    addData:         1,
+    trendCharts:     2,
+    documents:       3,
+    questionnaires:  4,  
+  };
+
   patientAge = computed<string>(() => {
     const profile = this.patientProfile();
-    // Adjust 'dateOfBirth' if your DTO uses a different property name like 'dob'
-    if (!profile || !profile.dateOfBirth) {
-      return '—';
-    }
-
+    if (!profile || !profile.dateOfBirth) return '—';
     const birthDate = new Date(profile.dateOfBirth);
-    const today = new Date();
-    
+    const today     = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-    
-    // Adjust age if the patient's birthday hasn't occurred yet this current year
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
     return age >= 0 ? `${age} yrs` : '—';
   });
-  // ─────────────────────────────────────
-  // INITIALIZATION ENGINE
-  // ─────────────────────────────────────
+
   ngOnInit(): void {
     this.patientId = this.route.snapshot.paramMap.get('id') || '';
-    if (this.patientId) {
-      this.loadPatientDeepContext();
-    }
+    if (this.patientId) this.loadPatientDeepContext();
 
     this.route.queryParams.subscribe(params => {
-      if (params['tab'] === 'documents') {
-        this.selectedTabIndex = 3; 
-      } else if (params['tab'] === 'charts') {
-        this.selectedTabIndex = 2;
-      } else if (params['tab'] === 'add-data') {
-        this.selectedTabIndex = 1; 
-      }
+      const tab = params['tab'];
+      if (tab === 'documents')       this.selectedTabIndex = this.TAB.documents;
+      else if (tab === 'charts')     this.selectedTabIndex = this.TAB.trendCharts;
+      else if (tab === 'add-data')   this.selectedTabIndex = this.TAB.addData;
+      else if (tab === 'questionnaires') this.selectedTabIndex = this.TAB.questionnaires; 
     });
   }
 
-  // ─────────────────────────────────────
-  // DATA MANAGEMENT METHODS
-  // ─────────────────────────────────────
   onHealthRecordSaved(): void {
-    this.selectedTabIndex = 0;
-    if (this.historyTab) {
-      this.historyTab.ngOnInit(); 
-    }
+    this.selectedTabIndex = this.TAB.healthHistory;
+    if (this.historyTab) this.historyTab.ngOnInit();
   }
+
   loadPatientDeepContext(): void {
     this.isLoading.set(true);
-
     this.dpService.getMyPatients().subscribe({
       next: (list) => {
         const profile = list.find(p => p.patientId === this.patientId);
-
         if (profile) {
           this.patientProfile.set(profile);
-          this.isLoading.set(false); 
         } else {
-          this.isLoading.set(false);
           this.notify.error('Requested patient profile was not found within your directory permissions.');
         }
-      },
-      error: () => {
         this.isLoading.set(false);
-      }
+      },
+      error: () => this.isLoading.set(false),
     });
   }
 

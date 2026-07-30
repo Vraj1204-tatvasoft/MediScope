@@ -62,11 +62,11 @@ export interface QuestionItem {
   displayOrder: number;
   defaultValue: string | null;
   options: QuestionOption[];
-  minValue?: number | null;
-  maxValue?: number | null;
-  minLength?: number | null;
-  maxLength?: number | null;
-  regexPattern?: string | null;
+  minValue: number | null;
+  maxValue: number | null;
+  minLength: number | null;
+  maxLength: number | null;
+  regexPattern: string | null;
 }
 
 export interface QuestionOption {
@@ -164,6 +164,7 @@ export interface SubmissionDetail {
   submittedAt: string;
   submittedByName: string;
   notes: string | null;
+  status: string;
   responses: SubmissionResponseItem[];
 }
 
@@ -175,3 +176,98 @@ export interface SubmissionResponseItem {
   responseValue: string | null;
   responseValues: string[] | null;
 }
+
+export interface PatientAssignmentFilterDto {
+    pageNumber: number;
+    pageSize: number;
+    status?: string;
+    assignedBy?: string;
+  }
+  
+  export interface AssignQuestionnaireRequest {
+    questionnaireId: string;
+    patientId: string;
+    notes: string | null;
+  }
+  
+  export interface PatientAssignmentResponseDto {
+    assignmentId: string;
+    questionnaireId: string;
+    questionnaireName: string;
+    department: string | null;
+    assignedByName: string;
+    assignmentNotes: string | null;
+    assignedAt: string;
+    fillStatus: 'Pending' | 'Draft' | 'Submitted';
+    submissionId: string | null;
+    submittedAt: string | null;
+    pdfPath: string | null;
+  }
+export interface RenderOptionDto {
+  id: string;
+  label: string;
+  value: string;
+  displayOrder: number;
+}
+
+export interface RenderQuestionDto {
+  id: string;
+  label: string;
+  fieldType: string; 
+  placeholder?: string;
+  isRequired: boolean;
+  displayOrder: number;
+  options: RenderOptionDto[];
+  
+  minValue?: number;
+  maxValue?: number;
+  minLength?: number;
+  maxLength?: number;
+  regexPattern?: string;
+  
+  draftValue?: string;
+  draftValues?: string[]; 
+}
+
+export interface QuestionnaireRenderDto {
+  assignmentId: string;
+  questionnaireName: string;
+  department?: string;
+  status: string; 
+  questions: RenderQuestionDto[];
+}
+
+export interface RenderOptionDto {
+  id: string;
+  label: string;
+  value: string;
+  displayOrder: number;
+}
+
+export interface RenderQuestionDto {
+  id: string;
+  label: string;
+  fieldType: string; 
+  placeholder?: string;
+  isRequired: boolean;
+  displayOrder: number;
+  options: RenderOptionDto[];
+  minValue?: number;
+  maxValue?: number;
+  minLength?: number;
+  maxLength?: number;
+  regexPattern?: string;
+  
+  draftValue?: string;
+  draftValues?: string[]; 
+}
+
+export interface QuestionnaireRenderDto {
+  assignmentId: string;
+  questionnaireName: string;
+  department?: string;
+  status: string;
+  questions: RenderQuestionDto[];
+}
+
+export type RendererMode = 'fill' | 'preview';

@@ -56,6 +56,7 @@ export const NAV_CONFIG: Record<UserRole, NavConfig> = {
       { label: 'Notifications', route: '/patient/patient-notifications',icon: ICONS.alerts    },
       { label: 'Appointments', route: '/patient/appointments', icon: ICONS.metrics},
       {label:'Invoices', route:'/patient/invoices', icon: ICONS.analytics},
+      {label:'Questionnaire', route:'/patient/patient-questionnaire-list', icon: ICONS.metrics},
       { label: 'Profile',       route: '/patient/profile',      icon: ICONS.profile   },
     ],
   },

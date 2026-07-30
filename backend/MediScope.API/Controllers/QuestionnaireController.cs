@@ -19,6 +19,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateQuestionnaire([FromBody] CreateQuestionnaireRequestDto request)
         {
             var id = await _service.CreateQuestionnaireAsync(request, CurrentUserId);
@@ -26,6 +27,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateQuestionnaire(Guid id, [FromBody] UpdateQuestionnaireRequestDto request)
         {
             await _service.UpdateQuestionnaireAsync(id, request, CurrentUserId);
@@ -33,6 +35,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteQuestionnaire(Guid id)
         {
             await _service.DeleteQuestionnaireAsync(id, CurrentUserId);
@@ -40,6 +43,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpPatch("{id:guid}/status")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> ToggleStatus(Guid id)
         {
             await _service.ToggleQuestionnaireStatusAsync(id, CurrentUserId);
@@ -47,6 +51,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpGet]
+        [Authorize(Policy = "DoctorOrAdmin")]
         public async Task<IActionResult> GetQuestionnaires([FromQuery] QuestionnaireListFilterDto filter)
         {
             var result = await _service.GetQuestionnairesPagedAsync(filter);
@@ -54,6 +59,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpGet("{questionnaireId:guid}/questions")]
+        [Authorize(Policy = "PatientOrDoctorOrAdmin")]
         public async Task<IActionResult> GetQuestionsByQuestionnaire(Guid questionnaireId)
         {
             var result = await _service.GetQuestionsByQuestionnaireAsync(questionnaireId);
@@ -61,6 +67,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpGet("{id:guid}")]
+        [Authorize(Policy = "PatientOrAdmin")]
         public async Task<IActionResult> GetQuestionnaireById(Guid id)
         {
             var result = await _service.GetQuestionnaireByIdAsync(id);
@@ -68,6 +75,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpGet("active")]
+        [Authorize(Policy = "DoctorOrAdmin")]
         public async Task<IActionResult> GetActiveQuestionnaires()
         {
             var result = await _service.GetActiveQuestionnairesAsync();
@@ -75,6 +83,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpPost("{questionnaireId:guid}/questions")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> AddQuestion(Guid questionnaireId, [FromBody] CreateQuestionRequestDto request)
         {
             var id = await _service.AddQuestionAsync(questionnaireId, request, CurrentUserId);
@@ -82,6 +91,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpPut("questions/{questionId:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateQuestion(Guid questionId, [FromBody] UpdateQuestionRequestDto request)
         {
             await _service.UpdateQuestionAsync(questionId, request, CurrentUserId);
@@ -89,6 +99,7 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpDelete("questions/{questionId:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteQuestion(Guid questionId)
         {
             await _service.DeleteQuestionAsync(questionId, CurrentUserId);
@@ -96,42 +107,11 @@ namespace MediScope.API.Controllers.Features
         }
 
         [HttpPatch("{questionnaireId:guid}/questions/reorder")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> ReorderQuestions(Guid questionnaireId, [FromBody] ReorderQuestionsRequestDto request)
         {
             await _service.ReorderQuestionsAsync(questionnaireId, request, CurrentUserId);
             return NoContent("Questions reordered successfully.");
         }
-
-        // =====================================================================
-        // PHASE 3 — SUBMISSION
-        // =====================================================================
-
-        // [HttpGet("{questionnaireId:guid}/render")]
-        // public async Task<IActionResult> GetQuestionnaireRender(Guid questionnaireId)
-        // {
-        //     var result = await _service.GetQuestionnaireRenderAsync(questionnaireId);
-        //     return Success(result);
-        // }
-
-        // [HttpPost("submit/{patientId:guid}")]
-        // public async Task<IActionResult> SubmitQuestionnaire(Guid patientId, [FromBody] SubmitQuestionnaireRequestDto request)
-        // {
-        //     var submissionId = await _service.SubmitQuestionnaireAsync(patientId, request, CurrentUserId);
-        //     return Created(new { SubmissionId = submissionId }, "Questionnaire submitted successfully.");
-        // }
-
-        // [HttpGet("submissions/patient/{patientId:guid}")]
-        // public async Task<IActionResult> GetPatientSubmissions(Guid patientId, [FromQuery] PatientSubmissionListFilterDto filter)
-        // {
-        //     var result = await _service.GetPatientSubmissionHistoryAsync(patientId, filter);
-        //     return Success(result);
-        // }
-
-        // [HttpGet("submissions/{submissionId:guid}")]
-        // public async Task<IActionResult> GetSubmissionDetail(Guid submissionId)
-        // {
-        //     var result = await _service.GetSubmissionDetailAsync(submissionId);
-        //     return Success(result);
-        // }
     }
 }

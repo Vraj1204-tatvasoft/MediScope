@@ -1,0 +1,116 @@
+<div class="sdm-wrap">
+
+    <!-- Header -->
+    <div class="sdm-header">
+      <div class="sdm-header-left">
+        <mat-icon class="sdm-header-icon">assignment_turned_in</mat-icon>
+        <div>
+          <h2 class="sdm-title">
+            {{ submission()?.questionnaireName ?? 'Submission Detail' }}
+          </h2>
+          @if (submission()?.department) {
+            <p class="sdm-subtitle">{{ submission()!.department }}</p>
+          }
+        </div>
+      </div>
+      <button class="sdm-close" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <div class="sdm-divider"></div>
+  
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="sdm-loading">
+        <mat-spinner diameter="32"></mat-spinner>
+        <p>Loading submission...</p>
+      </div>
+    }
+  
+    <!-- Error -->
+    @if (!loading() && errorMsg()) {
+      <div class="sdm-error">
+        <mat-icon>error_outline</mat-icon>
+        {{ errorMsg() }}
+      </div>
+    }
+  
+    <!-- Content -->
+    @if (!loading() && submission()) {
+      <div class="sdm-body">
+  
+        <!-- Submission Meta -->
+        <div class="sdm-meta-grid">
+          <div class="sdm-meta-item">
+            <span class="sdm-meta-label">Submitted By</span>
+            <span class="sdm-meta-value">{{ submission()!.submittedByName }}</span>
+          </div>
+          <div class="sdm-meta-item">
+            <span class="sdm-meta-label">Submitted At</span>
+            <span class="sdm-meta-value">
+              {{ submission()!.submittedAt | date: 'dd MMM yyyy, HH:mm' }}
+            </span>
+          </div>
+          <div class="sdm-meta-item">
+            <span class="sdm-meta-label">Status</span>
+            <span class="status-chip-badge status-submitted">{{ submission()!.status }}</span>
+          </div>
+          @if (submission()!.notes) {
+            <div class="sdm-meta-item sdm-meta-full">
+              <span class="sdm-meta-label">Notes</span>
+              <span class="sdm-meta-value sdm-notes-text">{{ submission()!.notes }}</span>
+            </div>
+          }
+        </div>
+  
+        <div class="sdm-section-label">
+          Responses
+          <span class="sdm-count">{{ submission()!.responses.length }} questions</span>
+        </div>
+  
+        <!-- Q&A List -->
+        <div class="sdm-qa-list">
+          @for (r of submission()!.responses; track r.questionId; let i = $index) {
+            <div class="sdm-qa-card">
+  
+              <!-- Question -->
+              <div class="sdm-question-row">
+                <span class="sdm-q-num">{{ i + 1 }}</span>
+                <span class="sdm-q-label">{{ r.label }}</span>
+                <span class="sdm-field-type-tag">{{ fieldTypeLabel(r.fieldType) }}</span>
+              </div>
+  
+              <!-- Answer -->
+              <div class="sdm-answer-row">
+                @if (isCheckbox(r.fieldType) && r.responseValues?.length) {
+                  <div class="sdm-checkbox-answers">
+                    @for (val of r.responseValues!; track val) {
+                      <span class="sdm-checkbox-chip">
+                        <mat-icon>check</mat-icon>
+                        {{ val }}
+                      </span>
+                    }
+                  </div>
+                } @else {
+                  <span [class.sdm-answer-empty]="!r.responseValue">
+                    {{ r.responseValue || '— No answer provided —' }}
+                  </span>
+                }
+              </div>
+  
+            </div>
+          }
+        </div>
+  
+      </div>
+    }
+  
+    @if (!loading()) {
+      <div class="sdm-footer">
+        <button class="btn-close" (click)="close()">Close</button>
+      </div>
+    }
+  
+  </div>
+  

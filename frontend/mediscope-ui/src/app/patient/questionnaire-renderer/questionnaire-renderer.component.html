@@ -1,0 +1,347 @@
+<div class="page-container" [class.preview-mode]="isPreview">
+
+    <!-- ── Loading ─────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>{{ isPreview ? 'Loading questions...' : 'Loading questionnaire...' }}</p>
+      </div>
+    }
+  
+    <!-- ── Main Card ────────────────────────────────────────────────────── -->
+    @if (!loading() && questions().length > 0) {
+      <mat-card class="form-card">
+  
+        <!-- Header -->
+        <mat-card-header class="renderer-header">
+  
+          <button mat-icon-button (click)="goBack()" type="button" class="back-btn">
+            <mat-icon>{{ isPreview ? 'close' : 'arrow_back' }}</mat-icon>
+          </button>
+  
+          <div class="header-titles">
+            <mat-card-title>
+              {{ isPreview ? (questionnaireName || 'Questionnaire Preview') : 'Complete Questionnaire' }}
+            </mat-card-title>
+            @if (isPreview) {
+              <mat-card-subtitle>Preview only — questions are not editable</mat-card-subtitle>
+            }
+          </div>
+  
+          <!-- Status badge — only shown in fill mode -->
+          @if (!isPreview) {
+            <span class="status-badge" [ngClass]="formStatus().toLowerCase()">
+              {{ formStatus() }}
+            </span>
+          }
+  
+          <!-- Preview badge -->
+          @if (isPreview) {
+            <span class="status-badge preview">
+              <mat-icon style="font-size:14px;width:14px;height:14px;margin-right:4px">preview</mat-icon>
+              Preview
+            </span>
+          }
+  
+        </mat-card-header>
+  
+        <!-- Form Body -->
+        <mat-card-content class="form-content">
+  
+          <!-- Preview mode banner -->
+          @if (isPreview) {
+            <div class="preview-alert">
+              <mat-icon>info_outline</mat-icon>
+              This is a preview of the questionnaire structure. Fields are display-only and cannot be filled.
+            </div>
+          }
+  
+          <!-- Submitted read-only banner (fill mode) -->
+          @if (!isPreview && isReadOnly()) {
+            <div class="readonly-alert">
+              <mat-icon>lock</mat-icon>
+              This questionnaire has been submitted and is locked for editing.
+            </div>
+          }
+  
+          <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div class="questions-list">
+  
+              @for (q of questions(); track q.id) {
+                <div class="question-item">
+  
+                  <div class="question-label">
+                    {{ q.displayOrder }}. {{ q.label }}
+                    @if (q.isRequired && !isPreview) {
+                      <span class="required-asterisk">*</span>
+                    }
+                    @if (q.isRequired && isPreview) {
+                      <span class="required-preview-tag">Required</span>
+                    }
+                  </div>
+  
+                  @switch (q.fieldType) {
+  
+                    <!-- Text Box -->
+                    @case ('TextBox') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <input
+                            matInput
+                            [formControlName]="q.id"
+                            [placeholder]="q.placeholder || (isPreview ? 'Text input' : '')"
+                            [minlength]="q.minLength ?? null"
+                            [maxlength]="q.maxLength ?? null"
+                          />
+                          
+                        </mat-form-field>
+                        @if (!isPreview) {
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('required') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                              ">
+                              This field is required
+                            </mat-error>
+                            
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('minlength') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                              ">
+                              Minimum length is {{ q.minLength }} characters
+                            </mat-error>
+                            
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('maxlength') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                              ">
+                              Maximum length is {{ q.maxLength }} characters
+                            </mat-error>
+                          }
+                      }
+
+                      <!-- Text Area -->
+                      @case ('TextArea') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <textarea
+                            matInput
+                            [formControlName]="q.id"
+                            [placeholder]="q.placeholder || (isPreview ? 'Multi-line text input' : '')"
+                            rows="4"
+                            [minlength]="q.minLength ?? null"
+                            [maxlength]="q.maxLength ?? null"
+                          ></textarea>
+                          
+                        </mat-form-field>
+                        @if (!isPreview) {
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('required') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                              ">
+                              This field is required
+                            </mat-error>
+
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('minlength') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                              ">
+                              Minimum length is {{ q.minLength }} characters
+                            </mat-error>
+
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('maxlength') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                              ">
+                              Maximum length is {{ q.maxLength }} characters
+                            </mat-error>
+                          }
+                      }
+  
+                    <!-- Number -->
+                    @case ('Number') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <input
+                            matInput
+                            type="number"
+                            [formControlName]="q.id"
+                            [placeholder]="q.placeholder || (isPreview ? 'Numeric input' : '')"
+                            [min]="q.minValue ?? null"
+                            [max]="q.maxValue ?? null"
+                          />
+                          
+                        </mat-form-field>
+                        @if (!isPreview) {
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('required') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                            ">
+                              This field is required
+                            </mat-error>
+
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('min') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                            ">
+                              Minimum value is {{ q.minValue }}
+                            </mat-error>
+
+                            <mat-error
+                              *ngIf="
+                                form.get(q.id)?.hasError('max') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
+                            ">
+                              Maximum value is {{ q.maxValue }}
+                            </mat-error>
+                          }
+                    }
+  
+                    <!-- Date -->
+                    @case ('Date') {
+                      <mat-form-field appearance="outline" class="full-width">
+                        <input
+                          matInput
+                          [matDatepicker]="picker"
+                          [formControlName]="q.id"
+                          placeholder="Choose a date"
+                        />
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                        @if (!isPreview) {
+                          <mat-error *ngIf="form.get(q.id)?.hasError('required')">
+                            This field is required
+                          </mat-error>
+                        }
+                      </mat-form-field>
+                    }
+  
+                    <!-- Dropdown -->
+                    @case ('Dropdown') {
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-select
+                          [formControlName]="q.id"
+                          placeholder="Select an option"
+                        >
+                          @for (opt of q.options; track opt.id) {
+                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                          }
+                        </mat-select>
+                        @if (!isPreview) {
+                          <mat-error *ngIf="form.get(q.id)?.hasError('required')">
+                            Selection is required
+                          </mat-error>
+                        }
+                      </mat-form-field>
+  
+                      <!-- Preview: show option chips below the field -->
+                      @if (isPreview) {
+                        <div class="preview-options-row">
+                          @for (opt of q.options; track opt.id) {
+                            <span class="preview-option-chip">{{ opt.label }}</span>
+                          }
+                        </div>
+                      }
+                    }
+  
+                    <!-- Radio Button -->
+                    @case ('RadioButton') {
+                      <mat-radio-group [formControlName]="q.id" class="radio-group-vertical">
+                        @for (opt of q.options; track opt.id) {
+                          <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
+                        }
+                      </mat-radio-group>
+                      @if (!isPreview) {
+                        <mat-error
+                          *ngIf="form.get(q.id)?.hasError('required') && form.get(q.id)?.touched"
+                          class="custom-error"
+                        >
+                          Selection is required
+                        </mat-error>
+                      }
+                    }
+  
+                    <!-- Checkbox -->
+                    @case ('Checkbox') {
+                      <div [formArrayName]="q.id" class="checkbox-group-vertical">
+                        @for (opt of q.options; track opt.id; let i = $index) {
+                          <mat-checkbox [formControlName]="i">{{ opt.label }}</mat-checkbox>
+                        }
+                      </div>
+                      @if (!isPreview) {
+                        <mat-error
+                          *ngIf="form.get(q.id)?.hasError('required') && form.get(q.id)?.touched"
+                          class="custom-error"
+                        >
+                          At least one selection is required
+                        </mat-error>
+                      }
+                    }
+  
+                  }
+                </div>
+              }
+            </div>
+  
+            <!-- Actions — fill mode only, and only when not read-only -->
+            @if (!isPreview && !isReadOnly()) {
+              <div class="form-actions">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="saveDraft()"
+                  [disabled]="savingDraft() || submitting()"
+                >
+                  @if (savingDraft()) {
+                    <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                  }
+                  Save Draft
+                </button>
+  
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="submitting() || savingDraft()"
+                >
+                  @if (submitting()) {
+                    <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+                  } @else {
+                    <mat-icon>send</mat-icon>
+                  }
+                  Submit Questionnaire
+                </button>
+              </div>
+            }
+  
+            <!-- Preview mode close button -->
+            @if (isPreview) {
+              <div class="form-actions">
+                <button mat-stroked-button type="button" (click)="goBack()">
+                  <mat-icon>close</mat-icon>
+                  Close Preview
+                </button>
+              </div>
+            }
+  
+          </form>
+  
+        </mat-card-content>
+      </mat-card>
+    }
+  
+    <!-- Empty state -->
+    @if (!loading() && questions().length === 0) {
+      <div class="loading-state">
+        <mat-icon style="font-size:40px;color:#cbd5e1">quiz</mat-icon>
+        <p>No questions found for this questionnaire.</p>
+      </div>
+    }
+  
+  </div>

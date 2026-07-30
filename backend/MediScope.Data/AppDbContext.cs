@@ -42,6 +42,7 @@ namespace MediScope.Data
         public DbSet<QuestionOption> QuestionOptions { get; set; }
         public DbSet<QuestionnaireSubmission> QuestionnaireSubmissions { get; set; }
         public DbSet<SubmissionResponse> SubmissionResponses { get; set; }
+        public DbSet<QuestionnaireAssignment> QuestionnaireAssignments { get; set; }
         private static string ToSnakeCase(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
@@ -1168,12 +1169,29 @@ namespace MediScope.Data
                     .HasColumnName("patient_id")
                     .IsRequired();
 
+                entity.Property(s => s.AssignmentId)
+                    .HasColumnName("assignment_id");
+
                 entity.Property(s => s.SubmittedBy)
                     .HasColumnName("submitted_by")
                     .IsRequired();
 
+                entity.Property(s => s.Status)
+                    .HasColumnName("status")
+                    .HasMaxLength(20)
+                    .HasDefaultValue("Draft")
+                    .IsRequired();
+
                 entity.Property(s => s.Notes)
                     .HasColumnName("notes")
+                    .HasColumnType("text");
+
+                entity.Property(s => s.SubmittedAt)
+                    .HasColumnName("submitted_at")
+                    .HasColumnType("timestamptz");
+
+                entity.Property(s => s.PdfPath)
+                    .HasColumnName("pdf_path")
                     .HasColumnType("text");
 
                 entity.HasIndex(s => s.PatientId)
@@ -1182,15 +1200,28 @@ namespace MediScope.Data
                 entity.HasIndex(s => s.QuestionnaireId)
                     .HasDatabaseName("idx_qs_questionnaire_id");
 
+                entity.HasIndex(s => s.AssignmentId)
+                    .HasDatabaseName("idx_qs_assignment_id");
+
                 entity.HasOne(s => s.Questionnaire)
                     .WithMany(q => q.Submissions)
                     .HasForeignKey(s => s.QuestionnaireId)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(s => s.Patient)
-                    .WithMany(p => p.QuestionnaireSubmissions)
+                    .WithMany()
                     .HasForeignKey(s => s.PatientId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Assignment)
+                    .WithMany(a => a.Submissions)
+                    .HasForeignKey(s => s.AssignmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(s => s.Responses)
+                    .WithOne(r => r.Submission)
+                    .HasForeignKey(r => r.SubmissionId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<SubmissionResponse>(entity =>
@@ -1230,6 +1261,50 @@ namespace MediScope.Data
                 entity.HasOne(r => r.Question)
                     .WithMany(q => q.Responses)
                     .HasForeignKey(r => r.QuestionId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            modelBuilder.Entity<QuestionnaireAssignment>(entity =>
+            {
+                entity.ToTable("questionnaire_assignments");
+
+                entity.Property(a => a.QuestionnaireId)
+                    .HasColumnName("questionnaire_id")
+                    .IsRequired();
+
+                entity.Property(a => a.PatientId)
+                    .HasColumnName("patient_id")
+                    .IsRequired();
+
+                entity.Property(a => a.AssignedBy)
+                    .HasColumnName("assigned_by")
+                    .IsRequired();
+
+                entity.Property(a => a.Notes)
+                    .HasColumnName("notes")
+                    .HasColumnType("text");
+
+                entity.HasIndex(a => a.PatientId)
+                    .HasDatabaseName("idx_qa_patient_id");
+
+                entity.HasIndex(a => a.QuestionnaireId)
+                    .HasDatabaseName("idx_qa_questionnaire_id");
+
+                entity.HasIndex(a => a.AssignedBy)
+                    .HasDatabaseName("idx_qa_assigned_by");
+
+                entity.HasOne(a => a.Questionnaire)
+                    .WithMany()
+                    .HasForeignKey(a => a.QuestionnaireId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.Patient)
+                    .WithMany()
+                    .HasForeignKey(a => a.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(a => a.Submissions)
+                    .WithOne(s => s.Assignment)
+                    .HasForeignKey(s => s.AssignmentId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

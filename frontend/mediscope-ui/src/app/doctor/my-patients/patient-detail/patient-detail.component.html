@@ -45,48 +45,71 @@
     <mat-card class="clinical-tabs-container-card">
       <mat-card-content class="no-padding">
         
-        <mat-tab-group animationDuration="150ms" class="scope-custom-tab-group" [(selectedIndex)]="selectedTabIndex">
+        <mat-tab-group
+          animationDuration="150ms"
+          class="scope-custom-tab-group"
+          [(selectedIndex)]="selectedTabIndex"
+        >
           
+          <!-- Tab 0: Health History -->
           <mat-tab>
-            <ng-template mat-tab-label><mat-icon>assignment</mat-icon> Health History</ng-template>
+            <ng-template mat-tab-label>
+              <mat-icon>assignment</mat-icon> Health History
+            </ng-template>
             <div class="tab-inner-padding-viewport">
-              
               <app-health-history [patientId]="patientId"></app-health-history>
-
             </div>
           </mat-tab>
 
+          <!-- Tab 1: Add Data -->
           <mat-tab>
-            <ng-template mat-tab-label><mat-icon>add_circle_outline</mat-icon> Add Data</ng-template>
+            <ng-template mat-tab-label>
+              <mat-icon>add_circle_outline</mat-icon> Add Data
+            </ng-template>
             <div class="tab-inner-padding-viewport">
-              
               <app-add-health-data 
                 [explicitPatientId]="patientId" 
                 [explicitPatientName]="patientProfile()?.fullName"
-                (saveSuccess)="onHealthRecordSaved()"> </app-add-health-data>
-          
+                (saveSuccess)="onHealthRecordSaved()">
+              </app-add-health-data>
             </div>
           </mat-tab>
 
+          <!-- Tab 2: Trend Charts -->
           <mat-tab>
-            <ng-template mat-tab-label><mat-icon>show_chart</mat-icon> Trend Charts</ng-template>
+            <ng-template mat-tab-label>
+              <mat-icon>show_chart</mat-icon> Trend Charts
+            </ng-template>
             <div class="tab-inner-padding-viewport">
-              
               <app-trend-charts [patientId]="patientId"></app-trend-charts>
-          
             </div>
           </mat-tab>
+
+          <!-- Tab 3: Documents -->
           <mat-tab>
-            <ng-template mat-tab-label><mat-icon>folder_shared</mat-icon> Documents</ng-template>
+            <ng-template mat-tab-label>
+              <mat-icon>folder_shared</mat-icon> Documents
+            </ng-template>
             <div class="tab-inner-padding-viewport">
-              
               <app-patient-documents-tab 
                 [patientId]="patientId"
                 [patientName]="patientProfile()?.fullName || ''">
               </app-patient-documents-tab>
-          
             </div>
           </mat-tab>
+
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon>quiz</mat-icon> Questionnaires
+            </ng-template>
+            <div class="tab-inner-padding-viewport">
+              <app-patient-questionnaire-tab
+                [patientId]="patientId"
+                [patientName]="patientProfile()?.fullName || ''">
+              </app-patient-questionnaire-tab>
+            </div>
+          </mat-tab>
+
         </mat-tab-group>
       </mat-card-content>
     </mat-card>

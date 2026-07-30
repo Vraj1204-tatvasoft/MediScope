@@ -3,13 +3,14 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
 import { PagedResponse } from '../models/paged-response.model';
-import { QuestionnaireListFilter, QuestionnaireListItem, QuestionnaireDetail, ActiveQuestionnaire, CreateQuestionnaireRequest, UpdateQuestionnaireRequest, QuestionItem, CreateQuestionRequest, UpdateQuestionRequest, ReorderQuestionsRequest, QuestionnaireRender, SubmitQuestionnaireRequest, SubmissionHistoryItem, SubmissionDetail } from '../models/questionnaire.model';
+import { QuestionnaireListFilter, QuestionnaireListItem, QuestionnaireDetail, ActiveQuestionnaire, CreateQuestionnaireRequest, UpdateQuestionnaireRequest, QuestionItem, CreateQuestionRequest, UpdateQuestionRequest, ReorderQuestionsRequest, QuestionnaireRender, SubmitQuestionnaireRequest, SubmissionHistoryItem, SubmissionDetail, AssignQuestionnaireRequest, PatientAssignmentFilterDto, PatientAssignmentResponseDto } from '../models/questionnaire.model';
 import { BaseHttpService } from './base-http.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionnaireService {
   private readonly http = inject(BaseHttpService);
   private readonly base = `questionnaires`; 
+  private baseUrl = 'questionnaire-assignments';
 
   getQuestionnaires(filter: QuestionnaireListFilter): Observable<ApiResponse<PagedResponse<QuestionnaireListItem>>> {
     let params = new HttpParams()
@@ -70,25 +71,45 @@ export class QuestionnaireService {
     return this.http.get<QuestionnaireRender>(`${this.base}/${questionnaireId}/render`);
   }
 
-//   submitQuestionnaire(patientId: string, request: SubmitQuestionnaireRequest): Observable<ApiResponse<{ submissionId: string }>> {
-//     return this.http.post<{ submissionId: string }>(
-//       `${this.base}/submit/${patientId}`, request
-//     );
-//   }
+  assignQuestionnaire(request: AssignQuestionnaireRequest): Observable<ApiResponse<{ assignmentId: string }>> {
+    return this.http.post<{ assignmentId: string }>(`questionnaire-assignments`, request);
+  }
 
-//   getPatientSubmissions(patientId: string, pageNumber = 1, pageSize = 10): Observable<ApiResponse<PagedResponse<SubmissionHistoryItem>>> {
-//     const params = new HttpParams()
-//       .set('pageNumber', pageNumber)
-//       .set('pageSize', pageSize);
-      
-//     return this.http.get<PagedResponse<SubmissionHistoryItem>>(
-//       `${this.base}/submissions/patient/${patientId}`, { params }
-//     );
-//   }
+  unassignQuestionnaire(assignmentId: string): Observable<ApiResponse<null>> {
+    return this.http.delete<null>(`questionnaire-assignments/${assignmentId}`);
+  }
 
-//   getSubmissionDetail(submissionId: string): Observable<ApiResponse<SubmissionDetail>> {
-//     return this.http.get<SubmissionDetail>(
-//       `${this.base}/submissions/${submissionId}`
-//     );
-//   }
+  getPatientAssignments(
+    patientId: string,
+    filter: PatientAssignmentFilterDto
+  ): Observable<ApiResponse<PagedResponse<PatientAssignmentResponseDto>>> {
+    let params = new HttpParams()
+      .set('pageNumber', filter.pageNumber)
+      .set('pageSize', filter.pageSize);
+      if (filter.status) {
+        params = params.set('status', filter.status);
+      }
+  
+      if (filter.assignedBy) {
+        params = params.set('assignedBy', filter.assignedBy);
+      }
+    return this.http.get<PagedResponse<PatientAssignmentResponseDto>>(
+      `patients/${patientId}/questionnaire-assignments`, { params }
+    );
+  }
+
+  getSubmissionDetail(submissionId: string): Observable<ApiResponse<SubmissionDetail>> {
+    return this.http.get<SubmissionDetail>(`questionnaire-submissions/${submissionId}`);
+  }
+  getRender(assignmentId: string, patientId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${assignmentId}/render?patientId=${patientId}`);
+  }
+
+  saveDraft(assignmentId: string, patientId: string, payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${assignmentId}/draft?patientId=${patientId}`, payload, {showSuccess: true, showError: true});
+  }
+
+  submit(assignmentId: string, patientId: string, payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${assignmentId}/submit?patientId=${patientId}`, payload, {showSuccess: true, showError: true});
+  }
 }
