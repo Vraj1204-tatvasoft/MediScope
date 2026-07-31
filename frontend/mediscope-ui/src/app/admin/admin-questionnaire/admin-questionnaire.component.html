@@ -1,99 +1,125 @@
 <div class="aq-page">
 
-    <div class="aq-header">
-      <div class="aq-header-left">
-        <h1 class="aq-title">Questionnaires</h1>
-        @if (!loading()) {
-          <p class="aq-subtitle">{{ totalCount() }} total · {{ activeCount() }} active</p>
-        }
+  <div class="aq-header">
+    <div class="aq-header-left">
+      <h1 class="aq-title">Questionnaires</h1>
+      @if (!loading()) {
+        <p class="aq-subtitle">{{ totalCount() }} total · {{ activeCount() }} active</p>
+      }
+    </div>
+    
+    <!-- Added an actions wrapper for layout management -->
+    <div class="aq-header-actions" style="display: flex; gap: 16px; align-items: center;">
+      
+      <!-- Search Input Field -->
+      <div class="search-container" style="position: relative; display: flex; align-items: center;">
+        <mat-icon style="position: absolute; left: 8px; color: #94a3b8; font-size: 20px; width: 20px; height: 20px;">search</mat-icon>
+        <input 
+          type="text" 
+          [formControl]="searchControl" 
+          placeholder="Search by name..." 
+          style="padding: 8px 12px 8px 36px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; width: 220px; outline: none;"
+        />
       </div>
+
       <button class="btn-primary" (click)="openCreateModal()">
         <mat-icon>add</mat-icon>
         New Questionnaire
       </button>
     </div>
-  
-    @if (loading()) {
-      <div class="aq-loading">
-        <mat-spinner diameter="36" />
-      </div>
-    }
-  
-    @if (!loading() && questionnaires().length === 0) {
-      <div class="aq-empty">
-        <mat-icon class="aq-empty-icon">assignment</mat-icon>
-        <p class="aq-empty-title">No questionnaires yet</p>
-        <p class="aq-empty-sub">Create your first questionnaire to get started.</p>
-        <button class="btn-primary" (click)="openCreateModal()">
-          <mat-icon>add</mat-icon>
-          New Questionnaire
-        </button>
-      </div>
-    }
-  
-    @if (!loading() && questionnaires().length > 0) {
-      <div class="aq-list">
-        @for (q of questionnaires(); track trackById($index, q)) {
-          <div class="aq-card">
-  
-            <div class="aq-card-left">
-              <div class="aq-card-title-row">
-                <span class="aq-card-name">{{ q.name }}</span>
-  
-                <span class="aq-badge" [class.aq-badge--active]="q.status === 'Active'"
-                      [class.aq-badge--inactive]="q.status === 'Inactive'">
-                  <span class="aq-badge-dot"></span>
-                  {{ q.status === 'Active' ? 'active' : 'inactive' }}
-                </span>
-  
-                @if (q.department) {
-                  <span class="aq-dept-tag">{{ q.department }}</span>
-                }
-              </div>
-  
-              @if (q.description) {
-                <p class="aq-card-desc">{{ q.description }}</p>
-              }
-  
-              <div class="aq-card-meta">
-                <span>{{ q.questionCount }} {{ q.questionCount === 1 ? 'question' : 'questions' }}</span>
-                <span class="aq-meta-dot">·</span>
-                <span>Created {{ q.createdAt | date: 'yyyy-MM-dd' }}</span>
-              </div>
-            </div>
-  
-            <div class="aq-card-actions">
-              <button class="btn-questions" (click)="goToQuestions(q)" matTooltip="Manage questions">
-                <mat-icon>article</mat-icon>
-                Questions
-              </button>
-  
-              <button class="btn-menu" [matMenuTriggerFor]="actionMenu" matTooltip="More options">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-  
-              <mat-menu #actionMenu="matMenu" xPosition="before">
-                <button mat-menu-item (click)="openEditModal(q)">
-                  <mat-icon>edit</mat-icon>
-                  Edit
-                </button>
-                <button mat-menu-item (click)="toggleStatus(q)"
-                        [disabled]="togglingId() === q.id">
-                  <mat-icon>{{ q.status === 'Active' ? 'toggle_off' : 'toggle_on' }}</mat-icon>
-                  {{ q.status === 'Active' ? 'Mark Inactive' : 'Mark Active' }}
-                </button>
-                <mat-divider />
-                <button mat-menu-item class="menu-item--danger" (click)="openDeleteModal(q)">
-                  <mat-icon>delete</mat-icon>
-                  Delete
-                </button>
-              </mat-menu>
-            </div>
-  
-          </div>
-        }
-      </div>
-    }
-  
   </div>
-  
+
+  @if (loading()) {
+    <div class="aq-loading">
+      <mat-spinner diameter="36" />
+    </div>
+  }
+
+  <!-- State 1: Completely Empty (No questionnaires exist at all) -->
+  @if (!loading() && questionnaires().length === 0) {
+    <div class="aq-empty">
+      <mat-icon class="aq-empty-icon">assignment</mat-icon>
+      <p class="aq-empty-title">No questionnaires yet</p>
+      <p class="aq-empty-sub">Create your first questionnaire to get started.</p>
+      <button class="btn-primary" (click)="openCreateModal()">
+        <mat-icon>add</mat-icon>
+        New Questionnaire
+      </button>
+    </div>
+  }
+
+  <!-- State 2: No search results found -->
+  @if (!loading() && questionnaires().length > 0 && filteredQuestionnaires().length === 0) {
+    <div class="aq-empty" style="text-align: center; padding: 40px; color: #64748b;">
+      <mat-icon class="aq-empty-icon" style="font-size: 40px; width: 40px; height: 40px; margin-bottom: 12px;">search_off</mat-icon>
+      <p class="aq-empty-title" style="font-weight: 500; font-size: 16px;">No results found</p>
+      <p class="aq-empty-sub" style="font-size: 14px;">No questionnaires match the search "{{ searchTerm() }}".</p>
+    </div>
+  }
+
+  <!-- Main List (iterating over the computed signal) -->
+  @if (!loading() && filteredQuestionnaires().length > 0) {
+    <div class="aq-list">
+      @for (q of filteredQuestionnaires(); track trackById($index, q)) {
+        <div class="aq-card">
+
+          <div class="aq-card-left">
+            <div class="aq-card-title-row">
+              <span class="aq-card-name">{{ q.name }}</span>
+
+              <span class="aq-badge" [class.aq-badge--active]="q.status === 'Active'"
+                    [class.aq-badge--inactive]="q.status === 'Inactive'">
+                <span class="aq-badge-dot"></span>
+                {{ q.status === 'Active' ? 'active' : 'inactive' }}
+              </span>
+
+              @if (q.department) {
+                <span class="aq-dept-tag">{{ q.department }}</span>
+              }
+            </div>
+
+            @if (q.description) {
+              <p class="aq-card-desc">{{ q.description }}</p>
+            }
+
+            <div class="aq-card-meta">
+              <span>{{ q.questionCount }} {{ q.questionCount === 1 ? 'question' : 'questions' }}</span>
+              <span class="aq-meta-dot">·</span>
+              <span>Created {{ q.createdAt | date: 'yyyy-MM-dd' }}</span>
+            </div>
+          </div>
+
+          <div class="aq-card-actions">
+            <button class="btn-questions" (click)="goToQuestions(q)" matTooltip="Manage questions">
+              <mat-icon>article</mat-icon>
+              Questions
+            </button>
+
+            <button class="btn-menu" [matMenuTriggerFor]="actionMenu" matTooltip="More options">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #actionMenu="matMenu" xPosition="before">
+              <button mat-menu-item (click)="openEditModal(q)">
+                <mat-icon>edit</mat-icon>
+                Edit
+              </button>
+              <button mat-menu-item (click)="toggleStatus(q)"
+                      [disabled]="togglingId() === q.id">
+                <mat-icon>{{ q.status === 'Active' ? 'toggle_off' : 'toggle_on' }}</mat-icon>
+                {{ q.status === 'Active' ? 'Mark Inactive' : 'Mark Active' }}
+              </button>
+              <mat-divider />
+              <button mat-menu-item class="menu-item--danger" (click)="openDeleteModal(q)">
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </mat-menu>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

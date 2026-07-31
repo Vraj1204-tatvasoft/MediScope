@@ -98,7 +98,7 @@
         }
   
         <!-- Validations for Text -->
-        @if (form.get('fieldType')?.value === 'TextBox' || form.get('fieldType')?.value === 'TextArea') {
+        @if (form.get('fieldType')?.value === 'TextBox') {
           <div class="form-field" style="display: flex; gap: 16px;">
             <div style="flex: 1;">
               <label class="form-label">Min Length <span class="optional">(Optional)</span></label>
@@ -114,7 +114,19 @@
             <input class="form-input" formControlName="regexPattern" type="text" placeholder="e.g. ^[0-9]{5}$ for zip code" />
           </div>
         }
-  
+        @if (form.get('fieldType')?.value === 'TextArea')
+        {
+          <div class="form-field" style="display: flex; gap: 16px;">
+            <div style="flex: 1;">
+              <label class="form-label">Min Length <span class="optional">(Optional)</span></label>
+              <input class="form-input" formControlName="minLength" type="number" placeholder="Min chars" />
+            </div>
+            <div style="flex: 1;">
+              <label class="form-label">Max Length <span class="optional">(Optional)</span></label>
+              <input class="form-input" formControlName="maxLength" type="number" placeholder="Max chars" />
+            </div>
+          </div>
+        }
         <!-- Options (Dropdown / Radio / Checkbox) -->
         @if (isChoiceType) {
           <div class="form-field">

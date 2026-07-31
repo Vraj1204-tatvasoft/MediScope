@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,19 +6,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { finalize } from 'rxjs';
+import { MatDivider } from '@angular/material/divider';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { QuestionnaireService } from '../../services/questionnaire.service';
 import { QuestionnaireFormModalComponent } from '../question-modals/questionnaire-form-modal/questionnaire-form-modal.component';
 import { ConfirmDeleteModalComponent, ConfirmDeleteModalData } from '../question-modals/confirm-delete-modal/confirm-delete-modal.component';
 import { QuestionnaireListItem } from '../../models/questionnaire.model';
-import { MatDivider } from '@angular/material/divider';
 
 @Component({
   selector: 'app-admin-questionnaire',
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule, // Added for search control
     MatIconModule,
     MatProgressSpinnerModule,
     MatMenuModule,
@@ -38,6 +41,28 @@ export class AdminQuestionnaireComponent implements OnInit {
   totalCount = signal(0);
   activeCount = signal(0);
   togglingId = signal<string | null>(null);
+
+  // Search Signals and Controls
+  searchControl = new FormControl('');
+  searchTerm = signal<string>('');
+  
+  // Computed signal to filter items locally based on search term
+  filteredQuestionnaires = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) return this.questionnaires();
+    return this.questionnaires().filter(q => q.name.toLowerCase().includes(term));
+  });
+
+  constructor() {
+    // Listen to search input changes, debounce by 300ms, and update the signal
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed() // Automatically unsubscribes when component is destroyed
+    ).subscribe(val => {
+      this.searchTerm.set(val || '');
+    });
+  }
 
   ngOnInit(): void {
     this.load();

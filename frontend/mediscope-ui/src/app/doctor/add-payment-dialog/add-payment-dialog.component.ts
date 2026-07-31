@@ -181,7 +181,7 @@ export class AddPaymentDialogComponent implements OnInit {
         const options: any = {
           key:         environment.razorpayKey,
           amount:      Math.round(order.amount * 100),
-          currency:    'INR',           // must be INR for saved cards + tokenization
+          currency:    'USD',           // must be INR for saved cards + tokenization
           order_id:    order.orderId,
           name:        'MediScope',
           description: 'Invoice Payment',

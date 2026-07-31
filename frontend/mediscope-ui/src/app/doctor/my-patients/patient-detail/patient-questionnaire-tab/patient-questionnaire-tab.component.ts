@@ -64,7 +64,7 @@ export class PatientQuestionnaireTabComponent implements OnInit {
   totalCount     = computed(() => this.assignments().length);
   pendingCount   = computed(() => this.assignments().filter(a => a.fillStatus === 'Pending').length);
   submittedCount = computed(() => this.assignments().filter(a => a.fillStatus === 'Submitted').length);
-
+  draftCount = computed(() => this.assignments().filter(a => a.fillStatus === 'Draft').length);
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   ngOnInit(): void { this.load(); }
 
