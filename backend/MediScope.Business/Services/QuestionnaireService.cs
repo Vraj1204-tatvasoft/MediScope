@@ -82,43 +82,7 @@ namespace MediScope.Business.Services
             return await _repository.GetQuestionsByQuestionnaireAsync(questionnaireId);
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // PHASE 3 — Submission
-        // ─────────────────────────────────────────────────────────────
-
-        // public async Task<QuestionnaireRenderResponseDto> GetQuestionnaireRenderAsync(Guid questionnaireId)
-        // {
-        //     return await _repository.GetQuestionnaireRenderAsync(questionnaireId);
-        // }
-
-        // public async Task<Guid> SubmitQuestionnaireAsync(Guid patientId, SubmitQuestionnaireRequestDto request, Guid userId)
-        // {
-        //     if (request.Responses == null || !request.Responses.Any())
-        //     {
-        //         throw new ArgumentException("At least one response is required to submit a questionnaire.");
-        //     }
-
-        //     return await _repository.SubmitQuestionnaireAsync(patientId, request, userId);
-        // }
-
-        // public async Task<PagedResult<SubmissionHistoryResponseDto>> GetPatientSubmissionHistoryAsync(Guid patientId, PatientSubmissionListFilterDto filter)
-        // {
-        //     return await _repository.GetPatientSubmissionHistoryAsync(patientId, filter);
-        // }
-
-        // public async Task<SubmissionDetailResponseDto> GetSubmissionDetailAsync(Guid submissionId)
-        // {
-        //     var submission = await _repository.GetSubmissionDetailAsync(submissionId);
-        //     if (submission == null)
-        //     {
-        //         throw new KeyNotFoundException("Submission details not found.");
-        //     }
-        //     return submission;
-        // }
-
-        // ─────────────────────────────────────────────────────────────
         // PRIVATE HELPERS
-        // ─────────────────────────────────────────────────────────────
 
         private static void ValidateQuestionOptions(string fieldType, List<QuestionOptionRequestDto>? options)
         {

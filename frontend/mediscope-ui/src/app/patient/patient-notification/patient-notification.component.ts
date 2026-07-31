@@ -190,7 +190,10 @@ export class PatientNotificationComponent implements OnInit, OnDestroy {
       case 'refund':
         this.router.navigate(['/patient/invoices', notification.referenceId]);
         break;
-  
+        
+      case 'QuestionnaireAssignment':
+        this.router.navigate(['/patient/patient-questionnaire-list']);
+        break;
       default:
         break;
     }

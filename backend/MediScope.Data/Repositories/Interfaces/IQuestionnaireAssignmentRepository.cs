@@ -1,7 +1,7 @@
 using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Pagination;
-
+using MediScope.Common.Models.Entities;
 namespace MediScope.Data.Repositories
 {
     public interface IQuestionnaireAssignmentRepository
@@ -15,5 +15,6 @@ namespace MediScope.Data.Repositories
         Task<SubmitResultDto> SubmitQuestionnaireAsync(Guid assignmentId, Guid patientId, Guid userId, SubmitQuestionnaireRequestDto request);
         Task UpdatePdfPathAsync(Guid submissionId, string pdfPath);
         Task<SubmissionDetailResponseDto?> GetSubmissionDetailAsync(Guid submissionId);
+        Task<QuestionnaireAssignment?> GetAssignmentByIdAsync(Guid assignmentId);
     }
 }

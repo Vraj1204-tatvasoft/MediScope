@@ -188,7 +188,11 @@ export class DoctorNotificationsComponent implements OnInit, OnDestroy {
       case 'refund':
         this.router.navigate(['/doctor/invoices', notification.referenceId]);
         break;
-  
+      case 'QuestionnaireSubmission':
+        this.router.navigate(['/doctor/my-patients', notification.referenceId], {
+          queryParams: { tab: 'questionnaires' } // <-- This forces the Questionnaires tab to open
+        });
+                  break;
       default:
         break;
     }

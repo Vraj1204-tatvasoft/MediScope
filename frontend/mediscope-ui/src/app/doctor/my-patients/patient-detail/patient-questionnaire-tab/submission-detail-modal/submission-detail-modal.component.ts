@@ -6,9 +6,14 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
-import { SubmissionDetail } from '../../../../../models/questionnaire.model';
-import { QuestionnaireService } from '../../../../../services/questionnaire.service';
 
+import {
+  SubmissionDetail,
+  SubmissionResponseItem,
+  SubmissionOptionItem,
+  FieldType,
+} from '../../../../../models/questionnaire.model';
+import { QuestionnaireService } from '../../../../../services/questionnaire.service';
 
 export interface SubmissionDetailModalData {
   submissionId: string;
@@ -48,21 +53,38 @@ export class SubmissionDetailModalComponent implements OnInit {
       });
   }
 
-  getAnswer(r: any): string {
-    if (r.fieldType === 'Checkbox') {
-      return r.responseValues?.length ? r.responseValues.join(', ') : '—';
-    }
-    return r.responseValue || '—';
-  }
+  // ── Field type helpers ──────────────────────────────────────────────────────
 
-  isCheckbox(fieldType: string): boolean { return fieldType === 'Checkbox'; }
-
-  fieldTypeLabel(ft: string): string {
+  fieldTypeLabel(ft: FieldType | string): string {
     const map: Record<string, string> = {
       TextBox: 'Text', TextArea: 'Text Area', Number: 'Number',
       Date: 'Date', Dropdown: 'Dropdown', RadioButton: 'Radio', Checkbox: 'Checkbox',
     };
     return map[ft] ?? ft;
+  }
+
+  isText(ft: string): boolean     { return ft === 'TextBox' || ft === 'TextArea'; }
+  isNumber(ft: string): boolean   { return ft === 'Number'; }
+  isDate(ft: string): boolean     { return ft === 'Date'; }
+  isDropdown(ft: string): boolean { return ft === 'Dropdown'; }
+  isRadio(ft: string): boolean    { return ft === 'RadioButton'; }
+  isCheckbox(ft: string): boolean { return ft === 'Checkbox'; }
+
+  hasAnswer(r: SubmissionResponseItem): boolean {
+    if (r.fieldType === 'Checkbox') return !!(r.responseValues?.length);
+    return !!(r.responseValue?.trim());
+  }
+
+  // ── Selection helpers (used in template) ───────────────────────────────────
+
+  /** Is this option the selected one? (Radio / Dropdown) */
+  isSelected(opt: SubmissionOptionItem, r: SubmissionResponseItem): boolean {
+    return opt.value === r.responseValue;
+  }
+
+  /** Is this checkbox option ticked? */
+  isChecked(opt: SubmissionOptionItem, r: SubmissionResponseItem): boolean {
+    return r.responseValues?.includes(opt.value) ?? false;
   }
 
   close(): void { this.dialogRef.close(); }

@@ -39,5 +39,9 @@ namespace MediScope.Data.Repositories
                     p.UserId == userId &&
                     !p.IsDeleted);
         }
+        public async Task<Patient?> GetPatientByIdAsync(Guid patientId)
+        {
+            return await _dbSet.FirstOrDefaultAsync(p => p.Id == patientId);
+        }
     }
 }

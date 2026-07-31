@@ -175,8 +175,14 @@ export interface SubmissionResponseItem {
   displayOrder: number;
   responseValue: string | null;
   responseValues: string[] | null;
+  isRequired: boolean;
+  options: SubmissionOptionItem[];
 }
-
+export interface SubmissionOptionItem {
+  label: string;
+  value: string;
+  displayOrder: number;
+}
 export interface PatientAssignmentFilterDto {
     pageNumber: number;
     pageSize: number;

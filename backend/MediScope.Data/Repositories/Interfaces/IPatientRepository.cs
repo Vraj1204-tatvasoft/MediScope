@@ -7,5 +7,6 @@ namespace MediScope.Data.Repositories
     {
         Task<IEnumerable<Patient>> GetAllAdminPatientsAsync();
         Task<Patient?> GetByUserIdAsync(Guid userId);
+        Task<Patient?> GetPatientByIdAsync(Guid patientId);
     }
 }

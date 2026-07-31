@@ -4,7 +4,7 @@ using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Pagination;
 using MediScope.Data;
-
+using MediScope.Common.Models.Entities;
 namespace MediScope.Data.Repositories
 {
     public class QuestionnaireAssignmentRepository : IQuestionnaireAssignmentRepository
@@ -238,7 +238,11 @@ namespace MediScope.Data.Repositories
             await _context.Database.ExecuteSqlInterpolatedAsync($@"
                 CALL sp_update_pdf_path({submissionId}, {pdfPath})");
         }
-
+        public async Task<QuestionnaireAssignment?> GetAssignmentByIdAsync(Guid assignmentId)
+        {
+            return await _context.QuestionnaireAssignments
+            .FirstOrDefaultAsync(a => a.Id == assignmentId);
+        }
         public async Task<SubmissionDetailResponseDto?> GetSubmissionDetailAsync(Guid submissionId)
         {
             var row = await _context.Database

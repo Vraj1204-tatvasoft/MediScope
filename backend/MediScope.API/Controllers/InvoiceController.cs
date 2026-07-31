@@ -119,8 +119,7 @@ namespace MediScope.API.Controllers
         }
         [HttpPost("{id:guid}/payment/order")]
         [Authorize(Policy = "DoctorOrPatient")]
-        public async Task<IActionResult> CreatePaymentOrder(
-            Guid id, [FromBody] CreatePaymentOrderRequestDto dto)
+        public async Task<IActionResult> CreatePaymentOrder(Guid id, [FromBody] CreatePaymentOrderRequestDto dto)
         {
             try
             {
@@ -134,7 +133,6 @@ namespace MediScope.API.Controllers
                     return Success<object>(null!, "Cash payment recorded successfully.");
                 }
 
-                // Get or create Razorpay customer for this patient
                 // Get or create Razorpay customer for this patient
                 var patientId = await _invoiceService.GetPatientIdByUserIdAsync(CurrentUserId);
                 string? customerId = null;

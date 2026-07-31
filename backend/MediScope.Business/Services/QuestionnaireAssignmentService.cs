@@ -4,7 +4,7 @@ using MediScope.Common.Models.DTOs.Response;
 using MediScope.Common.Models.Pagination;
 using MediScope.Data.Repositories;
 using Microsoft.Extensions.Logging;
-
+using MediScope.Common.Models.Enums;
 namespace MediScope.Business.Services
 {
     public class QuestionnaireAssignmentService : IQuestionnaireAssignmentService
@@ -12,15 +12,21 @@ namespace MediScope.Business.Services
         private readonly IQuestionnaireAssignmentRepository _repository;
         private readonly IPdfService _pdfService;
         private readonly ILogger<QuestionnaireAssignmentService> _logger;
+        private readonly INotificationService _notificationService;
+        private readonly IPatientRepository _patientRepository;
 
         public QuestionnaireAssignmentService(
             IQuestionnaireAssignmentRepository repository,
             IPdfService pdfService,
-            ILogger<QuestionnaireAssignmentService> logger)
+            ILogger<QuestionnaireAssignmentService> logger,
+            INotificationService notificationService,
+            IPatientRepository patientRepository)
         {
             _repository = repository;
             _pdfService = pdfService;
             _logger = logger;
+            _notificationService = notificationService;
+            _patientRepository = patientRepository;
         }
 
         public async Task<Guid> AssignQuestionnaireAsync(
@@ -32,7 +38,25 @@ namespace MediScope.Business.Services
             if (request.PatientId == Guid.Empty)
                 throw new ArgumentException("Patient is required.");
 
-            return await _repository.AssignQuestionnaireAsync(request, assignedBy);
+            var assignmentId = await _repository.AssignQuestionnaireAsync(request, assignedBy);
+            var patient = await _patientRepository.GetPatientByIdAsync(request.PatientId);
+            // 1. Notify the Patient
+            try
+            {
+                await _notificationService.CreateAsync(
+                    userId: patient.UserId,
+                    type: NotificationType.Info,
+                    message: "Your doctor has assigned a new questionnaire for you to complete.",
+                    referenceType: "QuestionnaireAssignment",
+                    referenceId: assignmentId
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send assignment notification to patient {PatientId}", request.PatientId);
+            }
+
+            return assignmentId;
         }
 
         public async Task UnassignQuestionnaireAsync(Guid assignmentId, Guid deletedBy)
@@ -88,6 +112,25 @@ namespace MediScope.Business.Services
                 _logger.LogError(ex,
                     "PDF generation failed for submission {SubmissionId}. " +
                     "Submission is saved but PDF path is not set.", result.SubmissionId);
+            }
+            try
+            {
+                var assignment = await _repository.GetAssignmentByIdAsync(assignmentId);
+
+                if (assignment != null && assignment.AssignedBy != Guid.Empty)
+                {
+                    await _notificationService.CreateAsync(
+                        userId: assignment.AssignedBy,
+                        type: NotificationType.Info,
+                        message: "A patient has submitted their assigned questionnaire responses.",
+                        referenceType: "QuestionnaireSubmission",
+                        referenceId: patientId
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send submission notification to doctor");
             }
 
             return result;

@@ -158,6 +158,7 @@ builder.Services.AddScoped<IPatientAdmissionRepository, PatientAdmissionReposito
 builder.Services.AddScoped<IHospitalizationDashboardRepository, HospitalizationDashboardRepository>();
 builder.Services.AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
 builder.Services.AddScoped<IQuestionnaireAssignmentRepository, QuestionnaireAssignmentRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 // ── 5. SERVICES ──────────────────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IJwtService, JwtService>();
