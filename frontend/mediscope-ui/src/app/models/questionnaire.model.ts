@@ -276,4 +276,4 @@ export interface QuestionnaireRenderDto {
   questions: RenderQuestionDto[];
 }
 
-export type RendererMode = 'fill' | 'preview';
+export type RendererMode = 'fill' | 'preview' | 'view';

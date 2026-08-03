@@ -25,7 +25,9 @@ import { MatChipsModule }            from '@angular/material/chips';
 import { MatDialogRef }              from '@angular/material/dialog';
 
 import { QuestionnaireService } from '../../services/questionnaire.service';
-import { RendererMode, QuestionItem } from '../../models/questionnaire.model';
+import {
+  RendererMode, QuestionItem, SubmissionDetail,
+} from '../../models/questionnaire.model';
 import { NotificationService }   from '../../core/services/notification.service';
 
 @Component({
@@ -56,6 +58,7 @@ export class QuestionnaireRendererComponent implements OnInit {
   @Input() mode: RendererMode = 'fill';
   @Input() questionnaireId = '';
   @Input() questionnaireName = '';
+  @Input() submissionId = '';
 
   private readonly fb      = inject(FormBuilder);
   private readonly route   = inject(ActivatedRoute);
@@ -76,18 +79,52 @@ export class QuestionnaireRendererComponent implements OnInit {
   savingDraft  = signal(false);
   submitting   = signal(false);
   isReadOnly   = signal(false);      
+  submissionMeta = signal<SubmissionDetail | null>(null);
 
   form!: FormGroup;
 
   get isPreview(): boolean { return this.mode === 'preview'; }
   get isFill():    boolean { return this.mode === 'fill'; }
+  get isView():    boolean { return this.mode === 'view'; }
 
   ngOnInit(): void {
     if (this.isPreview) {
       this.loadPreview();
+    } else if (this.isView) {
+      this.loadView();
     } else {
       this.loadFill();
     }
+  }
+
+  private loadView(): void {
+    if (!this.questionnaireId || !this.submissionId) {
+      this.loading.set(false);
+      return;
+    }
+
+    forkJoin({
+      schema:     this.svc.getQuestions(this.questionnaireId),
+      submission: this.svc.getSubmissionDetail(this.submissionId),
+    }).subscribe({
+      next: ({ schema, submission }) => {
+        const qs     = schema.data ?? [];
+        const detail = submission.data ?? null;
+        const answers = detail?.responses ?? [];
+
+        this.questions.set(qs);
+        this.submissionMeta.set(detail);
+        this.formStatus.set(detail?.status ?? 'Submitted');
+        this.isReadOnly.set(true);
+        this.buildForm(qs, answers);
+        this.form.disable();
+        this.loading.set(false);
+      },
+      error: () => {
+        this.notify.error('Failed to load submitted responses.');
+        this.loading.set(false);
+      },
+    });
   }
 
   private loadPreview(): void {
@@ -154,7 +191,7 @@ export class QuestionnaireRendererComponent implements OnInit {
       const existing  = answers.find(a => a.questionId === q.id);
       const validators = [];
 
-      if (q.isRequired && !this.isPreview) {
+      if (q.isRequired && !this.isPreview && !this.isView) {
         validators.push(Validators.required);
       }
       if (q.isRequired) validators.push(Validators.required);
@@ -174,7 +211,7 @@ export class QuestionnaireRendererComponent implements OnInit {
         const arr = this.fb.array(
           options.map(opt => this.fb.control(saved.includes(opt.value)))
         );
-        if (q.isRequired && !this.isPreview) {
+        if (q.isRequired && !this.isPreview && !this.isView) {
           arr.addValidators(this.minSelectedCheckboxes(1));
         }
         group[q.id] = arr;
@@ -187,6 +224,15 @@ export class QuestionnaireRendererComponent implements OnInit {
       }
     });
     this.form = this.fb.group(group);
+  }
+
+  isOptionSelected(q: QuestionItem, optValue: string): boolean {
+    return this.form.get(q.id)?.value === optValue;
+  }
+
+  isCheckboxOptionSelected(q: QuestionItem, index: number): boolean {
+    const arr = this.form.get(q.id) as FormArray;
+    return !!arr?.at(index)?.value;
   }
 
   private minSelectedCheckboxes(min: number) {
@@ -204,7 +250,6 @@ export class QuestionnaireRendererComponent implements OnInit {
         return false;
       }
   
-      // Ignore required validation while saving draft
       const { required, ...otherErrors } = control.errors;
   
       return Object.keys(otherErrors).length > 0;
@@ -281,7 +326,7 @@ export class QuestionnaireRendererComponent implements OnInit {
   }
 
   goBack(): void {
-    if (this.isPreview && this.dialogRef) {
+    if ((this.isPreview || this.isView) && this.dialogRef) {
       this.dialogRef.close();
     } else {
       this.router.navigate(['/patient/patient-questionnaire-list']);

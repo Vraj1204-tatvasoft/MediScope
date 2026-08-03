@@ -132,7 +132,6 @@ export class PatientQuestionnaireListComponent implements OnInit {
     this.fetchQuestionnaires();
   }
 
-  // Triggered when the user clicks next/prev page or changes page size
   onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);

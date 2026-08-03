@@ -92,12 +92,7 @@ export class PatientQuestionnaireTabComponent implements OnInit {
     ref.afterClosed().subscribe(saved => { if (saved) this.load(); });
   }
 
-  // ── Preview Questions ──────────────────────────────────────────────────────
-  /**
-   * Opens the renderer in preview mode (mode='preview').
-   * Doctor sees the question structure with all fields disabled.
-   * No assignment or patient context needed — just questionnaireId.
-   */
+
   previewQuestions(a: PatientAssignmentResponseDto): void {
     this.dialog.open<QuestionnairePreviewModalComponent, QuestionnairePreviewModalData>(
       QuestionnairePreviewModalComponent,
@@ -143,9 +138,14 @@ export class PatientQuestionnaireTabComponent implements OnInit {
     this.dialog.open<SubmissionDetailModalComponent, SubmissionDetailModalData>(
       SubmissionDetailModalComponent,
       {
-        width: '720px',
-        maxHeight: '90vh',
-        data: { submissionId: a.submissionId },
+        width: '760px',
+        maxHeight: '92vh',
+        data: {
+          submissionId:      a.submissionId,
+          questionnaireId:   a.questionnaireId,
+          questionnaireName: a.questionnaireName,
+        },
+        panelClass: 'preview-dialog-panel',
       }
     );
   }

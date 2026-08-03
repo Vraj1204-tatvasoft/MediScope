@@ -1,6 +1,5 @@
 <div class="page-container" [class.preview-mode]="isPreview">
 
-    <!-- ── Loading ─────────────────────────────────────────────────────── -->
     @if (loading()) {
       <div class="loading-state">
         <mat-spinner diameter="40"></mat-spinner>
@@ -8,27 +7,37 @@
       </div>
     }
   
-    <!-- ── Main Card ────────────────────────────────────────────────────── -->
     @if (!loading() && questions().length > 0) {
       <mat-card class="form-card">
   
-        <!-- Header -->
         <mat-card-header class="renderer-header">
   
           <button mat-icon-button (click)="goBack()" type="button" class="back-btn">
-            <mat-icon>{{ isPreview ? 'close' : 'arrow_back' }}</mat-icon>
+            <mat-icon>{{ (isPreview || isView) ? 'close' : 'arrow_back' }}</mat-icon>
           </button>
   
           <div class="header-titles">
             <mat-card-title>
-              {{ isPreview ? (questionnaireName || 'Questionnaire Preview') : 'Complete Questionnaire' }}
+              @if (isPreview) {
+                {{ questionnaireName || 'Questionnaire Preview' }}
+              } @else if (isView) {
+                {{ questionnaireName || 'Submitted Responses' }}
+              } @else {
+                Complete Questionnaire
+              }
             </mat-card-title>
             @if (isPreview) {
               <mat-card-subtitle>Preview only — questions are not editable</mat-card-subtitle>
             }
+            @if (isView && submissionMeta()) {
+              <mat-card-subtitle>
+                Submitted by {{ submissionMeta()!.submittedByName }}
+                · {{ submissionMeta()!.submittedAt | date: 'dd MMM yyyy, HH:mm' }}
+              </mat-card-subtitle>
+            }
           </div>
   
-          <!-- Status badge — only shown in fill mode -->
+          <!-- Status badge — fill & view modes -->
           @if (!isPreview) {
             <span class="status-badge" [ngClass]="formStatus().toLowerCase()">
               {{ formStatus() }}
@@ -56,11 +65,19 @@
             </div>
           }
   
-          <!-- Submitted read-only banner (fill mode) -->
-          @if (!isPreview && isReadOnly()) {
+          <!-- Submitted read-only banner (fill mode, viewing an already-submitted form) -->
+          @if (!isPreview && !isView && isReadOnly()) {
             <div class="readonly-alert">
               <mat-icon>lock</mat-icon>
               This questionnaire has been submitted and is locked for editing.
+            </div>
+          }
+
+          <!-- Notes (view mode) -->
+          @if (isView && submissionMeta()?.notes) {
+            <div class="view-notes-alert">
+              <mat-icon>notes</mat-icon>
+              {{ submissionMeta()!.notes }}
             </div>
           }
   
@@ -72,10 +89,10 @@
   
                   <div class="question-label">
                     {{ q.displayOrder }}. {{ q.label }}
-                    @if (q.isRequired && !isPreview) {
+                    @if (q.isRequired && !isPreview && !isView) {
                       <span class="required-asterisk">*</span>
                     }
-                    @if (q.isRequired && isPreview) {
+                    @if (q.isRequired && (isPreview || isView)) {
                       <span class="required-preview-tag">Required</span>
                     }
                   </div>
@@ -94,12 +111,10 @@
                           />
                           
                         </mat-form-field>
-                        @if (!isPreview) {
+                        @if (!isPreview && !isView) {
                             <mat-error
-                              *ngIf="
-                                form.get(q.id)?.hasError('required') &&
-                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)
-                              ">
+                              *ngIf="form.get(q.id)?.hasError('required') &&
+                                (form.get(q.id)?.touched || form.get(q.id)?.dirty)">
                               This field is required
                             </mat-error>
                             
@@ -134,7 +149,7 @@
                           ></textarea>
                           
                         </mat-form-field>
-                        @if (!isPreview) {
+                        @if (!isPreview && !isView) {
                             <mat-error
                               *ngIf="
                                 form.get(q.id)?.hasError('required') &&
@@ -174,7 +189,7 @@
                           />
                           
                         </mat-form-field>
-                        @if (!isPreview) {
+                        @if (!isPreview && !isView) {
                             <mat-error
                               *ngIf="
                                 form.get(q.id)?.hasError('required') &&
@@ -212,7 +227,7 @@
                         />
                         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                         <mat-datepicker #picker></mat-datepicker>
-                        @if (!isPreview) {
+                        @if (!isPreview && !isView) {
                           <mat-error *ngIf="form.get(q.id)?.hasError('required')">
                             This field is required
                           </mat-error>
@@ -222,63 +237,133 @@
   
                     <!-- Dropdown -->
                     @case ('Dropdown') {
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-select
-                          [formControlName]="q.id"
-                          placeholder="Select an option"
-                        >
+                      @if (isView) {
+                        <div class="view-options-list">
                           @for (opt of q.options; track opt.id) {
-                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                            <div
+                              class="view-option-row"
+                              [class.view-option-row--selected]="isOptionSelected(q, opt.value)"
+                            >
+                              <span class="view-option-indicator">
+                                @if (isOptionSelected(q, opt.value)) { <mat-icon>check</mat-icon> }
+                              </span>
+                              <span class="view-option-label">{{ opt.label }}</span>
+                              @if (isOptionSelected(q, opt.value)) {
+                                <span class="view-selected-tag">Selected</span>
+                              }
+                            </div>
                           }
-                        </mat-select>
-                        @if (!isPreview) {
-                          <mat-error *ngIf="form.get(q.id)?.hasError('required')">
-                            Selection is required
-                          </mat-error>
-                        }
-                      </mat-form-field>
-  
-                      <!-- Preview: show option chips below the field -->
-                      @if (isPreview) {
-                        <div class="preview-options-row">
-                          @for (opt of q.options; track opt.id) {
-                            <span class="preview-option-chip">{{ opt.label }}</span>
+                          @if (!q.options?.length) {
+                            <p class="view-answer-empty">— No answer provided —</p>
                           }
                         </div>
+                      } @else {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-select
+                            [formControlName]="q.id"
+                            placeholder="Select an option"
+                          >
+                            @for (opt of q.options; track opt.id) {
+                              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                            }
+                          </mat-select>
+                          @if (!isPreview) {
+                            <mat-error *ngIf="form.get(q.id)?.hasError('required')">
+                              Selection is required
+                            </mat-error>
+                          }
+                        </mat-form-field>
+  
+                        <!-- Preview: show option chips below the field -->
+                        @if (isPreview) {
+                          <div class="preview-options-row">
+                            @for (opt of q.options; track opt.id) {
+                              <span class="preview-option-chip">{{ opt.label }}</span>
+                            }
+                          </div>
+                        }
                       }
                     }
   
                     <!-- Radio Button -->
                     @case ('RadioButton') {
-                      <mat-radio-group [formControlName]="q.id" class="radio-group-vertical">
-                        @for (opt of q.options; track opt.id) {
-                          <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
+                      @if (isView) {
+                        <div class="view-options-list">
+                          @for (opt of q.options; track opt.id) {
+                            <div
+                              class="view-option-row"
+                              [class.view-option-row--selected]="isOptionSelected(q, opt.value)"
+                            >
+                              <span
+                                class="view-radio-dot"
+                                [class.view-radio-dot--selected]="isOptionSelected(q, opt.value)"
+                              ></span>
+                              <span class="view-option-label">{{ opt.label }}</span>
+                              @if (isOptionSelected(q, opt.value)) {
+                                <span class="view-selected-tag">Selected</span>
+                              }
+                            </div>
+                          }
+                          @if (!q.options?.length) {
+                            <p class="view-answer-empty">— No answer provided —</p>
+                          }
+                        </div>
+                      } @else {
+                        <mat-radio-group [formControlName]="q.id" class="radio-group-vertical">
+                          @for (opt of q.options; track opt.id) {
+                            <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
+                          }
+                        </mat-radio-group>
+                        @if (!isPreview) {
+                          <mat-error
+                            *ngIf="form.get(q.id)?.hasError('required') && form.get(q.id)?.touched"
+                            class="custom-error"
+                          >
+                            Selection is required
+                          </mat-error>
                         }
-                      </mat-radio-group>
-                      @if (!isPreview) {
-                        <mat-error
-                          *ngIf="form.get(q.id)?.hasError('required') && form.get(q.id)?.touched"
-                          class="custom-error"
-                        >
-                          Selection is required
-                        </mat-error>
                       }
                     }
   
                     <!-- Checkbox -->
                     @case ('Checkbox') {
-                      <div [formArrayName]="q.id" class="checkbox-group-vertical">
-                        @for (opt of q.options; track opt.id; let i = $index) {
-                          <mat-checkbox [formControlName]="i">{{ opt.label }}</mat-checkbox>
+                      @if (isView) {
+                        <div class="view-options-list">
+                          @for (opt of q.options; track opt.id; let i = $index) {
+                            <div
+                              class="view-option-row"
+                              [class.view-option-row--selected]="isCheckboxOptionSelected(q, i)"
+                            >
+                              <span
+                                class="view-checkbox-square"
+                                [class.view-checkbox-square--checked]="isCheckboxOptionSelected(q, i)"
+                              >
+                                @if (isCheckboxOptionSelected(q, i)) { <mat-icon>check</mat-icon> }
+                              </span>
+                              <span class="view-option-label">{{ opt.label }}</span>
+                              @if (isCheckboxOptionSelected(q, i)) {
+                                <span class="view-selected-tag">Checked</span>
+                              }
+                            </div>
+                          }
+                          @if (!q.options?.length) {
+                            <p class="view-answer-empty">— No answer provided —</p>
+                          }
+                        </div>
+                      } @else {
+                        <div [formArrayName]="q.id" class="checkbox-group-vertical">
+                          @for (opt of q.options; track opt.id; let i = $index) {
+                            <mat-checkbox [formControlName]="i">{{ opt.label }}</mat-checkbox>
+                          }
+                        </div>
+                        @if (!isPreview) {
+                          <mat-error
+                            *ngIf="form.get(q.id)?.hasError('required') && form.get(q.id)?.touched"
+                            class="custom-error"
+                          >
+                            At least one selection is required
+                          </mat-error>
                         }
-                      </div>
-                      @if (!isPreview) {
-                        <mat-error
-                          *ngIf="form.get(q.id)?.hasError('required') && form.get(q.id)?.touched"
-                          class="custom-error"
-                        >
-                          At least one selection is required
-                        </mat-error>
                       }
                     }
   
@@ -288,7 +373,7 @@
             </div>
   
             <!-- Actions — fill mode only, and only when not read-only -->
-            @if (!isPreview && !isReadOnly()) {
+            @if (!isPreview && !isView && !isReadOnly()) {
               <div class="form-actions">
                 <button
                   mat-stroked-button
@@ -320,12 +405,12 @@
               </div>
             }
   
-            <!-- Preview mode close button -->
-            @if (isPreview) {
+            <!-- Preview / view mode close button -->
+            @if (isPreview || isView) {
               <div class="form-actions">
                 <button mat-stroked-button type="button" (click)="goBack()">
                   <mat-icon>close</mat-icon>
-                  Close Preview
+                  {{ isPreview ? 'Close Preview' : 'Close' }}
                 </button>
               </div>
             }

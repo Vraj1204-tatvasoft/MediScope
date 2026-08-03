@@ -55,7 +55,7 @@ export class BookAppointmentDialogComponent implements OnInit {
     eventInteractive: false,
     // Show busy slots only — no patient names
     events: [],
-    eventContent: () => ({ html: '<div class="busy-slot">Busy</div>' }),
+    eventContent: () => ({ html: '<div class="busy-slot"></div>' }),
     slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: true }
   };
 
