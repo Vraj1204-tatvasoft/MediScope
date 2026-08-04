@@ -4,6 +4,7 @@ import { QuestionnaireRendererComponent } from '../../../../../patient/questionn
 
 export interface SubmissionDetailModalData {
   submissionId: string;
+  assignmentId: string;
   questionnaireId: string;
   questionnaireName?: string;
 }

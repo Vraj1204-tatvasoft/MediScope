@@ -112,7 +112,7 @@ namespace MediScope.Business.Services
                 NotificationType.Info,
                 "The other party has requested to reschedule an upcoming appointment.",
                 referenceType: "appointment",
-                referenceId: request.AppointmentId  // FIX: was appointment.Id (undefined variable); use request.AppointmentId
+                referenceId: request.AppointmentId
             );
         }
 

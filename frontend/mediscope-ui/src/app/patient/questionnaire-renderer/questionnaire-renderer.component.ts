@@ -5,10 +5,11 @@ import {
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule, FormBuilder, FormGroup,
-  FormArray, Validators, AbstractControl, ValidationErrors
+  FormArray, Validators, AbstractControl, ValidationErrors, FormsModule
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import { MatCardModule }             from '@angular/material/card';
 import { MatFormFieldModule }        from '@angular/material/form-field';
@@ -49,6 +50,7 @@ import { NotificationService }   from '../../core/services/notification.service'
     MatIconModule,
     MatProgressSpinnerModule,
     MatChipsModule,
+    FormsModule
   ],
   templateUrl: './questionnaire-renderer.component.html',
   styleUrls: ['./questionnaire-renderer.component.css'],
@@ -59,7 +61,7 @@ export class QuestionnaireRendererComponent implements OnInit {
   @Input() questionnaireId = '';
   @Input() questionnaireName = '';
   @Input() submissionId = '';
-
+  @Input() assignmentId = '';
   private readonly fb      = inject(FormBuilder);
   private readonly route   = inject(ActivatedRoute);
   private readonly router  = inject(Router);
@@ -70,7 +72,6 @@ export class QuestionnaireRendererComponent implements OnInit {
     try { return inject(MatDialogRef); } catch { return null; }
   })();
 
-  private assignmentId = '';
   private patientId    = '';
 
   questions    = signal<QuestionItem[]>([]);
@@ -80,6 +81,10 @@ export class QuestionnaireRendererComponent implements OnInit {
   submitting   = signal(false);
   isReadOnly   = signal(false);      
   submissionMeta = signal<SubmissionDetail | null>(null);
+
+  versions = signal<any[]>([]);
+  selectedSubmissionId = signal<string | null>(null);
+  isCreatingNewVersion = signal<boolean>(false);
 
   form!: FormGroup;
 
@@ -98,35 +103,51 @@ export class QuestionnaireRendererComponent implements OnInit {
   }
 
   private loadView(): void {
-    if (!this.questionnaireId || !this.submissionId) {
+    if (!this.questionnaireId || !this.submissionId || !this.assignmentId) {
       this.loading.set(false);
       return;
     }
 
     forkJoin({
-      schema:     this.svc.getQuestions(this.questionnaireId),
-      submission: this.svc.getSubmissionDetail(this.submissionId),
+      schema: this.svc.getQuestions(this.questionnaireId),
+      versions: this.svc.getSubmissionVersions(this.assignmentId),
     }).subscribe({
-      next: ({ schema, submission }) => {
-        const qs     = schema.data ?? [];
-        const detail = submission.data ?? null;
-        const answers = detail?.responses ?? [];
-
-        this.questions.set(qs);
-        this.submissionMeta.set(detail);
-        this.formStatus.set(detail?.status ?? 'Submitted');
-        this.isReadOnly.set(true);
-        this.buildForm(qs, answers);
-        this.form.disable();
-        this.loading.set(false);
-      },
-      error: () => {
-        this.notify.error('Failed to load submitted responses.');
-        this.loading.set(false);
-      },
+      next: ({ schema, versions }) => {
+    
+        const qs = schema.data ?? [];
+        const history = versions.data ?? [];
+    
+        const submittedVersions = history.filter(v => v.status === 'Submitted');
+    
+        if (!submittedVersions.length) {
+          this.notify.error('No submitted response found.');
+          this.loading.set(false);
+          return;
+        }
+    
+        // Latest submitted
+        const latestSubmitted = submittedVersions.reduce((a, b) =>
+          a.versionNumber > b.versionNumber ? a : b);
+    
+        this.versions.set(submittedVersions);
+        this.selectedSubmissionId.set(latestSubmitted.submissionId);
+    
+        this.svc.getSubmissionDetail(latestSubmitted.submissionId)
+          .subscribe(detailRes => {
+    
+            const detail = detailRes.data;
+    
+            this.questions.set(qs);
+            this.submissionMeta.set(detail);
+            this.formStatus.set(detail.status);
+    
+            this.buildForm(qs, detail.responses ?? []);
+            this.form.disable();
+            this.loading.set(false);
+          });
+      }
     });
-  }
-
+}
   private loadPreview(): void {
     if (!this.questionnaireId) {
       this.loading.set(false);
@@ -162,26 +183,92 @@ export class QuestionnaireRendererComponent implements OnInit {
 
     forkJoin({
       schema: this.svc.getQuestions(this.questionnaireId),
-      draft:  this.svc.getRender(this.assignmentId, this.patientId),
+      draft:  this.svc.getRender(this.assignmentId, this.patientId).pipe(catchError(() => of({ data: null }))),
+      versions: this.svc.getSubmissionVersions 
+        ? this.svc.getSubmissionVersions(this.assignmentId).pipe(catchError(() => of({ data: [] })))
+        : of({ data: [] })
     }).subscribe({
-      next: ({ schema, draft }) => {
+      next: ({ schema, draft, versions }) => {
         const questionList = schema.data ?? [];
-        const draftData    = draft.data;
-        const answers      = draftData?.answers ?? [];
+        const draftData    = draft?.data;
+        const vList        = versions?.data ?? [];
 
-        this.formStatus.set(draftData?.status ?? 'Pending');
-        this.isReadOnly.set(this.formStatus() === 'Submitted');
         this.questions.set(questionList);
+        this.versions.set(vList);
 
-        this.buildForm(questionList, answers);
-        if (this.isReadOnly()) this.form.disable();
-        this.loading.set(false);
+        if (vList.length > 0) {
+          if (draftData && draftData.status === 'Draft') {
+            this.formStatus.set('Draft');
+            this.isReadOnly.set(false);
+            this.isCreatingNewVersion.set(true);
+            this.buildForm(questionList, draftData.answers || []);
+            this.loading.set(false);
+          } else {
+            const latest = vList.find((v: any) => v.isLatest) || vList[0];
+            this.selectedSubmissionId.set(latest.submissionId);
+            this.loadSubmissionDetail(latest.submissionId, questionList);
+          }
+        } else {
+          this.formStatus.set(draftData?.status ?? 'Pending');
+          this.isReadOnly.set(false);
+          this.buildForm(questionList, draftData?.answers ?? []);
+          this.loading.set(false);
+        }
       },
       error: () => {
         this.notify.error('Failed to load questionnaire.');
         this.loading.set(false);
       },
     });
+  }
+
+  private loadSubmissionDetail(submissionId: string, questions?: QuestionItem[]) {
+    const qs = questions || this.questions();
+    this.loading.set(true);
+    
+    this.svc.getSubmissionDetail(submissionId).subscribe({
+       next: (res) => {
+          const detail = res.data;
+          const status = detail?.status ?? 'Submitted';
+          const isDraft = status === 'Draft'; 
+          
+          this.submissionMeta.set(detail);
+          this.formStatus.set(status);
+          this.isReadOnly.set(!isDraft);
+          this.isCreatingNewVersion.set(isDraft);
+          
+          this.buildForm(qs, detail?.responses ?? []);
+          
+          if (isDraft) {
+            this.form.enable();
+          } else {
+            this.form.disable();
+          }
+          
+          this.loading.set(false);
+       },
+       error: () => {
+          this.notify.error('Failed to load version details.');
+          this.loading.set(false);
+       }
+    });
+  }
+
+  onVersionChange(submissionId: string | null) {
+    if (!submissionId) {
+       this.startNewVersion();
+    } else {
+       this.selectedSubmissionId.set(submissionId);
+       this.loadSubmissionDetail(submissionId);
+    }
+  }
+
+  startNewVersion() {
+    this.isReadOnly.set(false);
+    this.isCreatingNewVersion.set(true);
+    this.formStatus.set('New Version');
+    this.selectedSubmissionId.set(null); 
+    this.form.enable();
   }
 
   buildForm(questions: QuestionItem[], answers: any[]): void {
@@ -215,13 +302,19 @@ export class QuestionnaireRendererComponent implements OnInit {
           arr.addValidators(this.minSelectedCheckboxes(1));
         }
         group[q.id] = arr;
-      } else {
-        let initial = existing?.responseValue ?? q.defaultValue ?? '';
-        if (q.fieldType === 'Date' && initial) {
-          initial = new Date(initial) as any;
-        }
-        group[q.id] = [initial, validators];
       }
+
+     else if (q.fieldType === 'Dropdown' || q.fieldType === 'RadioButton') {
+      let initial = existing?.responseValue ?? q.defaultValue ?? null;
+      group[q.id] = [initial, validators];
+    } 
+    else {
+      let initial = existing?.responseValue ?? q.defaultValue ?? null; 
+      if (q.fieldType === 'Date' && initial) {
+        initial = new Date(initial) as any;
+      }
+      group[q.id] = [initial, validators];
+    }
     });
     this.form = this.fb.group(group);
   }

@@ -51,17 +51,13 @@ namespace MediScope.Data.Repositories
                 CALL sp_unassign_questionnaire({assignmentId}, {deletedBy})");
         }
 
-        public async Task<PagedResult<PatientAssignmentResponseDto>> GetPatientAssignmentsAsync(
-            Guid patientId, PatientAssignmentFilterDto filter)
+        public async Task<PagedResult<PatientAssignmentResponseDto>> GetPatientAssignmentsAsync(Guid patientId, PatientAssignmentFilterDto filter)
         {
             var rows = await _context.Database
-                .SqlQuery<DbPatientAssignmentRow>($@"
-                    SELECT * FROM fn_get_patient_assignments(
+                .SqlQuery<DbPatientAssignmentRow>($@"SELECT * FROM fn_get_patient_assignments(
                         {patientId},
                         {filter.PageNumber},
-                        {filter.PageSize},
-                        {filter.Status},
-                        {filter.AssignedBy}
+                        {filter.PageSize}
                     )")
                 .ToListAsync();
 
@@ -78,6 +74,7 @@ namespace MediScope.Data.Repositories
                 SubmissionId = r.SubmissionId,
                 SubmittedAt = r.SubmittedAt,
                 PdfPath = r.PdfPath,
+                VersionCount = r.VersionCount,
             }).ToList();
 
             return new PagedResult<PatientAssignmentResponseDto>
@@ -125,7 +122,7 @@ namespace MediScope.Data.Repositories
             };
         }
 
-        // ── Get Draft (pre-fill) ──────────────────────────────────────────────
+        // ── Get Draft (pre-fill) 
         public async Task<DraftResponseDto> GetDraftResponsesAsync(Guid assignmentId, Guid patientId)
         {
             var rows = await _context.Database
@@ -143,6 +140,7 @@ namespace MediScope.Data.Repositories
             return new DraftResponseDto
             {
                 SubmissionId = first.SubmissionId,
+                VersionNumber = first.VersionNumber,
                 Status = first.Status ?? "Draft",
                 Notes = first.Notes,
                 Answers = rows
@@ -157,8 +155,7 @@ namespace MediScope.Data.Repositories
         }
 
         // ── Save Draft ────────────────────────────────────────────────────────
-        public async Task<SaveDraftResultDto> SaveDraftAsync(
-            Guid assignmentId, Guid patientId, Guid userId, SaveDraftRequestDto request)
+        public async Task<SaveDraftResultDto> SaveDraftAsync(Guid assignmentId, Guid patientId, Guid userId, SaveDraftRequestDto request)
         {
             var responsesJson = JsonSerializer.Serialize(
                 request.Responses.Select(r => new
@@ -179,24 +176,24 @@ namespace MediScope.Data.Repositories
                 )");
 
             // Fetch the submission id
-            var submissionId = await _context.QuestionnaireSubmissions
+            var submission = await _context.QuestionnaireSubmissions
                 .Where(s => s.AssignmentId == assignmentId
                          && s.PatientId == patientId
+                         && s.Status == "Draft"
                          && !s.IsDeleted)
-                .OrderByDescending(s => s.UpdatedAt)
-                .Select(s => s.Id)
+                .Select(s => new { s.Id, s.VersionNumber })
                 .FirstOrDefaultAsync();
 
             return new SaveDraftResultDto
             {
-                SubmissionId = submissionId,
+                SubmissionId = submission?.Id ?? Guid.Empty,
                 Status = "Draft",
+                VersionNumber = submission?.VersionNumber ?? 1
             };
         }
 
-        // ── Submit ────────────────────────────────────────────────────────────
-        public async Task<SubmitResultDto> SubmitQuestionnaireAsync(
-            Guid assignmentId, Guid patientId, Guid userId, SubmitQuestionnaireRequestDto request)
+        // ── Submit    
+        public async Task<SubmitResultDto> SubmitQuestionnaireAsync(Guid assignmentId, Guid patientId, Guid userId, SubmitQuestionnaireRequestDto request)
         {
             var responsesJson = JsonSerializer.Serialize(
                 request.Responses.Select(r => new
@@ -221,8 +218,8 @@ namespace MediScope.Data.Repositories
                          && s.PatientId == patientId
                          && s.Status == "Submitted"
                          && !s.IsDeleted)
-                .OrderByDescending(s => s.UpdatedAt)
-                .Select(s => new { s.Id, s.PdfPath })
+                .OrderByDescending(s => s.VersionNumber)
+                .Select(s => new { s.Id, s.PdfPath, s.VersionNumber })
                 .FirstOrDefaultAsync();
 
             return new SubmitResultDto
@@ -230,6 +227,7 @@ namespace MediScope.Data.Repositories
                 SubmissionId = submission?.Id ?? Guid.Empty,
                 Status = "Submitted",
                 PdfPath = submission?.PdfPath,
+                VersionNumber = submission?.VersionNumber ?? 1,
             };
         }
 
@@ -263,6 +261,7 @@ namespace MediScope.Data.Repositories
                 QuestionnaireName = row.QuestionnaireName,
                 Department = row.Department,
                 Status = row.Status,
+                VersionNumber = row.VersionNumber,
                 SubmittedAt = row.SubmittedAt,
                 SubmittedByName = row.SubmittedByName,
                 Notes = row.Notes,
@@ -278,8 +277,25 @@ namespace MediScope.Data.Repositories
                 }).ToList()
             };
         }
+        public async Task<List<SubmissionVersionResponseDto>> GetSubmissionVersionsAsync(Guid assignmentId)
+        {
+            var rows = await _context.Database
+                .SqlQuery<DbSubmissionVersionRow>($@"SELECT * FROM fn_get_submission_versions({assignmentId})")
+                .ToListAsync();
 
-        // ── Private helpers ───────────────────────────────────────────────────
+            return rows.Select(r => new SubmissionVersionResponseDto
+            {
+                SubmissionId = r.SubmissionId,
+                VersionNumber = r.VersionNumber,
+                Status = r.Status,
+                SubmittedAt = r.SubmittedAt,
+                SubmittedByName = r.SubmittedByName,
+                Notes = r.Notes,
+                PdfPath = r.PdfPath,
+                IsLatest = r.IsLatest,
+            }).ToList();
+        }
+        // ── Private helpers 
         private class DbResponseJsonItem
         {
             public Guid QuestionId { get; set; }

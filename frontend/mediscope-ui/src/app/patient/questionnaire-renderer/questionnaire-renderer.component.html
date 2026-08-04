@@ -57,29 +57,75 @@
         <!-- Form Body -->
         <mat-card-content class="form-content">
   
-          <!-- Preview mode banner -->
-          @if (isPreview) {
-            <div class="preview-alert">
-              <mat-icon>info_outline</mat-icon>
-              This is a preview of the questionnaire structure. Fields are display-only and cannot be filled.
-            </div>
-          }
-  
-          <!-- Submitted read-only banner (fill mode, viewing an already-submitted form) -->
-          @if (!isPreview && !isView && isReadOnly()) {
-            <div class="readonly-alert">
-              <mat-icon>lock</mat-icon>
-              This questionnaire has been submitted and is locked for editing.
-            </div>
-          }
+            @if (versions().length > 0 && (isView || !isPreview)) {
+                <div class="version-banner" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center;">
+                  
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <strong style="color: #0f172a; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                      <mat-icon style="font-size: 18px; width: 18px; height: 18px;">history</mat-icon>
+                      Response History
+                    </strong>
+                    <span style="color: #64748b; font-size: 13px;">
+                        {{ isView ? 'Select a previous version to view details.' : 'Select a previous version to view or start an updated version.' }}
+                    </span>
+                  </div>
+            
+                  <div style="display: flex; gap: 16px; align-items: center;">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" style="width: 380px;">
+                      <mat-select [ngModel]="selectedSubmissionId()" (ngModelChange)="onVersionChange($event)">
+                        
+                        <!-- Hide 'New Version' option if strictly in view mode -->
+                        @if (isCreatingNewVersion() && !isView) {
+                          <mat-option [value]="null">Draft / New Version</mat-option>
+                        }
+                        
+                        @for (v of versions(); track v.submissionId) {
+                          <mat-option [value]="v.submissionId">
+                            Version {{ v.versionNumber }} ({{ v.submittedAt | date:'dd MMM yyyy, HH:mm' }}) - {{ v.submittedByName }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    
+                    @if (!isCreatingNewVersion() && isReadOnly() && selectedSubmissionId() === versions()[0]?.submissionId && !isView) {
+                      <button mat-flat-button color="primary" type="button" (click)="startNewVersion()">
+                        <mat-icon>update</mat-icon>
+                        Update Responses
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            
+              <!-- Preview mode banner -->
+              @if (isPreview) {
+                <div class="preview-alert">
+                  <mat-icon>info_outline</mat-icon>
+                  This is a preview of the questionnaire structure. Fields are display-only and cannot be filled.
+                </div>
+              }
 
-          <!-- Notes (view mode) -->
-          @if (isView && submissionMeta()?.notes) {
-            <div class="view-notes-alert">
-              <mat-icon>notes</mat-icon>
-              {{ submissionMeta()!.notes }}
-            </div>
-          }
+              @if (isView && formStatus() === 'Pending') {
+                <div class="readonly-alert" style="background-color: #f1f5f9; color: #475569; border-left: 4px solid #94a3b8; padding: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                  <mat-icon>hourglass_empty</mat-icon>
+                  The patient has not submitted any responses yet. Drafts are hidden for privacy.
+                </div>
+              }
+              <!-- Submitted read-only banner -->
+              @if (!isPreview && !isView && isReadOnly() && !isCreatingNewVersion()) {
+                <div class="readonly-alert">
+                  <mat-icon>lock</mat-icon>
+                  You are viewing a submitted version. It is locked for editing.
+                </div>
+              }
+            
+              <!-- Notes (view mode) -->
+              @if (isView && submissionMeta()?.notes) {
+                <div class="view-notes-alert">
+                  <mat-icon>notes</mat-icon>
+                  {{ submissionMeta()!.notes }}
+                </div>
+              }
   
           <form [formGroup]="form" (ngSubmit)="submitForm()">
             <div class="questions-list">
@@ -404,17 +450,6 @@
                 </button>
               </div>
             }
-  
-            <!-- Preview / view mode close button -->
-            @if (isPreview || isView) {
-              <div class="form-actions">
-                <button mat-stroked-button type="button" (click)="goBack()">
-                  <mat-icon>close</mat-icon>
-                  {{ isPreview ? 'Close Preview' : 'Close' }}
-                </button>
-              </div>
-            }
-  
           </form>
   
         </mat-card-content>

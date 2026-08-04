@@ -10,6 +10,7 @@ namespace MediScope.Common.Models.Entities
         public string? Notes { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public string? PdfPath { get; set; }
+        public int VersionNumber { get; set; } = 1;
         public Questionnaire Questionnaire { get; set; } = null!;
         public Patient Patient { get; set; } = null!;
         public QuestionnaireAssignment? Assignment { get; set; }

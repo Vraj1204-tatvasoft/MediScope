@@ -16,5 +16,6 @@ namespace MediScope.Data.Repositories
         Task UpdatePdfPathAsync(Guid submissionId, string pdfPath);
         Task<SubmissionDetailResponseDto?> GetSubmissionDetailAsync(Guid submissionId);
         Task<QuestionnaireAssignment?> GetAssignmentByIdAsync(Guid assignmentId);
+        Task<List<SubmissionVersionResponseDto>> GetSubmissionVersionsAsync(Guid assignmentId);
     }
 }

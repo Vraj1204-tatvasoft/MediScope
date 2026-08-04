@@ -142,6 +142,7 @@ export class PatientQuestionnaireTabComponent implements OnInit {
         maxHeight: '92vh',
         data: {
           submissionId:      a.submissionId,
+          assignmentId: a.assignmentId,
           questionnaireId:   a.questionnaireId,
           questionnaireName: a.questionnaireName,
         },

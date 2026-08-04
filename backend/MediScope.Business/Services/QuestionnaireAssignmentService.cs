@@ -79,20 +79,17 @@ namespace MediScope.Business.Services
             return await _repository.GetDoctorAssignmentsAsync(doctorId, filter);
         }
 
-        public async Task<DraftResponseDto> GetDraftResponsesAsync(
-            Guid assignmentId, Guid patientId)
+        public async Task<DraftResponseDto> GetDraftResponsesAsync(Guid assignmentId, Guid patientId)
         {
             return await _repository.GetDraftResponsesAsync(assignmentId, patientId);
         }
 
-        public async Task<SaveDraftResultDto> SaveDraftAsync(
-            Guid assignmentId, Guid patientId, Guid userId, SaveDraftRequestDto request)
+        public async Task<SaveDraftResultDto> SaveDraftAsync(Guid assignmentId, Guid patientId, Guid userId, SaveDraftRequestDto request)
         {
             return await _repository.SaveDraftAsync(assignmentId, patientId, userId, request);
         }
 
-        public async Task<SubmitResultDto> SubmitQuestionnaireAsync(
-            Guid assignmentId, Guid patientId, Guid userId, SubmitQuestionnaireRequestDto request)
+        public async Task<SubmitResultDto> SubmitQuestionnaireAsync(Guid assignmentId, Guid patientId, Guid userId, SubmitQuestionnaireRequestDto request)
         {
             if (request.Responses is null || !request.Responses.Any())
                 throw new ArgumentException("At least one response is required to submit.");
@@ -144,6 +141,13 @@ namespace MediScope.Business.Services
                 throw new KeyNotFoundException("Submission not found.");
 
             return detail;
+        }
+        public async Task<List<SubmissionVersionResponseDto>> GetSubmissionVersionsAsync(Guid assignmentId)
+        {
+            if (assignmentId == Guid.Empty)
+                throw new ArgumentException("Assignment ID is required.");
+
+            return await _repository.GetSubmissionVersionsAsync(assignmentId);
         }
     }
 }

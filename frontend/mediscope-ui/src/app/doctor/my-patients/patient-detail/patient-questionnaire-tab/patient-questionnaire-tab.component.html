@@ -116,7 +116,7 @@
             </button>
 
             <!-- ── Submitted actions ── -->
-            @if (a.fillStatus === 'Submitted') {
+            @if (a.fillStatus === 'Submitted' || a.fillStatus === 'Draft') {
               <button
                 class="btn-action btn-action--view"
                 (click)="viewSubmission(a)"

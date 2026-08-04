@@ -123,6 +123,9 @@
           <div class="waiting-status-box">
             <mat-icon class="medium-icon">hourglass_empty</mat-icon> Waiting for Patient's Response
           </div>
+          <button mat-menu-item (click)="cancelAppointment(selectedAppointment)">
+            <mat-icon color="warn">event_busy</mat-icon> <span>Cancel Request</span>
+          </button>
         }
         @if (selectedAppointment.status.toLowerCase() === 'accepted') {
             <button mat-menu-item (click)="openMetricsModal(selectedAppointment)">

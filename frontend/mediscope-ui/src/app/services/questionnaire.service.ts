@@ -3,7 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
 import { PagedResponse } from '../models/paged-response.model';
-import { QuestionnaireListFilter, QuestionnaireListItem, QuestionnaireDetail, ActiveQuestionnaire, CreateQuestionnaireRequest, UpdateQuestionnaireRequest, QuestionItem, CreateQuestionRequest, UpdateQuestionRequest, ReorderQuestionsRequest, QuestionnaireRender, SubmitQuestionnaireRequest, SubmissionHistoryItem, SubmissionDetail, AssignQuestionnaireRequest, PatientAssignmentFilterDto, PatientAssignmentResponseDto } from '../models/questionnaire.model';
+import { QuestionnaireListFilter, QuestionnaireListItem, QuestionnaireDetail, ActiveQuestionnaire, CreateQuestionnaireRequest, UpdateQuestionnaireRequest, QuestionItem, CreateQuestionRequest, UpdateQuestionRequest, ReorderQuestionsRequest, QuestionnaireRender, SubmitQuestionnaireRequest, SubmissionHistoryItem, SubmissionDetail, AssignQuestionnaireRequest, PatientAssignmentFilterDto, PatientAssignmentResponseDto, SubmissionVersion } from '../models/questionnaire.model';
 import { BaseHttpService } from './base-http.service';
 
 @Injectable({ providedIn: 'root' })
@@ -111,5 +111,8 @@ export class QuestionnaireService {
 
   submit(assignmentId: string, patientId: string, payload: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/${assignmentId}/submit?patientId=${patientId}`, payload, {showSuccess: true, showError: true});
+  }
+  getSubmissionVersions(assignmentId: string): Observable<ApiResponse<SubmissionVersion[]>> {
+    return this.http.get<SubmissionVersion[]>(`${this.baseUrl}/${assignmentId}/versions`);
   }
 }

@@ -13,6 +13,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public Guid? SubmissionId { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public string? PdfPath { get; set; }
+        public long VersionCount { get; set; }
         public long TotalCount { get; set; }
     }
 
@@ -36,6 +37,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public Guid? SubmissionId { get; set; }
         public string? Status { get; set; }
         public string? Notes { get; set; }
+        public int VersionNumber { get; set; }
         public Guid? QuestionId { get; set; }
         public string? ResponseValue { get; set; }
         public string[]? ResponseValues { get; set; }
@@ -49,6 +51,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public string QuestionnaireName { get; set; } = string.Empty;
         public string? Department { get; set; }
         public string Status { get; set; } = string.Empty;
+        public int VersionNumber { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public string SubmittedByName { get; set; } = string.Empty;
         public string? Notes { get; set; }
@@ -69,6 +72,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public Guid? SubmissionId { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public string? PdfPath { get; set; }
+        public long VersionCount { get; set; }
     }
     public class DoctorAssignmentResponseDto
     {
@@ -89,6 +93,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public Guid? SubmissionId { get; set; }
         public string Status { get; set; } = "Pending";
         public string? Notes { get; set; }
+        public int VersionNumber { get; set; }
         public List<DraftAnswerItemDto> Answers { get; set; } = new();
     }
 
@@ -103,6 +108,7 @@ namespace MediScope.Common.Models.DTOs.Response
     {
         public Guid SubmissionId { get; set; }
         public string Status { get; set; } = "Draft";
+        public int VersionNumber { get; set; }
     }
 
     public class SubmitResultDto
@@ -110,6 +116,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public Guid SubmissionId { get; set; }
         public string Status { get; set; } = "Submitted";
         public string? PdfPath { get; set; }
+        public int VersionNumber { get; set; }
     }
 
     public class SubmissionDetailResponseDto
@@ -124,6 +131,7 @@ namespace MediScope.Common.Models.DTOs.Response
         public string SubmittedByName { get; set; } = string.Empty;
         public string? Notes { get; set; }
         public string? PdfPath { get; set; }
+        public int VersionNumber { get; set; }
         public List<SubmissionResponseItemDto> Responses { get; set; } = new();
     }
 
@@ -136,4 +144,29 @@ namespace MediScope.Common.Models.DTOs.Response
         public string? ResponseValue { get; set; }
         public List<string>? ResponseValues { get; set; }
     }
+
+    public class DbSubmissionVersionRow
+    {
+        public Guid SubmissionId { get; set; }
+        public int VersionNumber { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public DateTime? SubmittedAt { get; set; }
+        public string SubmittedByName { get; set; } = string.Empty;
+        public string? Notes { get; set; }
+        public string? PdfPath { get; set; }
+        public bool IsLatest { get; set; }
+    }
+    public class SubmissionVersionResponseDto
+    {
+        public Guid SubmissionId { get; set; }
+        public int VersionNumber { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public DateTime? SubmittedAt { get; set; }
+        public string SubmittedByName { get; set; } = string.Empty;
+        public string? Notes { get; set; }
+        public string? PdfPath { get; set; }
+
+        public bool IsLatest { get; set; }
+    }
+
 }

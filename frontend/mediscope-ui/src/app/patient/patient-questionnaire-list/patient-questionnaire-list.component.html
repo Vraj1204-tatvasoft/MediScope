@@ -64,6 +64,11 @@
                       <mat-chip [ngClass]="element.status?.toLowerCase() || 'pending'" class="status-chip" disableRipple>
                           {{element.status || 'Pending'}}
                         </mat-chip>
+                        @if (element.versionCount > 0) {
+                            <mat-chip style="background-color: #e2e8f0; color: #475569;" disableRipple>
+                              v{{element.versionCount}}
+                            </mat-chip>
+                          }
                   </mat-chip-set>
                 </td>
               </ng-container>
@@ -77,9 +82,9 @@
                     (click)="onActionClick(element)"
                     class="action-btn">
                     <mat-icon>
-                      {{ element.status === 'Submitted' ? 'visibility' : (element.status === 'Draft' ? 'edit' : 'play_arrow') }}
+                        {{ element.status === 'Submitted' ? 'history' : (element.status === 'Draft' ? 'edit' : 'play_arrow') }}
                     </mat-icon>
-                    {{ element.status === 'Submitted' ? 'View' : (element.status === 'Draft' ? 'Continue' : 'Start') }}
+                    {{ element.status === 'Submitted' ? 'View / Update' : (element.status === 'Draft' ? 'Continue' : 'Start') }}
                   </button>
                 </td>
               </ng-container>

@@ -1182,6 +1182,11 @@ namespace MediScope.Data
                     .HasDefaultValue("Draft")
                     .IsRequired();
 
+                entity.Property(s => s.VersionNumber)
+                    .HasColumnName("version_number")
+                    .HasDefaultValue(1)
+                    .IsRequired();
+
                 entity.Property(s => s.Notes)
                     .HasColumnName("notes")
                     .HasColumnType("text");

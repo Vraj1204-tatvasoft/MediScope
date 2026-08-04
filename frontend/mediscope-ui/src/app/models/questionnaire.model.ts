@@ -158,6 +158,7 @@ export interface SubmissionHistoryItem {
 
 export interface SubmissionDetail {
   submissionId: string;
+  assignmentId: string;
   questionnaireId: string;
   questionnaireName: string;
   department: string | null;
@@ -277,3 +278,11 @@ export interface QuestionnaireRenderDto {
 }
 
 export type RendererMode = 'fill' | 'preview' | 'view';
+export interface SubmissionVersion {
+  submissionId: string;
+  versionNumber: number;
+  status: 'Pending' | 'Draft' | 'Submitted';
+  submittedAt: string | null;
+  submittedByName: string;
+  pdfPath: string | null;
+}

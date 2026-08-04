@@ -21,9 +21,7 @@ namespace MediScope.API.Controllers.Features
             _questionnaireService = questionnaireService;
         }
 
-        // =====================================================================
         // ASSIGNMENT — Doctor side
-        // =====================================================================
 
         /// <summary>Doctor assigns a questionnaire to a patient.</summary>
         [HttpPost("questionnaire-assignments")]
@@ -126,6 +124,14 @@ namespace MediScope.API.Controllers.Features
         public async Task<IActionResult> GetSubmissionDetail(Guid submissionId)
         {
             var result = await _service.GetSubmissionDetailAsync(submissionId);
+            return Success(result);
+        }
+
+        [HttpGet("questionnaire-assignments/{assignmentId:guid}/versions")]
+        [Authorize(Policy = "PatientOrDoctorOrAdmin")]
+        public async Task<IActionResult> GetSubmissionVersions(Guid assignmentId)
+        {
+            var result = await _service.GetSubmissionVersionsAsync(assignmentId);
             return Success(result);
         }
     }

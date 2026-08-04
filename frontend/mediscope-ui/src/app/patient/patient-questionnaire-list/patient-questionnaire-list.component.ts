@@ -26,6 +26,7 @@ export interface AssignedQuestionnaire {
   assignedBy: string;
   assignedDate: Date;
   status: 'Pending' | 'Draft' | 'Submitted';
+  versionCount: number;
 }
 
 @Component({
@@ -113,7 +114,8 @@ export class PatientQuestionnaireListComponent implements OnInit {
           name: item.questionnaireName,
           assignedBy: item.assignedByName || 'Clinical Staff',
           assignedDate: new Date(item.assignedAt), 
-          status: item.fillStatus
+          status: item.fillStatus,
+          versionCount: item.versionCount || 0
         }));
         
         this.dataSource.set(mappedData);
