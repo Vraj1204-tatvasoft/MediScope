@@ -43,6 +43,8 @@ namespace MediScope.Data
         public DbSet<QuestionnaireSubmission> QuestionnaireSubmissions { get; set; }
         public DbSet<SubmissionResponse> SubmissionResponses { get; set; }
         public DbSet<QuestionnaireAssignment> QuestionnaireAssignments { get; set; }
+        public DbSet<Broadcast> Broadcasts { get; set; }
+        public DbSet<BroadcastRecipient> BroadcastRecipients { get; set; }
         private static string ToSnakeCase(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
@@ -1311,6 +1313,111 @@ namespace MediScope.Data
                     .WithOne(s => s.Assignment)
                     .HasForeignKey(s => s.AssignmentId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+            modelBuilder.Entity<Broadcast>(entity =>
+            {
+                entity.ToTable("broadcasts");
+
+                entity.Property(e => e.Name)
+                      .HasColumnName("name")
+                      .HasMaxLength(200)
+                      .IsRequired();
+
+                entity.Property(e => e.Channel)
+                      .HasColumnName("channel");
+
+                entity.Property(e => e.Subject)
+                      .HasColumnName("subject")
+                      .HasMaxLength(500);
+
+                entity.Property(e => e.Message)
+                      .HasColumnName("message")
+                      .IsRequired();
+
+                entity.Property(e => e.Audience)
+                      .HasColumnName("audience");
+
+                entity.Property(e => e.Status)
+                      .HasColumnName("status");
+
+                entity.Property(e => e.TotalRecipients)
+                      .HasColumnName("total_recipients")
+                      .HasDefaultValue(0);
+
+                entity.Property(e => e.SentCount)
+                      .HasColumnName("sent_count")
+                      .HasDefaultValue(0);
+
+                entity.Property(e => e.FailedCount)
+                      .HasColumnName("failed_count")
+                      .HasDefaultValue(0);
+
+                entity.Property(e => e.HangfireJobId)
+                      .HasColumnName("hangfire_job_id")
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.BatchSize)
+                      .HasColumnName("batch_size")
+                      .HasDefaultValue(100);
+
+                entity.Property(e => e.ScheduledAt)
+                      .HasColumnName("scheduled_at");
+
+                entity.Property(e => e.StartedAt)
+                      .HasColumnName("started_at");
+
+                entity.Property(e => e.CompletedAt)
+                      .HasColumnName("completed_at");
+
+                entity.Property(e => e.FailureReason)
+                      .HasColumnName("failure_reason");
+
+                entity.HasMany(b => b.Recipients)
+                    .WithOne(r => r.Broadcast)
+                    .HasForeignKey(r => r.BroadcastId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            modelBuilder.Entity<BroadcastRecipient>(entity =>
+            {
+                entity.ToTable("broadcast_recipients");
+
+                entity.Property(e => e.BroadcastId)
+                      .HasColumnName("broadcast_id");
+
+                entity.Property(e => e.UserId)
+                      .HasColumnName("user_id");
+
+                entity.Property(e => e.FullName)
+                      .HasColumnName("full_name")
+                      .HasMaxLength(200)
+                      .IsRequired();
+
+                entity.Property(e => e.Email)
+                      .HasColumnName("email")
+                      .HasMaxLength(320);
+
+                entity.Property(e => e.Status)
+                      .HasColumnName("status");
+
+                entity.Property(e => e.SentAt)
+                      .HasColumnName("sent_at");
+
+                entity.Property(e => e.ErrorMessage)
+                      .HasColumnName("error_message")
+                      .HasMaxLength(1000);
+
+                entity.Property(e => e.RetryCount)
+                      .HasColumnName("retry_count")
+                      .HasDefaultValue(0);
+
+                entity.Property(e => e.BatchNumber)
+                      .HasColumnName("batch_number")
+                      .HasDefaultValue(1);
+
+                entity.HasOne(r => r.Broadcast)
+                      .WithMany(b => b.Recipients)
+                      .HasForeignKey(r => r.BroadcastId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

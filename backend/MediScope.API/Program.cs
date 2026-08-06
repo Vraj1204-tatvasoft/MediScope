@@ -13,6 +13,10 @@ using MediScope.Data;
 using MediScope.API.Middleware;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MediScope.Business.Jobs;
+using Hangfire;
+using Hangfire.PostgreSql;
+using MediScope.API.Filters;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── 1. DATABASE ──────────────────────────────────────────────────────
@@ -159,6 +163,7 @@ builder.Services.AddScoped<IHospitalizationDashboardRepository, HospitalizationD
 builder.Services.AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
 builder.Services.AddScoped<IQuestionnaireAssignmentRepository, QuestionnaireAssignmentRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IBroadcastRepository, BroadcastRepository>();
 // ── 5. SERVICES ──────────────────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -186,6 +191,13 @@ builder.Services.AddScoped<IHospitalizationDashboardService, HospitalizationDash
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 builder.Services.AddScoped<IQuestionnaireAssignmentService, QuestionnaireAssignmentService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IBroadcastService, BroadcastService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
+builder.Services.AddScoped<IPushService, PushService>();
+builder.Services.AddScoped<BroadcastDispatchJob>();
+builder.Services.AddScoped<ProcessBatchJob>();
+builder.Services.AddScoped<RetryBatchJob>();
+builder.Services.AddScoped<FinalizeBroadcastJob>();
 // ── 6. CORS (for Angular frontend) ───────────────────────────────────
 builder.Services.AddCors(options =>
 {
@@ -242,7 +254,25 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")),
+        new PostgreSqlStorageOptions
+        {
+            PrepareSchemaIfNecessary = true,
+            QueuePollInterval = TimeSpan.FromSeconds(5),
+            InvisibilityTimeout = TimeSpan.FromMinutes(30),
+            JobExpirationCheckInterval = TimeSpan.FromHours(1),
+        }));
 
+builder.Services.AddHangfireServer(options =>
+{
+    options.WorkerCount = 5;
+    options.Queues = new[] { "default" };
+    options.ServerTimeout = TimeSpan.FromMinutes(5);
+});
 // ── BUILD ────────────────────────────────────────────────────────────
 var app = builder.Build();
 
@@ -261,6 +291,10 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthFilter() }
+});
 app.MapControllers();
 app.MapHub<RealtimeHub>("/api/hubs/realtime");
 app.Run();
