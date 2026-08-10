@@ -80,8 +80,7 @@ namespace MediScope.Business.Services
         /// <summary>
         /// Update profile — handles user + patient tables + audit log in one transaction.
         /// </summary>
-        public async Task<PatientProfileResponseDto> UpdateMyProfileAsync(
-            Guid userId, UpdateProfileRequestDto request)
+        public async Task<PatientProfileResponseDto> UpdateMyProfileAsync(Guid userId, UpdateProfileRequestDto request)
         {
             // 1. Load patient with user
             var patient = await _uow.Patients.GetFirstOrDefaultAsync(
@@ -94,8 +93,7 @@ namespace MediScope.Business.Services
             // 2. Check email uniqueness if changed
             if (!string.Equals(user.Email, request.Email?.ToLower(), StringComparison.OrdinalIgnoreCase))
             {
-                var emailTaken = await _uow.Users.AnyAsync(
-                    u => u.Email == request.Email!.ToLower() && u.Id != userId);
+                var emailTaken = await _uow.Users.AnyAsync(u => u.Email == request.Email!.ToLower() && u.Id != userId);
 
                 if (emailTaken)
                     throw new InvalidOperationException("This email address is already in use.");

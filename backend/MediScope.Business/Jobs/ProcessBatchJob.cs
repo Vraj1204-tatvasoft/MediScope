@@ -4,22 +4,12 @@ using MediScope.Common.Models.Entities;
 using MediScope.Common.Models.Enums;
 using MediScope.Data.Repositories;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.SignalR;
+using MediScope.Business.Hubs;
 using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
 namespace MediScope.Business.Jobs
 {
-    /// <summary>
-    /// Child Hangfire job. One instance per batch number per broadcast.
-    ///
-    /// Flow:
-    ///   1. Load Pending recipients for this broadcastId + batchNumber
-    ///      from broadcast_recipients via fn_get_recipients_by_batch.
-    ///   2. Send each recipient concurrently via Task.WhenAll.
-    ///   3. Update each recipient's status (Sent / Failed) + error message.
-    ///   4. Update broadcast.sent_count / failed_count via sp_complete_broadcast
-    ///      is NOT called here — FinalizeBroadcastJob does that after all
-    ///      child jobs are done.
-    /// </summary>
     [AutomaticRetry(Attempts = 0)]
     public class ProcessBatchJob
     {
@@ -27,73 +17,103 @@ namespace MediScope.Business.Jobs
         private readonly IEmailService _emailSender;
         private readonly ISmsService _smsSender;
         private readonly IPushService _pushSender;
+        private readonly IBackgroundJobClient _jobClient;
         private readonly ILogger<ProcessBatchJob> _logger;
+        private readonly IHubContext<RealtimeHub> _hubContext;
 
         public ProcessBatchJob(
             IBroadcastRepository repository,
             IEmailService emailSender,
             ISmsService smsSender,
             IPushService pushSender,
-            ILogger<ProcessBatchJob> logger)
+            IBackgroundJobClient jobClient,
+            ILogger<ProcessBatchJob> logger,
+            IHubContext<RealtimeHub> hubContext)
         {
             _repository = repository;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _pushSender = pushSender;
+            _jobClient = jobClient;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
         public async Task ExecuteAsync(Guid broadcastId, int batchNumber, CancellationToken ct)
         {
-            var broadcast = await _repository.GetBroadcastByIdAsync(broadcastId);
-            if (broadcast is null)
-            {
-                _logger.LogError(
-                    "ProcessBatchJob: broadcast {Id} not found. Batch={Batch}",
-                    broadcastId, batchNumber);
-                return;
-            }
-
-            // Load only Pending recipients for this batch
-            var recipients = await _repository.GetRecipientsByBatchAsync(broadcastId, batchNumber);
-
-            if (recipients.Count == 0)
-            {
-                _logger.LogInformation(
-                    "ProcessBatchJob: no Pending recipients in batch {Batch} for broadcast {Id}.",
-                    batchNumber, broadcastId);
-                return;
-            }
-
-            _logger.LogInformation(
-                "ProcessBatchJob: sending batch {Batch} — {Count} recipients for broadcast {Id}",
-                batchNumber, recipients.Count, broadcastId);
-
             int sent = 0;
             int failed = 0;
 
-            // Sequential foreach — avoids concurrent DbContext access.
-            foreach (var recipient in recipients)
+            try
             {
-                bool success = await DispatchAsync(broadcast, recipient, ct);
+                var broadcast = await _repository.GetBroadcastByIdAsync(broadcastId);
+                if (broadcast is null)
+                {
+                    _logger.LogError("ProcessBatchJob: broadcast {Id} not found. Batch={Batch}", broadcastId, batchNumber);
+                    return;
+                }
 
-                if (success) sent++;
-                else failed++;
+                var recipients = await _repository.GetRecipientsByBatchAsync(broadcastId, batchNumber);
+
+                if (recipients.Count == 0)
+                {
+                    _logger.LogInformation("ProcessBatchJob: no Pending recipients in batch {Batch} for broadcast {Id}.", batchNumber, broadcastId);
+                }
+                else
+                {
+                    _logger.LogInformation("ProcessBatchJob: sending batch {Batch} — {Count} recipients for broadcast {Id}", batchNumber, recipients.Count, broadcastId);
+
+                    foreach (var recipient in recipients)
+                    {
+                        bool success = await DispatchAsync(broadcast, recipient, ct);
+                        if (success) sent++;
+                        else failed++;
+                    }
+
+                    if (sent > 0 || failed > 0)
+                    {
+                        await _hubContext.Clients.All.SendAsync("BroadcastProgressUpdated", new
+                        {
+                            BroadcastId = broadcastId,
+                            BatchNumber = batchNumber,
+                            Sent = sent,
+                            Failed = failed
+                        }, ct);
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ProcessBatchJob: unhandled exception in batch {Batch} for broadcast {Id}", batchNumber, broadcastId);
+            }
+            finally
+            {
+                // Decrement remaining_batches and increment sent/failed counts atomically in PostgreSQL.
+                // Runs inside 'finally' so batch execution always updates the counter even on failure or empty recipients.
+                int remainingBatches = await _repository.DecrementRemainingBatchesAsync(broadcastId, sent, failed);
 
-            _logger.LogInformation(
-                "ProcessBatchJob: batch {Batch} done for broadcast {Id}",
-                batchNumber, broadcastId);
+                _logger.LogInformation("ProcessBatchJob: batch {Batch} done — Sent={Sent} Failed={Failed} RemainingBatches={Remaining} for broadcast {Id}",
+                    batchNumber, sent, failed, remainingBatches, broadcastId);
+
+                // The worker that finishes the absolute LAST batch triggers FinalizeBroadcastJob
+                if (remainingBatches == 0)
+                {
+                    _logger.LogInformation("ProcessBatchJob: Last batch ({Batch}) finished for broadcast {Id}. Triggering FinalizeBroadcastJob.",
+                        batchNumber, broadcastId);
+
+                    _jobClient.Enqueue<FinalizeBroadcastJob>(job => job.ExecuteAsync(broadcastId, CancellationToken.None));
+                }
+            }
         }
 
-        // ── Dispatch to the correct channel ───────────────────────────────────
+        // Dispatch 
 
         private Task<bool> DispatchAsync(Broadcast broadcast, BroadcastRecipientRow recipient, CancellationToken ct)
         {
             return broadcast.Channel switch
             {
                 BroadcastChannel.Email => SendEmailAsync(broadcast, recipient),
-                BroadcastChannel.Sms => SendSmsAsync(broadcast, recipient),
+                BroadcastChannel.Sms => SendSmsAsync(recipient),
                 BroadcastChannel.PushNotification => SendPushAsync(broadcast, recipient, ct),
                 _ => Task.FromResult(false)
             };
@@ -110,6 +130,7 @@ namespace MediScope.Business.Jobs
 
                 await _repository.UpdateRecipientStatusAsync(
                     recipient.Id, RecipientStatus.Sent);
+
                 return true;
             }
             catch (Exception ex)
@@ -120,21 +141,17 @@ namespace MediScope.Business.Jobs
 
                 await _repository.UpdateRecipientStatusAsync(
                     recipient.Id, RecipientStatus.Failed, ex.Message);
+
                 return false;
             }
         }
 
-        private async Task<bool> SendSmsAsync(Broadcast broadcast, BroadcastRecipientRow recipient)
+        private async Task<bool> SendSmsAsync(BroadcastRecipientRow recipient)
         {
-            // fn_get_audience_contacts_batch returns email only.
-            // Extend that function to include phone when SMS is implemented.
-            _logger.LogWarning(
-                "ProcessBatchJob: SMS not yet supported. Marking recipient {Id} as Failed.",
-                recipient.Id);
+            _logger.LogWarning("ProcessBatchJob: SMS not yet supported. Recipient={Id}", recipient.Id);
 
-            await _repository.UpdateRecipientStatusAsync(
-                recipient.Id, RecipientStatus.Failed,
-                "SMS not yet supported. Extend fn_get_audience_contacts_batch to include phone.");
+            await _repository.UpdateRecipientStatusAsync(recipient.Id, RecipientStatus.Failed, "SMS not yet supported.");
+
             return false;
         }
 
@@ -153,13 +170,11 @@ namespace MediScope.Business.Jobs
             }
             else
             {
-                _logger.LogWarning(
-                    "ProcessBatchJob: push failed → UserId {UserId}: {Error}",
-                    recipient.UserId, error);
+                _logger.LogWarning("ProcessBatchJob: push failed → UserId={UserId}: {Error}", recipient.UserId, error);
 
-                await _repository.UpdateRecipientStatusAsync(
-                    recipient.Id, RecipientStatus.Failed, error);
+                await _repository.UpdateRecipientStatusAsync(recipient.Id, RecipientStatus.Failed, error);
             }
+
             return success;
         }
     }

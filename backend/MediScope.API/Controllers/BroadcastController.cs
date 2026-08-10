@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediScope.Common.Models.DTOs.Request;
 using MediScope.Common.Models.DTOs.Response;
+using MediScope.Common.Models.Enums;
 using MediScope.Business.Services.Interfaces;
 
 namespace MediScope.API.Controllers
@@ -77,6 +78,12 @@ namespace MediScope.API.Controllers
             int failedCount = await _broadcastService.RetryBroadcastAsync(id);
 
             return Success(new { Message = "Retry queued for failed recipients.", FailedCount = failedCount });
+        }
+        [HttpGet("audience-count")]
+        public async Task<IActionResult> GetAudienceCount([FromQuery] BroadcastAudience audience)
+        {
+            var result = await _broadcastService.GetAudienceCountAsync(audience);
+            return Success(result);
         }
     }
 }

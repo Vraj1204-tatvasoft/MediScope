@@ -50,8 +50,7 @@ namespace MediScope.Data.Repositories
         public async Task<Broadcast?> GetBroadcastByIdAsync(Guid id)
         {
             return await _context.Broadcasts
-                .FromSqlInterpolated($@"
-                    SELECT * FROM fn_get_broadcast_by_id({id})")
+                .FromSqlInterpolated($@"SELECT * FROM fn_get_broadcast_by_id({id})")
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
         }
@@ -104,9 +103,7 @@ namespace MediScope.Data.Repositories
                 CALL sp_mark_broadcast_processing({broadcastId})");
         }
 
-        public async Task CompleteBroadcastAsync(
-            Guid broadcastId, int sentCount, int failedCount,
-            BroadcastStatus status, string? failureReason = null)
+        public async Task CompleteBroadcastAsync(Guid broadcastId, int sentCount, int failedCount, BroadcastStatus status, string? failureReason = null)
         {
             await _context.Database.ExecuteSqlInterpolatedAsync($@"
                 CALL sp_complete_broadcast(
@@ -118,10 +115,35 @@ namespace MediScope.Data.Repositories
                 )");
         }
 
+        public async Task IncrementBroadcastCountsAsync(Guid broadcastId, int sentDelta, int failedDelta)
+        {
+            var (sentCount, failedCount) = await GetFinalCountsAsync(broadcastId);
+
+            // Update the broadcast table with the absolute ground-truth counts
+            await _context.Database.ExecuteSqlInterpolatedAsync($@"UPDATE broadcasts SET sent_count = {sentCount}, 
+                    failed_count = {failedCount}
+                WHERE id = {broadcastId}");
+        }
+        public async Task SetRemainingBatchesAsync(Guid broadcastId, int totalBatches)
+        {
+            await _context.Database.ExecuteSqlInterpolatedAsync($@"CALL sp_set_remaining_batches({broadcastId}, {totalBatches})");
+        }
+
+        public async Task<int> DecrementRemainingBatchesAsync(Guid broadcastId, int sentDelta, int failedDelta)
+        {
+            var result = await _context.Database
+                .SqlQuery<int>($@"SELECT fn_decrement_remaining_batches(
+                        {broadcastId},
+                        {sentDelta},
+                        {failedDelta}
+                    )")
+                .ToListAsync();
+
+            return result.FirstOrDefault();
+        }
         // ── Audience helpers ──────────────────────────────────────────────────
 
-        public async Task<List<DbAudienceMember>> GetAudienceContactsBatchAsync(
-            BroadcastAudience audience, int offset, int limit)
+        public async Task<List<DbAudienceMember>> GetAudienceContactsBatchAsync(BroadcastAudience audience, int offset, int limit)
         {
             return await _context.Database
                 .SqlQuery<DbAudienceMember>($@"
@@ -145,8 +167,7 @@ namespace MediScope.Data.Repositories
 
         // ── Recipients ────────────────────────────────────────────────────────
 
-        public async Task BulkInsertRecipientsAsync(
-            Guid broadcastId, List<DbAudienceMember> contacts, int batchNumber)
+        public async Task BulkInsertRecipientsAsync(Guid broadcastId, List<DbAudienceMember> contacts, int batchNumber)
         {
             var userIds = contacts.Select(c => c.UserId).ToArray();
             var emails = contacts.Select(c => c.Email).ToArray();
@@ -163,8 +184,7 @@ namespace MediScope.Data.Repositories
                 )");
         }
 
-        public async Task UpdateRecipientStatusAsync(
-            Guid recipientId, RecipientStatus status, string? errorMessage = null)
+        public async Task UpdateRecipientStatusAsync(Guid recipientId, RecipientStatus status, string? errorMessage = null)
         {
             await _context.Database.ExecuteSqlInterpolatedAsync($@"
                 CALL sp_update_recipient_status(
@@ -174,12 +194,10 @@ namespace MediScope.Data.Repositories
                 )");
         }
 
-        public async Task<List<BroadcastRecipientRow>> GetRecipientsByBatchAsync(
-            Guid broadcastId, int batchNumber)
+        public async Task<List<BroadcastRecipientRow>> GetRecipientsByBatchAsync(Guid broadcastId, int batchNumber)
         {
             return await _context.Database
-                .SqlQuery<BroadcastRecipientRow>($@"
-                    SELECT * FROM fn_get_recipients_by_batch(
+                .SqlQuery<BroadcastRecipientRow>($@"SELECT * FROM fn_get_recipients_by_batch(
                         {broadcastId},
                         {batchNumber}
                     )")

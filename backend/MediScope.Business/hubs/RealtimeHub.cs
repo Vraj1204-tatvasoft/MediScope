@@ -9,7 +9,6 @@ namespace MediScope.Business.Hubs
     {
         public override async Task OnConnectedAsync()
         {
-            // 🛠️ FIX: Fall back to standard ClaimTypes scheme if short string payload reads null
             var userId = Context.User?.FindFirst("id")?.Value
                          ?? Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

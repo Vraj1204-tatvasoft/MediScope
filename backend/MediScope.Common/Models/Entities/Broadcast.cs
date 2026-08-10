@@ -33,6 +33,7 @@ namespace MediScope.Common.Models.Entities
         public DateTime? CompletedAt { get; set; }
 
         public string? FailureReason { get; set; }
+        public int? RemainingBatches { get; set; }
 
         public ICollection<BroadcastRecipient> Recipients { get; set; }
             = new List<BroadcastRecipient>();

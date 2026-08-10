@@ -1372,6 +1372,9 @@ namespace MediScope.Data
                 entity.Property(e => e.FailureReason)
                       .HasColumnName("failure_reason");
 
+                entity.Property(e => e.RemainingBatches)
+                      .HasColumnName("remaining_batches");
+
                 entity.HasMany(b => b.Recipients)
                     .WithOne(r => r.Broadcast)
                     .HasForeignKey(r => r.BroadcastId)

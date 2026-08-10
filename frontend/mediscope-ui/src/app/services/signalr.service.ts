@@ -23,6 +23,11 @@ export class SignalrService {
   private dashboardUpdatedSubject = new Subject<void>();
   public dashboardUpdated$ = this.dashboardUpdatedSubject.asObservable();
   /* Initializes WebSocket handshakes securely targeting user authorization claims */
+  private broadcastStatusSubject = new Subject<any>();
+  public broadcastStatus$ = this.broadcastStatusSubject.asObservable();
+  private broadcastProgressSubject = new Subject<any>();
+  public broadcastProgress$ = this.broadcastProgressSubject.asObservable();
+
   public startConnection(): void {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) return;
 
@@ -75,6 +80,15 @@ export class SignalrService {
     this.hubConnection?.on('DashboardUpdated', () => {
       console.log('DashboardUpdated received');
       this.dashboardUpdatedSubject.next();
+    });
+    this.hubConnection?.on('BroadcastStatusUpdated', (data) => {
+      console.log('Broadcast Status Updated:', data);
+      this.broadcastStatusSubject.next(data);
+    });
+
+    this.hubConnection?.on('BroadcastProgressUpdated', (data) => {
+      console.log('Broadcast Progress Updated:', data);
+      this.broadcastProgressSubject.next(data);
     });
     }
 

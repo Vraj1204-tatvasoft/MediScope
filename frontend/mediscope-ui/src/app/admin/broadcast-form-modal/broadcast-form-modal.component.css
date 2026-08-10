@@ -1,0 +1,100 @@
+.bfm-wrap {
+    display: flex; flex-direction: column;
+    max-height: 90vh; background: #fff; border-radius: 14px; overflow: hidden;
+  }
+  .bfm-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px 16px; border-bottom: 1px solid #e5e7eb;
+  }
+  .bfm-header-left { display: flex; align-items: center; gap: 12px; }
+  .bfm-header-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #eff6ff; display: flex; align-items: center; justify-content: center;
+  }
+  .bfm-header-icon mat-icon { color: #2563eb; font-size: 20px; }
+  .bfm-title  { font-size: 1rem; font-weight: 700; color: #111827; margin: 0 0 2px; }
+  .bfm-subtitle { font-size: 0.8125rem; color: #6b7280; margin: 0; }
+  .bfm-close {
+    width: 32px; height: 32px; border-radius: 6px; border: none;
+    background: transparent; cursor: pointer; color: #9ca3af;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .bfm-close:hover { background: #f3f4f6; color: #374151; }
+
+  .bfm-body {
+    flex: 1; overflow-y: auto; padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .bfm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .bfm-field { display: flex; flex-direction: column; gap: 5px; }
+  .bfm-field--half { max-width: 50%; }
+  .bfm-label { font-size: 0.8125rem; font-weight: 600; color: #374151; }
+  .bfm-req   { color: #ef4444; }
+  .bfm-input, .bfm-select, .bfm-textarea {
+    border: 1px solid #d1d5db; border-radius: 8px;
+    padding: 9px 12px; font-size: 0.875rem; color: #111827;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    background: #fff; width: 100%; box-sizing: border-box; font-family: inherit;
+  }
+  .bfm-input:focus, .bfm-select:focus, .bfm-textarea:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  }
+  .bfm-input--error { border-color: #ef4444 !important; }
+  .bfm-textarea { resize: vertical; min-height: 100px; }
+  .bfm-error { font-size: 0.75rem; color: #ef4444; }
+  .bfm-hint  { font-size: 0.75rem; color: #9ca3af; }
+
+  .bfm-preview {
+    display: flex; align-items: center; gap: 10px;
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .bfm-preview-icon { color: #2563eb; font-size: 20px; }
+  .bfm-preview-loading {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8125rem; color: #6b7280;
+  }
+  .bfm-preview-count {
+    font-size: 1.25rem; font-weight: 700; color: #1d4ed8; margin-right: 6px;
+  }
+  .bfm-preview-label { font-size: 0.8125rem; color: #374151; }
+
+  .bfm-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f9fafb; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .bfm-toggle-label { font-size: 0.875rem; font-weight: 600; color: #111827; display: block; }
+  .bfm-toggle-sub   { font-size: 0.75rem; color: #6b7280; margin-top: 2px; display: block; }
+  .bfm-toggle-btn {
+    width: 44px; height: 24px; border-radius: 999px; border: none;
+    background: #d1d5db; cursor: pointer; position: relative;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .bfm-toggle-btn--on { background: #2563eb; }
+  .bfm-toggle-knob {
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%; background: #fff;
+    transition: transform 0.2s; display: block;
+  }
+  .bfm-toggle-btn--on .bfm-toggle-knob { transform: translateX(20px); }
+
+  .bfm-footer {
+    display: flex; justify-content: flex-end; gap: 10px;
+    padding: 16px 24px; border-top: 1px solid #e5e7eb;
+  }
+  .bfm-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 8px; padding: 9px 18px;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    border: none; transition: background 0.15s;
+  }
+  .bfm-btn mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  .bfm-btn:disabled { opacity: .6; cursor: not-allowed; }
+  .bfm-btn--ghost {
+    background: transparent; color: #6b7280; border: 1px solid #e5e7eb;
+  }
+  .bfm-btn--ghost:hover:not(:disabled) { background: #f9fafb; }
+  .bfm-btn--primary { background: #2563eb; color: #fff; }
+  .bfm-btn--primary:hover:not(:disabled) { background: #0c48ca; }

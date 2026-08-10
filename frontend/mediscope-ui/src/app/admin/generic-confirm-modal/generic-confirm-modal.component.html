@@ -1,0 +1,26 @@
+<div class="modal-header">
+    <h2 class="modal-title">{{ data.title }}</h2>
+    <button class="btn-close" mat-dialog-close aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <p class="modal-message">{{ data.message }}</p>
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn-cancel" mat-dialog-close>
+      {{ data.cancelText || 'Cancel' }}
+    </button>
+    
+    <button [ngClass]="{
+              'btn-primary': data.theme === 'primary',
+              'btn-warning': data.theme === 'warning',
+              'btn-danger': data.theme === 'danger'
+            }" 
+            [mat-dialog-close]="true">
+      <mat-icon *ngIf="data.icon">{{ data.icon }}</mat-icon>
+      {{ data.confirmText }}
+    </button>
+  </div>

@@ -1,0 +1,148 @@
+<div class="bfm-wrap">
+
+    <!-- Header -->
+    <div class="bfm-header">
+      <div class="bfm-header-left">
+        <div class="bfm-header-icon">
+          <mat-icon>campaign</mat-icon>
+        </div>
+        <div>
+          <h2 class="bfm-title">{{ isEdit ? 'Edit Broadcast' : 'New Broadcast' }}</h2>
+          <p class="bfm-subtitle">
+            {{ isEdit ? 'Update broadcast details' : 'Configure and send your message' }}
+          </p>
+        </div>
+      </div>
+      <button class="bfm-close" type="button" (click)="cancel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="bfm-body" [formGroup]="form">
+
+      <!-- Name -->
+      <div class="bfm-field">
+        <label class="bfm-label">Broadcast Name <span class="bfm-req">*</span></label>
+        <input class="bfm-input" formControlName="name"
+               placeholder="e.g. Monthly Health Update"
+               [class.bfm-input--error]="touched('name')" />
+        @if (touched('name')) {
+          <span class="bfm-error">Name is required</span>
+        }
+      </div>
+
+      <!-- Channel + Audience -->
+      <div class="bfm-row">
+        <div class="bfm-field">
+          <label class="bfm-label">Channel <span class="bfm-req">*</span></label>
+          <select class="bfm-select" formControlName="channel"
+                  (change)="onChannelChange()">
+            <option [ngValue]="0">Email</option>
+            <option [ngValue]="1">SMS</option>
+            <option [ngValue]="2">Push Notification</option>
+          </select>
+        </div>
+
+        <div class="bfm-field">
+          <label class="bfm-label">Audience <span class="bfm-req">*</span></label>
+          <select class="bfm-select" formControlName="audience"
+                  (change)="onAudienceChange()">
+            <option [ngValue]="0">All Patients</option>
+            <option [ngValue]="1">All Doctors</option>
+            <option [ngValue]="2">All Admins</option>
+            <option [ngValue]="3">Everyone</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Subject (Email only) -->
+      @if (form.get('channel')?.value === 0) {
+        <div class="bfm-field">
+          <label class="bfm-label">Subject <span class="bfm-req">*</span></label>
+          <input class="bfm-input" formControlName="subject"
+                 placeholder="e.g. Important Health Update"
+                 [class.bfm-input--error]="touched('subject')" />
+          @if (touched('subject')) {
+            <span class="bfm-error">Subject is required for email broadcasts</span>
+          }
+        </div>
+      }
+
+      <!-- Message -->
+      <div class="bfm-field">
+        <label class="bfm-label">Message <span class="bfm-req">*</span></label>
+        <textarea class="bfm-textarea" formControlName="message" rows="5"
+                  placeholder="Enter your broadcast message..."
+                  [class.bfm-input--error]="touched('message')"></textarea>
+        @if (touched('message')) {
+          <span class="bfm-error">Message is required</span>
+        }
+      </div>
+
+      <!-- Batch Size (create only) -->
+      @if (!isEdit) {
+        <div class="bfm-field bfm-field--half">
+          <label class="bfm-label">Batch Size</label>
+          <input class="bfm-input" formControlName="batchSize"
+                 type="number" min="1"/>
+          <span class="bfm-hint">Recipients processed per batch</span>
+        </div>
+      }
+
+      <!-- Audience count preview -->
+      <div class="bfm-preview">
+        <mat-icon class="bfm-preview-icon">group</mat-icon>
+        <div class="bfm-preview-text">
+          @if (countLoading()) {
+            <span class="bfm-preview-loading">
+              <mat-spinner diameter="14"></mat-spinner>
+              Counting recipients...
+            </span>
+          } @else if (audienceCount() !== null) {
+            <span class="bfm-preview-count">{{ audienceCount() | number }}</span>
+            <span class="bfm-preview-label">recipients will receive this broadcast</span>
+          } @else {
+            <span class="bfm-preview-label">Select an audience to preview recipient count</span>
+          }
+        </div>
+      </div>
+
+      <!-- Send Now toggle (create only) -->
+      @if (!isEdit) {
+        <div class="bfm-toggle-row">
+          <div class="bfm-toggle-info">
+            <span class="bfm-toggle-label">Send immediately after creating</span>
+            <span class="bfm-toggle-sub">
+              {{ sendNow() ? 'Will be queued via Hangfire right away' : 'Will be saved as a Draft' }}
+            </span>
+          </div>
+          <button class="bfm-toggle-btn"
+                  [class.bfm-toggle-btn--on]="sendNow()"
+                  type="button"
+                  (click)="sendNow.set(!sendNow())">
+            <span class="bfm-toggle-knob"></span>
+          </button>
+        </div>
+      }
+
+    </div>
+
+    <!-- Footer -->
+    <div class="bfm-footer">
+      <button class="bfm-btn bfm-btn--ghost" type="button"
+              (click)="cancel()" [disabled]="saving()">
+        Cancel
+      </button>
+      <button class="bfm-btn bfm-btn--primary" type="button"
+              (click)="submit()" [disabled]="saving()">
+        @if (saving()) {
+          <mat-spinner diameter="16"></mat-spinner>
+        } @else {
+          <mat-icon>{{ isEdit ? 'save' : (sendNow() ? 'send' : 'drafts') }}</mat-icon>
+        }
+        {{ isEdit ? 'Save Changes' : (sendNow() ? 'Create & Send' : 'Save as Draft') }}
+      </button>
+    </div>
+
+  </div>

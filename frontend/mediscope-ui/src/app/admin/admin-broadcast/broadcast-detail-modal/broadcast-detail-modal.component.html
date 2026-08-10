@@ -1,0 +1,115 @@
+<div class="bdm-header">
+    <h2 class="bdm-title">Broadcast Details</h2>
+    <button class="btn-close" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="bdm-content">
+    @if (loading()) {
+      <div class="bdm-loading">
+        <mat-spinner diameter="36"></mat-spinner>
+      </div>
+    } @else if (data()) {
+      <div class="bdm-grid">
+        
+        <!-- Basic Info -->
+        <div class="bdm-section">
+          <h3 class="bdm-section-title">Overview</h3>
+          <div class="bdm-info-row">
+            <span class="bdm-label">Name</span>
+            <span class="bdm-value bdm-value--bold">{{ data()!.name }}</span>
+          </div>
+          <div class="bdm-info-row">
+            <span class="bdm-label">Status</span>
+            <span class="bdm-badge" [ngClass]="'bdm-badge--' + data()!.status.toLowerCase()">
+              {{ data()!.statusDisplay }}
+            </span>
+          </div>
+          <div class="bdm-info-row">
+            <span class="bdm-label">Channel</span>
+            <span class="bdm-value bdm-channel">
+              <mat-icon>{{ CHANNEL_ICONS[data()!.channel] || 'campaign' }}</mat-icon>
+              {{ data()!.channelDisplay }}
+            </span>
+          </div>
+          <div class="bdm-info-row">
+            <span class="bdm-label">Audience</span>
+            <span class="bdm-value">{{ data()!.audienceDisplay }}</span>
+          </div>
+        </div>
+
+        <!-- Message Content -->
+        <div class="bdm-section">
+          <h3 class="bdm-section-title">Content</h3>
+          @if (data()!.subject) {
+            <div class="bdm-info-row bdm-info-col">
+              <span class="bdm-label">Subject</span>
+              <span class="bdm-value bdm-value--box">{{ data()!.subject }}</span>
+            </div>
+          }
+          <div class="bdm-info-row bdm-info-col">
+            <span class="bdm-label">Message</span>
+            <span class="bdm-value bdm-value--box bdm-value--pre">{{ data()!.message }}</span>
+          </div>
+        </div>
+
+        <!-- Delivery Stats -->
+        <div class="bdm-section">
+          <h3 class="bdm-section-title">Delivery Statistics</h3>
+          
+          <div class="bdm-stats-grid">
+            <div class="bdm-stat-card">
+              <span class="bdm-stat-val">{{ data()!.totalRecipients | number }}</span>
+              <span class="bdm-stat-lbl">Total</span>
+            </div>
+            <div class="bdm-stat-card bdm-stat--success">
+              <span class="bdm-stat-val">{{ data()!.sentCount | number }}</span>
+              <span class="bdm-stat-lbl">Sent</span>
+            </div>
+            <div class="bdm-stat-card bdm-stat--danger">
+              <span class="bdm-stat-val">{{ data()!.failedCount | number }}</span>
+              <span class="bdm-stat-lbl">Failed</span>
+            </div>
+          </div>
+
+          @if (data()!.totalRecipients > 0) {
+            <div class="bdm-progress">
+              <div class="bdm-progress-bar">
+                <div class="bdm-progress-fill" [style.width.%]="data()!.progressPercent"></div>
+              </div>
+              <span class="bdm-progress-text">{{ data()!.progressPercent }}% Complete</span>
+            </div>
+          }
+        </div>
+
+        <!-- Timestamps -->
+        <div class="bdm-section">
+          <h3 class="bdm-section-title">Timeline</h3>
+          <div class="bdm-info-row">
+            <span class="bdm-label">Created</span>
+            <span class="bdm-value">{{ data()!.createdAt | date:'medium' }}</span>
+          </div>
+          @if (data()!.scheduledAt) {
+            <div class="bdm-info-row">
+              <span class="bdm-label">Scheduled/Sent</span>
+              <span class="bdm-value">{{ data()!.scheduledAt | date:'medium' }}</span>
+            </div>
+          }
+          @if (data()!.completedAt) {
+            <div class="bdm-info-row">
+              <span class="bdm-label">Completed</span>
+              <span class="bdm-value">{{ data()!.completedAt | date:'medium' }}</span>
+            </div>
+          }
+        </div>
+
+      </div>
+    } @else {
+      <div class="bdm-empty">Failed to load broadcast details.</div>
+    }
+  </div>
+
+  <div class="bdm-actions">
+    <button class="btn-primary" mat-dialog-close>Close</button>
+  </div>

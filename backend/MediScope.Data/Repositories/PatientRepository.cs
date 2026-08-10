@@ -11,8 +11,7 @@ namespace MediScope.Data.Repositories
             AppDbContext context)
             : base(context)
         { }
-        public async Task<IEnumerable<Patient>>
-            GetAllAdminPatientsAsync()
+        public async Task<IEnumerable<Patient>> GetAllAdminPatientsAsync()
         {
             return await _dbSet
 

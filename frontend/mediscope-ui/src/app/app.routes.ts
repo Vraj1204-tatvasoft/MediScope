@@ -41,6 +41,7 @@ import { AdminQuestionnaireComponent } from './admin/admin-questionnaire/admin-q
 import { AdminQuestionsComponent } from './admin/admin-questions/admin-questions.component';
 import { PatientQuestionnaireListComponent } from './patient/patient-questionnaire-list/patient-questionnaire-list.component';
 import { QuestionnaireRendererComponent } from './patient/questionnaire-renderer/questionnaire-renderer.component';
+import { AdminBroadcastComponent } from './admin/admin-broadcast/admin-broadcast.component';
 
 
 export const routes: Routes = [
@@ -229,6 +230,10 @@ export const routes: Routes = [
       {
         path: 'admin-questions/:id',
         component: AdminQuestionsComponent,
+      },
+      {
+        path: 'admin-broadcast',
+        component: AdminBroadcastComponent
       }
     ],
   },

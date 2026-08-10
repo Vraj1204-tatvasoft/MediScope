@@ -91,7 +91,8 @@ export const NAV_CONFIG: Record<UserRole, NavConfig> = {
           }
         ]
       },
-      {label: 'Questionnaire', route: '/admin/admin-questionnaire', icon: ICONS.analytics}
+      {label: 'Questionnaire', route: '/admin/admin-questionnaire', icon: ICONS.analytics},
+      {label: 'Broadcast', route: '/admin/admin-broadcast', icon: ICONS.analytics}
     ]
   },
   

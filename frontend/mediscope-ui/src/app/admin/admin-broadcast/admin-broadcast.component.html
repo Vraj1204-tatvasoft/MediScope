@@ -1,0 +1,225 @@
+<div class="ab-page">
+
+    <!-- ── Header ──────────────────────────────────────────────────────────── -->
+    <div class="ab-header">
+      <div class="ab-header-left">
+        <h1 class="ab-title">Broadcasts</h1>
+        @if (!loading()) {
+          <p class="ab-subtitle">{{ totalCount() }} total</p>
+        }
+      </div>
+      <div class="ab-header-actions">
+        <div class="ab-search">
+          <mat-icon class="ab-search-icon">search</mat-icon>
+          <input type="text" [formControl]="searchControl"
+                 placeholder="Search by name..."
+                 class="ab-search-input" />
+        </div>
+        <button class="btn-primary" (click)="openCreateModal()">
+          <mat-icon>add</mat-icon>
+          New Broadcast
+        </button>
+      </div>
+    </div>
+  
+    <!-- ── Status filter chips ─────────────────────────────────────────────── -->
+    <div class="ab-filters">
+      @for (f of statusFilters; track f.label) {
+        <button class="ab-chip"
+                [class.ab-chip--active]="statusFilter() === f.value"
+                (click)="setStatusFilter(f.value)">
+          {{ f.label }}
+        </button>
+      }
+    </div>
+  
+    <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="ab-loading">
+        <mat-spinner diameter="36" />
+      </div>
+    }
+  
+    <!-- ── Empty: no broadcasts ────────────────────────────────────────────── -->
+    @if (!loading() && broadcasts().length === 0) {
+      <div class="ab-empty">
+        <mat-icon class="ab-empty-icon">campaign</mat-icon>
+        <p class="ab-empty-title">No broadcasts yet</p>
+        <p class="ab-empty-sub">Create your first broadcast to reach your audience.</p>
+        <button class="btn-primary" (click)="openCreateModal()">
+          <mat-icon>add</mat-icon>
+          New Broadcast
+        </button>
+      </div>
+    }
+  
+    <!-- ── Empty: no filter results ────────────────────────────────────────── -->
+    @if (!loading() && broadcasts().length > 0 && filteredBroadcasts().length === 0) {
+      <div class="ab-empty">
+        <mat-icon class="ab-empty-icon">search_off</mat-icon>
+        <p class="ab-empty-title">No results found</p>
+        <p class="ab-empty-sub">
+          @if (searchTerm()) {
+            No broadcasts match "{{ searchTerm() }}".
+          } @else {
+            No broadcasts match the selected filter.
+          }
+        </p>
+      </div>
+    }
+  
+    <!-- ── Broadcast list ──────────────────────────────────────────────────── -->
+    @if (!loading() && filteredBroadcasts().length > 0) {
+      <div class="ab-list">
+        @for (b of filteredBroadcasts(); track trackById($index, b)) {
+          <div class="ab-card" [class.ab-card--actioning]="actioningId() === b.id">
+  
+            <div class="ab-card-left">
+  
+              <!-- Title row -->
+              <div class="ab-card-title-row">
+  
+                <!-- Channel icon -->
+                <div class="ab-channel-icon"
+                     [class.ab-channel--email]="b.channel === 'Email'"
+                     [class.ab-channel--sms]="b.channel === 'Sms'"
+                     [class.ab-channel--push]="b.channel === 'PushNotification'">
+                  <mat-icon>{{ CHANNEL_ICONS[b.channel] }}</mat-icon>
+                </div>
+  
+                <span class="ab-card-name">{{ b.name }}</span>
+  
+                <!-- Status badge -->
+                <span class="ab-badge"
+                      [class.ab-badge--draft]="b.status === 'Draft'"
+                      [class.ab-badge--pending]="b.status === 'Pending'"
+                      [class.ab-badge--processing]="b.status === 'Processing'"
+                      [class.ab-badge--completed]="b.status === 'Completed'"
+                      [class.ab-badge--failed]="b.status === 'Failed'">
+                  <span class="ab-badge-dot"></span>
+                  {{ b.statusDisplay }}
+                  @if (isProcessing(b)) {
+                    <mat-icon class="ab-badge-spin">sync</mat-icon>
+                  }
+                </span>
+  
+              </div>
+  
+              <!-- Subject -->
+              @if (b.subject) {
+                <p class="ab-card-subject">{{ b.subject }}</p>
+              }
+  
+              <!-- Meta -->
+              <div class="ab-card-meta">
+                <span class="ab-meta-tag">{{ CHANNEL_LABELS[b.channel] }}</span>
+                <span class="ab-meta-dot">·</span>
+                <span>{{ AUDIENCE_LABELS[b.audience] }}</span>
+                <span class="ab-meta-dot">·</span>
+                <span>{{ b.createdAt | date: 'dd MMM yyyy' }}</span>
+                @if (b.scheduledAt) {
+                  <span class="ab-meta-dot">·</span>
+                  <span>Sent {{ b.scheduledAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+                }
+              </div>
+  
+              <!-- Progress (non-draft only) -->
+              @if (b.status !== 'Draft' && b.totalRecipients > 0) {
+                <div class="ab-progress-wrap">
+                  <div class="ab-progress-bar">
+                    <div class="ab-progress-fill"
+                         [class.ab-progress-fill--success]="b.status === 'Completed' && b.failedCount === 0"
+                         [class.ab-progress-fill--partial]="b.failedCount > 0"
+                         [class.ab-progress-fill--processing]="isProcessing(b)"
+                         [style.width.%]="Math.min(b.progressPercent, 100)">
+                    </div>
+                  </div>
+                  <div class="ab-progress-meta">
+                    <span class="ab-progress-numbers">
+                      <span class="ab-sent">{{ b.sentCount | number }}</span> sent
+                      @if (b.failedCount > 0) {
+                        · <span class="ab-failed">{{ b.failedCount | number }}</span> failed
+                      }
+                      · {{ b.totalRecipients | number }} total
+                    </span>
+                    <span class="ab-progress-pct">
+                      {{ b.sentCount + b.failedCount }}/{{ b.totalRecipients }}
+                    </span>
+                  </div>
+                </div>
+              }
+  
+            </div>
+  
+            <!-- ── Actions ──────────────────────────────────────────────────── -->
+            <div class="ab-card-actions">
+  
+              @if (canSend(b)) {
+                <button class="btn-send"
+                        (click)="sendBroadcast(b)"
+                        [disabled]="actioningId() === b.id"
+                        matTooltip="Send broadcast">
+                  <mat-icon>send</mat-icon>
+                  Send
+                </button>
+              }
+  
+              @if (canRetry(b)) {
+                <button class="btn-retry"
+                        (click)="retryBroadcast(b)"
+                        [disabled]="actioningId() === b.id"
+                        matTooltip="Retry {{ b.failedCount }} failed recipient(s)">
+                  <mat-icon>refresh</mat-icon>
+                  Retry ({{ b.failedCount }})
+                </button>
+              }
+  
+              @if (actioningId() === b.id) {
+                <mat-spinner diameter="20" class="ab-action-spinner"></mat-spinner>
+              }
+  
+              <button class="btn-menu"
+                      [matMenuTriggerFor]="actionMenu"
+                      matTooltip="More options">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+  
+              <mat-menu #actionMenu="matMenu" xPosition="before">
+                <button mat-menu-item (click)="openViewModal(b)">
+                    <mat-icon>visibility</mat-icon>
+                    View Details
+                  </button>
+                  <mat-divider></mat-divider>
+  
+                @if (canEdit(b)) {
+                  <button mat-menu-item (click)="openEditModal(b)">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                  </button>
+                }
+  
+                @if (canRetry(b)) {
+                  <button mat-menu-item (click)="retryBroadcast(b)">
+                    <mat-icon>refresh</mat-icon>
+                    Retry Failed
+                  </button>
+                }
+  
+                @if (canDelete(b)) {
+                  <mat-divider />
+                  <button mat-menu-item class="menu-item--danger"
+                          (click)="openDeleteModal(b)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  </button>
+                }
+  
+              </mat-menu>
+            </div>
+  
+          </div>
+        }
+      </div>
+    }
+  
+  </div>

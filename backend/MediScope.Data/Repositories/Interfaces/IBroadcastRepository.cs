@@ -22,5 +22,8 @@ namespace MediScope.Data.Repositories
         Task<List<BroadcastRecipientRow>> GetFailedRecipientsAsync(Guid broadcastId);
         Task IncrementRetryCountAsync(Guid recipientId);
         Task<(int SentCount, int FailedCount)> GetFinalCountsAsync(Guid broadcastId);
+        Task IncrementBroadcastCountsAsync(Guid broadcastId, int sentDelta, int failedDelta);
+        Task SetRemainingBatchesAsync(Guid broadcastId, int totalBatches);
+        Task<int> DecrementRemainingBatchesAsync(Guid broadcastId, int sentDelta, int failedDelta);
     }
 }
