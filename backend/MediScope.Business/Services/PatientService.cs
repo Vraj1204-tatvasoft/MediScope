@@ -7,6 +7,7 @@ using MediScope.Common.Models.Entities;
 using MediScope.Data.Repositories;
 using MediScope.Common.Models.Pagination;
 using MediScope.Common.Models.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediScope.Business.Services
 {
@@ -171,9 +172,7 @@ namespace MediScope.Business.Services
             _uow.Users.Update(user);
             await _uow.SaveChangesAsync();
         }
-        public async Task<AdminPatientOverviewDto> GetAdminPatientsAsync(
-        AdminPatientFilterDto filter,
-        PaginationParams pagination)
+        public async Task<AdminPatientOverviewDto> GetAdminPatientsAsync(AdminPatientFilterDto filter, PaginationParams pagination)
         {
             // USE DEDICATED PATIENT REPOSITORY
 
@@ -329,6 +328,101 @@ namespace MediScope.Business.Services
                     PageNumber = pagination.PageNumber,
                     PageSize = pagination.PageSize
                 }
+            };
+        }
+        public async Task<PagedResult<PatientAuditLogResponseDto>> GetPatientAuditLogsAsync(PatientAuditLogFilterDto filter, PaginationParams pagination)
+        {
+            IQueryable<PatientAuditLog> query = _uow.PatientAuditLogs
+                .Query()
+                .Cast<PatientAuditLog>()
+                .Include(x => x.ChangedByUser);
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(pagination.Search))
+            {
+                var search = pagination.Search.ToLower();
+
+                query = query.Where(x =>
+                    x.FieldName.ToLower().Contains(search) ||
+                    (x.ChangedByUser != null &&
+                     x.ChangedByUser.FullName.ToLower().Contains(search)) ||
+                    (x.OldValue != null &&
+                     x.OldValue.ToLower().Contains(search)) ||
+                    (x.NewValue != null &&
+                     x.NewValue.ToLower().Contains(search)));
+            }
+
+            // Field filter
+            if (!string.IsNullOrWhiteSpace(filter.FieldName))
+            {
+                query = query.Where(x =>
+                    x.FieldName.ToLower() == filter.FieldName.ToLower());
+            }
+
+            // Changed By filter
+            if (filter.ChangedByUserId.HasValue)
+            {
+                query = query.Where(x =>
+                    x.ChangedByUserId == filter.ChangedByUserId);
+            }
+
+            // Date filters
+            if (filter.FromDate.HasValue)
+            {
+                query = query.Where(x =>
+                    x.ChangedAt >= filter.FromDate.Value);
+            }
+
+            if (filter.ToDate.HasValue)
+            {
+                query = query.Where(x =>
+                    x.ChangedAt <= filter.ToDate.Value);
+            }
+            var desc = string.Equals(pagination.SortDir, "desc", StringComparison.OrdinalIgnoreCase);
+
+            // Sorting
+            query = pagination.SortBy?.ToLower() switch
+            {
+                "fieldname" => desc
+                    ? query.OrderByDescending(x => x.FieldName)
+                    : query.OrderBy(x => x.FieldName),
+
+                "changedby" => desc
+                    ? query.OrderByDescending(x => x.ChangedByUser!.FullName)
+                    : query.OrderBy(x => x.ChangedByUser!.FullName),
+
+                _ => desc
+                    ? query.OrderByDescending(x => x.ChangedAt)
+                    : query.OrderBy(x => x.ChangedAt)
+            };
+            if (filter.PatientId.HasValue)
+            {
+                query = query.Where(x => x.PatientId == filter.PatientId.Value);
+            }
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pagination.PageNumber - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .Select(x => new PatientAuditLogResponseDto
+                {
+                    Id = x.Id,
+                    PatientId = x.PatientId,
+                    ChangedByUserId = x.ChangedByUserId,
+                    ChangedByUserName = x.ChangedByUser!.FullName,
+                    FieldName = x.FieldName,
+                    OldValue = x.OldValue,
+                    NewValue = x.NewValue,
+                    ChangedAt = x.ChangedAt
+                })
+                .ToListAsync();
+
+            return new PagedResult<PatientAuditLogResponseDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize
             };
         }
         // ── Private Helpers ───────────────────────────────────────────

@@ -163,5 +163,6 @@ namespace MediScope.Business.Services
                 TotalRecipients = count
             };
         }
+
     }
 }

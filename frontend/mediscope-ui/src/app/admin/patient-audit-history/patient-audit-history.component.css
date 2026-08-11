@@ -1,0 +1,382 @@
+.dialog-header {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: 10 !important;
+    display: block !important;
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px; 
+  }
+  
+  .header-info {
+    margin: 0;
+    padding: 0;
+  }
+
+::ng-deep .mat-mdc-dialog-title.dialog-header {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important; 
+    display: block !important;
+  }
+  
+  ::ng-deep .mat-mdc-dialog-title.dialog-header::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .header-info h2,
+  .header-info span {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dialog-content {
+    min-height: 500px;
+    max-height: 70vh;
+    overflow: auto;
+    background: #f8fafc;
+  }
+  
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .search-field {
+    flex: 1;
+  }
+  
+  .search-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+  
+  .record-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  
+  .record-summary mat-icon {
+    color: #2563eb;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .audit-table {
+    width: 100%;
+    background: #ffffff;
+  }
+  
+  .audit-table .mat-mdc-header-row {
+    background: #f8fafc;
+  }
+  
+  .audit-table .mat-mdc-header-cell {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .audit-table .mat-mdc-cell {
+    padding: 18px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+  }
+  
+  .audit-table .mat-mdc-row:hover {
+    background: #f8fafc;
+  }
+  
+  .date-cell {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .date-cell .date {
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  .date-cell .time {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+  
+  .changed-by {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .changed-by mat-icon {
+    color: #64748b;
+  }
+  
+  .value-card {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    word-break: break-word;
+    max-width: 240px;
+  }
+  
+  .old-value {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+  }
+  
+  .new-value {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #bbf7d0;
+  }
+  
+  mat-chip {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+  
+  .chip-default {
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+  }
+  
+  .chip-email {
+    background: #f3e8ff !important;
+    color: #7c3aed !important;
+  }
+  
+  .chip-contact {
+    background: #ecfeff !important;
+    color: #0f766e !important;
+  }
+  
+  .chip-blood {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+  }
+  
+  .chip-dob {
+    background: #fff7ed !important;
+    color: #ea580c !important;
+  }
+  
+  mat-chip-set {
+    display: inline-flex;
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    gap: 16px;
+    color: #64748b;
+  }
+  
+  .loading-container p {
+    margin: 0;
+    font-size: 14px;
+  }
+  
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    text-align: center;
+  }
+  
+  .empty-icon {
+    width: 72px !important;
+    height: 72px !important;
+    font-size: 72px !important;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+  }
+  
+  .empty-state h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  
+  .empty-state p {
+    margin: 12px 0 24px;
+    max-width: 420px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  mat-paginator {
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+  }
+  
+  mat-dialog-actions {
+    padding: 16px 24px !important;
+    background: #ffffff;
+  }
+  
+  mat-dialog-actions button {
+    min-width: 110px;
+  }
+  
+  .mat-mdc-row {
+    transition: background-color .2s ease;
+  }
+  
+  .mat-mdc-row:hover {
+    background: #f8fafc;
+  }
+  
+  .mat-mdc-header-cell {
+    white-space: nowrap;
+  }
+  
+  .mat-mdc-cell {
+    white-space: nowrap;
+  }
+  
+  .audit-table .mat-column-changedAt {
+    width: 170px;
+  }
+  
+  .audit-table .mat-column-fieldName {
+    width: 160px;
+  }
+  
+  .audit-table .mat-column-oldValue {
+    width: 250px;
+  }
+  
+  .audit-table .mat-column-newValue {
+    width: 250px;
+  }
+  
+  .audit-table .mat-column-changedBy {
+    width: 180px;
+  }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  @media (max-width: 992px) {
+    .dialog-content {
+      padding: 16px !important;
+    }
+  
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .record-summary {
+      justify-content: center;
+    }
+  
+    .value-card {
+      max-width: 180px;
+    }
+  
+    .audit-table {
+      min-width: 900px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .header-content {
+      padding: 16px;
+    }
+  
+    .header-info h2 {
+      font-size: 18px;
+    }
+  
+    .header-info span {
+      font-size: 13px;
+    }
+  
+    .dialog-content {
+      min-height: 400px;
+    }
+  
+    .loading-container,
+    .empty-state {
+      padding: 60px 16px;
+    }
+  
+    .empty-icon {
+      width: 56px !important;
+      height: 56px !important;
+      font-size: 56px !important;
+    }
+  
+    .empty-state h3 {
+      font-size: 18px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .search-field {
+      width: 100%;
+    }
+  
+    .record-summary {
+      font-size: 13px;
+    }
+  
+    .value-card {
+      max-width: 140px;
+      font-size: 12px;
+    }
+  
+    mat-dialog-actions {
+      justify-content: center;
+    }
+  
+    mat-dialog-actions button {
+      width: 100%;
+    }
+  }

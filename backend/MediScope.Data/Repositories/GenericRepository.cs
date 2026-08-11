@@ -125,5 +125,16 @@ namespace MediScope.Data.Repositories
                 PageSize = pagination.PageSize,
             };
         }
+        public IQueryable<T> Query()
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (typeof(BaseEntity).IsAssignableFrom(typeof(T)))
+            {
+                query = query.Where(e => !(e as BaseEntity)!.IsDeleted);
+            }
+
+            return query;
+        }
     }
 }

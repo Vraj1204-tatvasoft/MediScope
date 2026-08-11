@@ -42,6 +42,7 @@ import { AdminQuestionsComponent } from './admin/admin-questions/admin-questions
 import { PatientQuestionnaireListComponent } from './patient/patient-questionnaire-list/patient-questionnaire-list.component';
 import { QuestionnaireRendererComponent } from './patient/questionnaire-renderer/questionnaire-renderer.component';
 import { AdminBroadcastComponent } from './admin/admin-broadcast/admin-broadcast.component';
+import { PatientAuditHistoryComponent } from './admin/patient-audit-history/patient-audit-history.component';
 
 
 export const routes: Routes = [
@@ -234,6 +235,10 @@ export const routes: Routes = [
       {
         path: 'admin-broadcast',
         component: AdminBroadcastComponent
+      },
+      {
+        path: 'patient-audit-history/:patientId',
+        component: PatientAuditHistoryComponent
       }
     ],
   },

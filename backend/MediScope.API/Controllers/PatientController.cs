@@ -62,9 +62,25 @@ namespace MediScope.API.Controllers
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAllPatients([FromQuery] AdminPatientFilterDto filter, [FromQuery] PaginationParams pagination)
         {
-            var response =
-                await _patientService
-                    .GetAdminPatientsAsync(filter, pagination);
+            var response = await _patientService.GetAdminPatientsAsync(filter, pagination);
+            return Success(response);
+        }
+
+        [HttpGet("admin/audit-logs")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> GetPatientAuditLogs([FromQuery] PatientAuditLogFilterDto filter, [FromQuery] PaginationParams pagination)
+        {
+            var response = await _patientService.GetPatientAuditLogsAsync(filter, pagination);
+            return Success(response);
+        }
+
+        [HttpGet("admin/{patientId:guid}/audit-logs")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> GetPatientAuditHistory(Guid patientId, [FromQuery] PatientAuditLogFilterDto filter, [FromQuery] PaginationParams pagination)
+        {
+            filter.PatientId = patientId;
+
+            var response = await _patientService.GetPatientAuditLogsAsync(filter, pagination);
 
             return Success(response);
         }

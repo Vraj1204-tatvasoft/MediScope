@@ -215,12 +215,10 @@
     padding: 0.2rem 0.5rem;
     border-radius: 6px;
     background-color: #fff5f5;
-    color: #e11d48;
   }
   
   .blood-group-tag-pill.is-positive {
     background-color: #eff6ff;
-    color: #1d4ed8;
   }
   
   /* Vitals Evaluation Badges (Matches Status Grid Mockups) */

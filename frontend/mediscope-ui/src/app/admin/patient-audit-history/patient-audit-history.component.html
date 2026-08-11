@@ -1,0 +1,184 @@
+<div mat-dialog-title class="dialog-header">
+    <div class="header-content">
+      <div class="header-info">
+        <div class="dialog-title-text">Patient Audit History</div>
+        <span>{{ data.patientName }}</span>
+      </div>
+  
+      <button mat-icon-button (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+  
+  <mat-divider></mat-divider>
+  
+  <mat-dialog-content class="dialog-content">
+    <div class="toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search</mat-label>
+  
+        <mat-icon matPrefix>search</mat-icon>
+  
+        <input
+          matInput
+          placeholder="Search field, previous value, new value or changed by..."
+          [value]="search()"
+          (input)="onSearch($event)">
+  
+        @if (search()) {
+          <button mat-icon-button matSuffix (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+  
+      <div class="record-summary">
+        <mat-icon>history</mat-icon>
+        <span>{{ totalRecords() }} Audit Records</span>
+      </div>
+    </div>
+  
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="45"></mat-spinner>
+        <p>Loading audit history...</p>
+      </div>
+    } @else {
+  
+      @if (auditLogs().length > 0) {
+  
+        <div class="table-container">
+          <table
+            mat-table
+            [dataSource]="auditLogs()"
+            class="audit-table">
+  
+            <!-- Date -->
+  
+            <ng-container matColumnDef="changedAt">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+  
+              <td mat-cell *matCellDef="let row">
+                <div class="date-cell">
+                  <span class="date">
+                    {{ row.changedAt | date:'dd MMM yyyy' }}
+                  </span>
+  
+                  <span class="time">
+                    {{ row.changedAt | date:'hh:mm a' }}
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+  
+            <!-- Field -->
+  
+            <ng-container matColumnDef="fieldName">
+              <th mat-header-cell *matHeaderCellDef>Field</th>
+  
+              <td mat-cell *matCellDef="let row">
+                <mat-chip-set>
+                  <mat-chip
+                    selected
+                    [color]="getFieldChipColor(row.fieldName)">
+                    {{ formatFieldName(row.fieldName) }}
+                  </mat-chip>
+                </mat-chip-set>
+              </td>
+            </ng-container>
+  
+            <!-- Previous Value -->
+  
+            <ng-container matColumnDef="oldValue">
+              <th mat-header-cell *matHeaderCellDef>Previous Value</th>
+  
+              <td mat-cell *matCellDef="let row">
+                <div class="value-card old-value">
+                  {{ getOldValue(row.oldValue) }}
+                </div>
+              </td>
+            </ng-container>
+  
+            <!-- New Value -->
+  
+            <ng-container matColumnDef="newValue">
+              <th mat-header-cell *matHeaderCellDef>New Value</th>
+  
+              <td mat-cell *matCellDef="let row">
+                <div class="value-card new-value">
+                  {{ getNewValue(row.newValue) }}
+                </div>
+              </td>
+            </ng-container>
+  
+            <!-- Changed By -->
+  
+            <ng-container matColumnDef="changedBy">
+              <th mat-header-cell *matHeaderCellDef>Changed By</th>
+  
+              <td mat-cell *matCellDef="let row">
+                <div class="changed-by">
+                  <mat-icon>account_circle</mat-icon>
+                  <span>{{ row.changedByUserName }}</span>
+                </div>
+              </td>
+            </ng-container>
+  
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  
+            <tr
+              mat-row
+              *matRowDef="
+                let row;
+                columns: displayedColumns;
+                trackBy: trackByAuditId
+              ">
+            </tr>
+        </table>
+    </div>
+
+    <mat-paginator
+      [length]="totalRecords()"
+      [pageIndex]="pageNumber() - 1"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      showFirstLastButtons
+      (page)="onPageChange($event)">
+    </mat-paginator>
+
+  } @else {
+
+    <div class="empty-state">
+      <mat-icon class="empty-icon">history</mat-icon>
+
+      <h3>No Audit History Found</h3>
+
+      <p>
+        No profile changes have been recorded for this patient yet.
+      </p>
+
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="close()">
+        Close
+      </button>
+    </div>
+
+  }
+
+}
+
+</mat-dialog-content>
+
+<mat-divider></mat-divider>
+
+<mat-dialog-actions align="end">
+<button
+  mat-stroked-button
+  color="primary"
+  (click)="close()">
+  Close
+</button>
+</mat-dialog-actions>

@@ -18,5 +18,6 @@ namespace MediScope.Business.Services.Interfaces
         Task ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request);
         Task<AdminPatientOverviewDto>
         GetAdminPatientsAsync(AdminPatientFilterDto filter, PaginationParams pagination);
+        Task<PagedResult<PatientAuditLogResponseDto>> GetPatientAuditLogsAsync(PatientAuditLogFilterDto filter, PaginationParams pagination);
     }
 }

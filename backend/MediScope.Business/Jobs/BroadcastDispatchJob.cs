@@ -34,6 +34,7 @@ namespace MediScope.Business.Jobs
             _hubContext = hubContext;
         }
 
+
         public async Task ExecuteAsync(Guid broadcastId, CancellationToken ct)
         {
             var broadcast = await _repository.GetBroadcastByIdAsync(broadcastId);

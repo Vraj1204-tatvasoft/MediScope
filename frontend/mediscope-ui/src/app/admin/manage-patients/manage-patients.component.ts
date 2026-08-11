@@ -7,9 +7,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
+
 import { AdminPatientOverviewContainer, AdminPatientRowItem } from '../../models/manage-patients.model';
 import { ManagePatientsService } from '../../services/manage-patients.service';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { PatientAuditHistoryComponent } from '../patient-audit-history/patient-audit-history.component';
 
 @Component({
   selector: 'app-manage-patients',
@@ -20,7 +24,8 @@ import { Router } from '@angular/router';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatMenuModule
   ],
   templateUrl: './manage-patients.component.html',
   styleUrls: ['./manage-patients.component.css']
@@ -28,6 +33,7 @@ import { Router } from '@angular/router';
 export class ManagePatientsComponent implements OnInit, OnDestroy { 
   private patientService = inject(ManagePatientsService);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
   // Layout View State Handlers
   isLoading = signal<boolean>(true);
   dashboardData = signal<AdminPatientOverviewContainer | null>(null);
@@ -114,7 +120,20 @@ export class ManagePatientsComponent implements OnInit, OnDestroy {
     if (!doctors || doctors.length === 0 || doctors[0] === '—') return '—';
     return doctors.join(', ');
   } 
+  viewAuditHistory(patientId: string, patientName: string): void {
 
+    this.dialog.open(PatientAuditHistoryComponent, {
+      width: '1100px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      autoFocus: false,
+      data: {
+        patientId,
+        patientName
+      }
+    });
+  
+  }
   goToAdmit(patientId: string): void {
     this.router.navigate(['/admin/admissions'], { queryParams: { prefillPatient: patientId } });
   }

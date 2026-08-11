@@ -26,5 +26,6 @@ namespace MediScope.Data.Repositories
 
         Task<PagedResult<T>> GetPagedAsync(PaginationParams pagination,
             Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, params Expression<Func<T, object>>[] includes);
+        IQueryable<T> Query();
     }
 }

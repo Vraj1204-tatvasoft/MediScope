@@ -92,7 +92,7 @@
                       </div>
                     </td>
                     <td>
-                      <span class="blood-group-tag-pill" [class.is-positive]="p.bloodGroup.includes('+')">
+                      <span class="blood-group-tag-pill" >
                         {{ p.bloodGroup || '—' }}
                       </span>
                     </td>
@@ -105,10 +105,29 @@
                       </span>
                     </td>
                     <td class="text-right">
-                      <button mat-button color="primary" [disabled]="p.isCurrentlyAdmitted" (click)="goToAdmit(p.patientId)">
-                        <mat-icon>add_box</mat-icon> Admit
+                      <button mat-icon-button [matMenuTriggerFor]="patientMenu">
+                          <mat-icon>more_vert</mat-icon>
                       </button>
-                    </td>
+                  
+                      <mat-menu #patientMenu="matMenu">
+                  
+                          <button mat-menu-item [disabled]="p.isCurrentlyAdmitted" (click)="goToAdmit(p.patientId)">
+                  
+                              <mat-icon>add_box</mat-icon>
+                              <span>Admit Patient</span>
+                  
+                          </button>
+                  
+                          <button mat-menu-item (click)="viewAuditHistory(p.patientId, p.fullName)">
+                  
+                              <mat-icon>history</mat-icon>
+                              <span>View Audit History</span>
+                  
+                          </button>
+                  
+                      </mat-menu>
+                  
+                  </td>
                   </tr>
 
                 } @empty {

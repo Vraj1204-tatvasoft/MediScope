@@ -42,5 +42,13 @@ namespace MediScope.Data.Repositories
         {
             return await _dbSet.FirstOrDefaultAsync(p => p.Id == patientId);
         }
+        // public async Task<IEnumerable<PatientAuditLog>> GetAllPatientAuditLogsAsync()
+        // {
+        //     return await _dbSet
+        //         .Include(x => x.ChangedByUserId)
+        //         .Where(x => !x.IsDeleted)
+        //         .OrderByDescending(x => x.ChangedAt)
+        //         .ToListAsync();
+        // }
     }
 }
