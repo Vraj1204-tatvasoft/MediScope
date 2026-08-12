@@ -45,10 +45,10 @@ namespace MediScope.Data.Repositories
             await _context.Database.ExecuteSqlRawAsync(sql, id);
         }
 
-        public async Task UpdateRoomAsync(Guid id, string roomNumber, int floor, Guid wardId, Guid roomTypeId)
+        public async Task UpdateRoomAsync(Guid id, string roomNumber, int floor, Guid wardId, Guid roomTypeId, int numberOfBeds)
         {
-            var sql = "CALL sp_update_room(@p0, @p1, @p2, @p3, @p4)";
-            await _context.Database.ExecuteSqlRawAsync(sql, id, roomNumber, floor, wardId, roomTypeId);
+            var sql = "CALL sp_update_room(@p0, @p1, @p2, @p3, @p4, @p5)";
+            await _context.Database.ExecuteSqlRawAsync(sql, id, roomNumber, floor, wardId, roomTypeId, numberOfBeds);
         }
 
         public async Task DeleteRoomAsync(Guid id)
@@ -179,6 +179,13 @@ namespace MediScope.Data.Repositories
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize
             };
+        }
+        public async Task<List<Bed>> GetActiveBedsByRoomIdAsync(Guid roomId)
+        {
+            return await _context.Beds
+                .Where(b => b.RoomId == roomId && !b.IsDeleted)
+                .OrderBy(b => b.CreatedAt)
+                .ToListAsync();
         }
     }
 }

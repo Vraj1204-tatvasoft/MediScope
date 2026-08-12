@@ -55,15 +55,13 @@ namespace MediScope.Business.Services
                 await _uow.Notifications
                     .GetByIdAsync(notificationId)
 
-                ?? throw new Exception(
-                    "Notification not found.");
+                ?? throw new Exception("Notification not found.");
 
             // SECURITY CHECK
 
             if (notification.UserId != userId)
             {
-                throw new UnauthorizedAccessException(
-                    "Unauthorized notification access.");
+                throw new UnauthorizedAccessException("Unauthorized notification access.");
             }
 
             // ALREADY READ

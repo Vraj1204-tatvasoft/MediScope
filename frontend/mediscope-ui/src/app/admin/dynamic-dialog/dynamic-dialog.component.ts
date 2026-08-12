@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-
+import { Observable } from 'rxjs';
 export interface FormFieldConfig {
   key: string;
   label: string;
@@ -19,6 +19,7 @@ export interface FormFieldConfig {
 export interface DynamicDialogData {
   title: string;
   fields: FormFieldConfig[];
+  onSubmitAsync?: (formData: any) => Observable<any>;
 }
 
 @Component({
@@ -37,6 +38,7 @@ export class DynamicDialogComponent implements OnInit {
   fb = inject(FormBuilder);
   
   form!: FormGroup;
+  isSaving = false; 
 
   ngOnInit() {
     const group: any = {};
@@ -48,6 +50,25 @@ export class DynamicDialogComponent implements OnInit {
   }
 
   save() {
-    if (this.form.valid) this.dialogRef.close(this.form.value);
+    if (this.form.invalid) return;
+
+    if (this.data.onSubmitAsync) {
+      this.isSaving = true;
+      this.form.disable(); 
+
+      this.data.onSubmitAsync(this.form.value).subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.form.enable(); 
+          console.error('Submission failed, dialog remains open:', err);
+        }
+      });
+    } else {
+      this.dialogRef.close(this.form.value);
+    }
   }
 }

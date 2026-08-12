@@ -28,7 +28,7 @@ export interface UpdateRoomTypePayload { name: string; }
 export interface RoomSummary {
   id: string;
   ward_Id: string;        
-  roomTypeId: string;
+  room_Type_Id: string;
   roomNumber: string;
   wardName: string;
   roomTypeName: string;

@@ -83,7 +83,26 @@ namespace MediScope.Business.Services
             if (string.IsNullOrWhiteSpace(request.RoomNumber))
                 throw new ArgumentException("Room number cannot be empty.");
 
-            await _repository.UpdateRoomAsync(id, request.RoomNumber, request.Floor, request.WardId, request.RoomTypeId);
+            if (request.NumberOfBeds < 1)
+                throw new ArgumentException("A room must have at least one bed.");
+
+            var currentBeds = await _repository.GetActiveBedsByRoomIdAsync(id);
+
+            if (request.NumberOfBeds < currentBeds.Count)
+            {
+                var bedsToBeRemoved = currentBeds
+                    .OrderByDescending(b => b.CreatedAt)
+                    .Take(currentBeds.Count - request.NumberOfBeds);
+
+                if (bedsToBeRemoved.Any(b => b.Status != 0))
+                {
+                    throw new InvalidOperationException(
+                        "Cannot reduce the number of beds. One or more beds scheduled for removal are currently occupied by patients.");
+                }
+            }
+
+            await _repository.UpdateRoomAsync(id, request.RoomNumber, request.Floor, request.WardId, request.RoomTypeId, request.NumberOfBeds);
+
             await _hubContext.Clients.All.SendAsync("DashboardUpdated");
             return true;
         }

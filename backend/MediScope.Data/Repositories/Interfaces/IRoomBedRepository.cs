@@ -10,7 +10,7 @@ namespace MediScope.Data.Repositories
         Task CreateWardAsync(string name, string? description);
         Task UpdateWardAsync(Guid id, string name, string? description);
         Task DeleteWardAsync(Guid id);
-        Task UpdateRoomAsync(Guid id, string roomNumber, int floor, Guid wardId, Guid roomTypeId);
+        Task UpdateRoomAsync(Guid id, string roomNumber, int floor, Guid wardId, Guid roomTypeId, int numberOfBeds);
         Task DeleteRoomAsync(Guid id);
         Task DeleteBedAsync(Guid id);
         Task UpdateBedAsync(Guid id, string bedNumber, int status);
@@ -22,5 +22,6 @@ namespace MediScope.Data.Repositories
         Task<PagedResult<RoomTypeDto>> GetRoomTypesPagedAsync(PaginationParams request);
         Task<PagedResult<RoomSummaryResponseDto>> GetRoomsPagedAsync(PaginationParams request);
         Task<PagedResult<BedSummaryDto>> GetBedsPagedAsync(PaginationParams request);
+        Task<List<Bed>> GetActiveBedsByRoomIdAsync(Guid roomId);
     }
 }

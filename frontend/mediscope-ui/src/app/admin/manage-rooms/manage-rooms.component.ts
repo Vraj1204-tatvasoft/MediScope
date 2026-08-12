@@ -190,33 +190,39 @@ export class ManageRoomsComponent implements OnInit {
       const allWards = results.wards.success ? results.wards.data.items : [];
       const allTypes = results.types.success ? results.types.data.items : [];
 
-      //  Build and open the dialog
-      const data: DynamicDialogData = {
+      const data: any = { 
         title: room?.id ? 'Edit Room' : 'Add New Room',
         fields: [
           { key: 'roomNumber', label: 'Room Number', type: 'text', value: room?.roomNumber, required: true },
           { key: 'floor', label: 'Floor Level', type: 'number', value: room?.floor, required: true },
           { key: 'wardId', label: 'Ward', type: 'select', value: room?.ward_Id, required: true, 
             options: allWards.map(w => ({ label: w.name, value: w.id })) },
-          { key: 'roomTypeId', label: 'Room Type', type: 'select', value: room?.roomTypeId, required: true, 
-            options: allTypes.map(t => ({ label: t.name, value: t.id })) }
-        ]
+          { key: 'roomTypeId', label: 'Room Type', type: 'select', value: room?.room_Type_Id?.toLowerCase(), required: true, 
+            options: allTypes.map(t => ({ label: t.name, value: t.id })) },
+          { 
+            key: 'numberOfBeds', 
+            label: room?.id ? 'Total Number of Beds' : 'Number of Beds to Generate', 
+            type: 'number', 
+            value: room?.id ? room.bedCount : 1, 
+            required: true 
+          }
+        ],
+        onSubmitAsync: (formData: any) => {
+          return room?.id 
+            ? this.facilityService.updateRoom(room.id, formData) 
+            : this.facilityService.createRoom(formData);
+        }
       };
-      if (!room?.id) {
-        data.fields.push({ key: 'numberOfBeds', label: 'Number of Beds to Generate', type: 'number', value: 1, required: true });
-      }
 
-      this.dialog.open(DynamicDialogComponent, { width: '400px', data }).afterClosed().subscribe(res => {
-        if (res) {
-          if (room?.id) {
-            const { numberOfBeds, ...updatePayload } = res;
-            this.facilityService.updateRoom(room.id, updatePayload).subscribe(() => this.loadRooms());
-          } 
-          else this.facilityService.createRoom(res).subscribe(() => this.loadRooms());
+      const dialogRef = this.dialog.open(DynamicDialogComponent, { width: '400px', data });
+
+      dialogRef.afterClosed().subscribe((isSuccess: boolean) => {
+        if (isSuccess) {
+          this.loadRooms();
         }
       });
     });
-  }
+}
 
   openBedDialog(bed: BedSummary) {
     const data: DynamicDialogData = {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { RefundDialogComponent } from '../refund-dialog/refund-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-invoice-detail',
   templateUrl: './invoice-detail.component.html',
@@ -30,6 +31,8 @@ export class InvoiceDetailComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
   private location = inject(Location);
   private dialog = inject(MatDialog);
+  private authService = inject(AuthService); 
+  isPatient = computed(() => this.authService.currentRole() === 'Patient');
   ngOnInit(): void {
     const invoiceId = this.route.snapshot.paramMap.get('id');
     if (invoiceId) {

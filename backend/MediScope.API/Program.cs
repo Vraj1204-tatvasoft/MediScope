@@ -121,15 +121,13 @@ builder.Services.AddAuthentication(options =>
         {
             context.Response.StatusCode = 403;
             context.Response.ContentType = "application/json";
-            return context.Response.WriteAsync(
-                "{\"success\":false,\"message\":\"Forbidden. You do not have permission.\"}");
+            return context.Response.WriteAsync("{\"success\":false,\"message\":\"Forbidden. You do not have permission.\"}");
         },
         OnMessageReceived = context =>
         {
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) &&
-                path.StartsWithSegments("/api/hubs"))
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/hubs"))
             {
                 context.Token = accessToken;
             }

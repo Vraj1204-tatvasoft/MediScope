@@ -32,8 +32,7 @@ namespace MediScope.Business.Services
         // ════════════════════════════════════════════════════════════
         // PATIENT: Send request (with or without selecting a doctor)
         // ════════════════════════════════════════════════════════════
-        public async Task<PatientDoctorResponseDto> SendRequestAsync(
-            Guid patientUserId, SendDoctorRequestDto request)
+        public async Task<PatientDoctorResponseDto> SendRequestAsync(Guid patientUserId, SendDoctorRequestDto request)
         {
             var patient = await _uow.Patients
                 .GetFirstOrDefaultAsync(

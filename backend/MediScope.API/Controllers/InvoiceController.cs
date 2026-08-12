@@ -43,6 +43,7 @@ namespace MediScope.API.Controllers
 
         // PUT: api/invoices/{id}
         [HttpPut("{id:guid}")]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> UpdateInvoice(Guid id, [FromBody] CreateInvoiceRequestDto dto)
         {
             await _invoiceService.UpdateInvoiceAsync(id, dto);
@@ -73,6 +74,7 @@ namespace MediScope.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "DoctorOrPatient")]
         public async Task<IActionResult> GetMyInvoices()
         {
             var invoices = await _invoiceService.GetMyInvoicesAsync(CurrentUserId);
@@ -164,8 +166,7 @@ namespace MediScope.API.Controllers
         // Step 2 — frontend calls this after Razorpay checkout completes
         [HttpPost("{id:guid}/payment/verify")]
         [Authorize(Policy = "DoctorOrPatient")]
-        public async Task<IActionResult> VerifyAndRecordPayment(
-            Guid id, [FromBody] VerifyPaymentRequestDto dto)
+        public async Task<IActionResult> VerifyAndRecordPayment(Guid id, [FromBody] VerifyPaymentRequestDto dto)
         {
             _logger.LogInformation(
                 "Verify called — OrderId: {OrderId}, PaymentId: {PaymentId}, Signature: {Sig}",
