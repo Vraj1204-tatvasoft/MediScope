@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
 import { PagedResponse } from '../models/paged-response.model';
 import { QuestionnaireListFilter, QuestionnaireListItem, QuestionnaireDetail, ActiveQuestionnaire, CreateQuestionnaireRequest, UpdateQuestionnaireRequest, QuestionItem, CreateQuestionRequest, UpdateQuestionRequest, ReorderQuestionsRequest, QuestionnaireRender, SubmitQuestionnaireRequest, SubmissionHistoryItem, SubmissionDetail, AssignQuestionnaireRequest, PatientAssignmentFilterDto, PatientAssignmentResponseDto, SubmissionVersion } from '../models/questionnaire.model';
@@ -114,5 +114,11 @@ export class QuestionnaireService {
   }
   getSubmissionVersions(assignmentId: string): Observable<ApiResponse<SubmissionVersion[]>> {
     return this.http.get<SubmissionVersion[]>(`${this.baseUrl}/${assignmentId}/versions`);
+  }
+  getPatientIdBySubmissionId(submissionId: string): Observable<string> {
+    return this.http.get<any>(`questionnaire-submissions/${submissionId}/patient-id`)
+      .pipe(
+        map(response => response.data?.patientId)
+      );
   }
 }

@@ -232,6 +232,34 @@ namespace MediScope.Data.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<Guid> GetUserIdByPatientIdAsync(Guid patientId)
+        {
+            return await _context.Patients
+                .Where(p => p.Id == patientId)
+                .Select(p => p.UserId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Guid> GetUserIdByInvoiceIdAsync(Guid invoiceId)
+        {
+            return await _context.Invoices
+                .Where(i => i.Id == invoiceId)
+                .Join(
+                    _context.Patients,
+                    invoice => invoice.PatientId,
+                    patient => patient.Id,
+                    (invoice, patient) => patient.UserId
+                )
+                .FirstOrDefaultAsync();
+        }
+        public async Task<Guid> GetDoctorUserIdByInvoiceIdAsync(Guid invoiceId)
+        {
+            return await _context.Invoices
+                .Where(i => i.Id == invoiceId)
+                .Join(_context.Appointments, i => i.AppointmentId, a => a.Id, (i, a) => a.DoctorId)
+                .Join(_context.Doctors, doctorId => doctorId, d => d.Id, (_, d) => d.UserId)
+                .FirstOrDefaultAsync();
+        }
         internal class InvoiceDetailsSqlResult
         {
             public Guid Id { get; set; }

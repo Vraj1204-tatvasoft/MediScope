@@ -120,8 +120,7 @@ namespace MediScope.Business.Services
                 .SendAsync(
                     "NotificationsCleared");
         }
-        private static NotificationResponseDto
-            Map(Notification n)
+        private static NotificationResponseDto Map(Notification n)
         {
             return new NotificationResponseDto
             {

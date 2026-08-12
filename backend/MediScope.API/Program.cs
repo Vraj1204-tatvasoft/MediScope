@@ -197,7 +197,6 @@ builder.Services.AddScoped<IPushService, PushService>();
 builder.Services.AddScoped<BroadcastDispatchJob>();
 builder.Services.AddScoped<ProcessBatchJob>();
 builder.Services.AddScoped<RetryBatchJob>();
-builder.Services.AddScoped<FinalizeBroadcastJob>();
 // ── 6. CORS (for Angular frontend) ───────────────────────────────────
 builder.Services.AddCors(options =>
 {

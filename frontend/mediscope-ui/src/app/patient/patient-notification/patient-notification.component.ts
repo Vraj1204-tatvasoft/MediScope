@@ -150,7 +150,6 @@ export class PatientNotificationComponent implements OnInit, OnDestroy {
 
     this.notificationService.clearAllNotifications().subscribe({
       next: () => {
-        // Flush out arrays locally to drop elements off-screen immediately
         this.rawNotifications.set([]);
       },
       error: (err) => console.error('Failed to clear clinical feed stack:', err)
@@ -184,11 +183,11 @@ export class PatientNotificationComponent implements OnInit, OnDestroy {
         break;
   
       case 'invoice':
-        this.router.navigate(['/patient/invoices', notification.referenceId]);
+        this.router.navigate(['/patient/invoice-detail', notification.referenceId]);
         break;
   
       case 'refund':
-        this.router.navigate(['/patient/invoices', notification.referenceId]);
+        this.router.navigate(['/patient/invoice-detail', notification.referenceId]);
         break;
         
       case 'QuestionnaireAssignment':

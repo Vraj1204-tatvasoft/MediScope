@@ -295,6 +295,13 @@ namespace MediScope.Data.Repositories
                 IsLatest = r.IsLatest,
             }).ToList();
         }
+        public async Task<Guid> GetPatientIdBySubmissionIdAsync(Guid submissionId)
+        {
+            return await _context.QuestionnaireSubmissions
+                .Where(s => s.Id == submissionId)
+                .Select(s => s.PatientId)
+                .FirstOrDefaultAsync();
+        }
         // ── Private helpers 
         private class DbResponseJsonItem
         {

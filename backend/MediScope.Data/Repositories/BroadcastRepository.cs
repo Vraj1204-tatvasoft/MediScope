@@ -229,5 +229,19 @@ namespace MediScope.Data.Repositories
             var row = result.FirstOrDefault();
             return (row?.SentCount ?? 0, row?.FailedCount ?? 0);
         }
+
+        public async Task<bool> UpdateBroadcastCountsAsync(Guid broadcastId, int sentDelta, int failedDelta)
+        {
+            var result = await _context.Database
+                .SqlQuery<bool>($@"
+                    SELECT fn_update_broadcast_counts(
+                        {broadcastId},
+                        {sentDelta},
+                        {failedDelta}
+                    )")
+                .ToListAsync();
+
+            return result.FirstOrDefault();
+        }
     }
 }

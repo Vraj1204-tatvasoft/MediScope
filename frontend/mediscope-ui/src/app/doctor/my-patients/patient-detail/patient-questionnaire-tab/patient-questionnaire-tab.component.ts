@@ -3,6 +3,7 @@ import {
   inject, ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router'; 
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -55,8 +56,10 @@ export class PatientQuestionnaireTabComponent implements OnInit {
   private readonly svc    = inject(QuestionnaireService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
+  private readonly route  = inject(ActivatedRoute); 
+  private readonly router = inject(Router);         
 
-  // ── Signals ────────────────────────────────────────────────────────────────
+  private hasAutoOpened = false; 
   assignments  = signal<PatientAssignmentResponseDto[]>([]);
   loading      = signal(false);
   removingId   = signal<string | null>(null);
@@ -64,19 +67,48 @@ export class PatientQuestionnaireTabComponent implements OnInit {
   totalCount     = computed(() => this.assignments().length);
   pendingCount   = computed(() => this.assignments().filter(a => a.fillStatus === 'Pending').length);
   submittedCount = computed(() => this.assignments().filter(a => a.fillStatus === 'Submitted').length);
-  draftCount = computed(() => this.assignments().filter(a => a.fillStatus === 'Draft').length);
-  // ── Lifecycle ──────────────────────────────────────────────────────────────
-  ngOnInit(): void { this.load(); }
+  draftCount     = computed(() => this.assignments().filter(a => a.fillStatus === 'Draft').length);
 
-  // ── Load ───────────────────────────────────────────────────────────────────
+  // ── Lifecycle 
+  ngOnInit(): void { 
+    this.load(); 
+  }
+
+  // ── Load 
   private load(): void {
     this.loading.set(true);
     this.svc.getPatientAssignments(this.patientId, { pageNumber: 1, pageSize: 100 })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: res => this.assignments.set(res.data?.items ?? []),
+        next: res => {
+          const items = res.data?.items ?? [];
+          this.assignments.set(items);
+
+          this.checkAndOpenFromQuery(items);
+        },
         error: () => this.notify.error('Failed to load questionnaire assignments.'),
       });
+  }
+
+  // ── Auto-Open Modal Logic ──────────────────────────────────────────────────
+  private checkAndOpenFromQuery(items: PatientAssignmentResponseDto[]): void {
+    if (this.hasAutoOpened) return;
+
+    const openSubmissionId = this.route.snapshot.queryParamMap.get('openSubmissionId');
+    if (!openSubmissionId) return;
+
+    const targetAssignment = items.find(a => a.submissionId === openSubmissionId);
+    if (targetAssignment) {
+      this.hasAutoOpened = true;
+      this.viewSubmission(targetAssignment);
+
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { openSubmissionId: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   // ── Assign ─────────────────────────────────────────────────────────────────
@@ -91,7 +123,6 @@ export class PatientQuestionnaireTabComponent implements OnInit {
     );
     ref.afterClosed().subscribe(saved => { if (saved) this.load(); });
   }
-
 
   previewQuestions(a: PatientAssignmentResponseDto): void {
     this.dialog.open<QuestionnairePreviewModalComponent, QuestionnairePreviewModalData>(
@@ -142,7 +173,7 @@ export class PatientQuestionnaireTabComponent implements OnInit {
         maxHeight: '92vh',
         data: {
           submissionId:      a.submissionId,
-          assignmentId: a.assignmentId,
+          assignmentId:      a.assignmentId,
           questionnaireId:   a.questionnaireId,
           questionnaireName: a.questionnaireName,
         },

@@ -1,18 +1,20 @@
 using Hangfire;
+using MediScope.Business.Hubs;
 using MediScope.Common.Models.Enums;
 using MediScope.Data.Repositories;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
-using MediScope.Business.Hubs;
-using MediScope.Common.Models.DTOs.Request;
-using MediScope.Common.Models.DTOs.Response;
+using Microsoft.Extensions.Logging;
+
 namespace MediScope.Business.Jobs
 {
     /// <summary>
     /// Orchestrator job. Runs once per broadcast Send.
     ///
-    /// Prepares all recipient batches, sets the total remaining batches in the database,
-    /// and then enqueues all ProcessBatchJobs to run in parallel.
+    /// Enqueues all ProcessBatchJob instances in parallel.
+    /// No ContinueJobWith chaining. No FinalizeBroadcastJob.
+    /// Finalization is handled inside ProcessBatchJob using
+    /// fn_update_broadcast_counts which atomically tracks progress
+    /// against total_recipients — no new columns required.
     /// </summary>
     [AutomaticRetry(Attempts = 0)]
     public class BroadcastDispatchJob
@@ -34,7 +36,6 @@ namespace MediScope.Business.Jobs
             _hubContext = hubContext;
         }
 
-
         public async Task ExecuteAsync(Guid broadcastId, CancellationToken ct)
         {
             var broadcast = await _repository.GetBroadcastByIdAsync(broadcastId);
@@ -46,7 +47,9 @@ namespace MediScope.Business.Jobs
 
             if (broadcast.Status == BroadcastStatus.Processing)
             {
-                _logger.LogWarning("BroadcastDispatchJob: broadcast {Id} is already Processing. Aborting.", broadcastId);
+                _logger.LogWarning(
+                    "BroadcastDispatchJob: broadcast {Id} is already Processing. Aborting.",
+                    broadcastId);
                 return;
             }
 
@@ -54,6 +57,7 @@ namespace MediScope.Business.Jobs
                 broadcastId, broadcast.Channel, broadcast.Audience, broadcast.BatchSize);
 
             await _repository.MarkProcessingAsync(broadcastId);
+
             await _hubContext.Clients.All.SendAsync("BroadcastUpdated", new
             {
                 id = broadcastId,
@@ -63,63 +67,74 @@ namespace MediScope.Business.Jobs
 
             try
             {
-                int batchNumber = 0;
+                int batchNumber = 1;
                 int batchSize = broadcast.BatchSize;
                 int offset = 0;
+                var batchNumbers = new List<int>();
 
-                // 1. Fetch and insert all contacts to determine total batches BEFORE enqueueing.
-                // This prevents race conditions where a batch finishes before the total is set.
+                // Phase 1: insert all recipient batches
                 while (true)
                 {
                     var contacts = await _repository.GetAudienceContactsBatchAsync(broadcast.Audience, offset, batchSize);
+
                     if (contacts.Count == 0) break;
 
-                    batchNumber++;
                     await _repository.BulkInsertRecipientsAsync(broadcastId, contacts, batchNumber);
 
+                    batchNumbers.Add(batchNumber);
+
+                    _logger.LogInformation("BroadcastDispatchJob: inserted batch {Batch} — {Count} recipients", batchNumber, contacts.Count);
+
                     if (contacts.Count < batchSize) break;
+
                     offset += batchSize;
+                    batchNumber++;
                 }
 
-                int totalBatches = batchNumber;
-
-                if (totalBatches > 0)
+                if (batchNumbers.Count == 0)
                 {
-                    // 2. Lock in the total batches using the stored procedure
-                    await _repository.SetRemainingBatchesAsync(broadcastId, totalBatches);
+                    await _repository.CompleteBroadcastAsync(
+                        broadcastId, 0, 0, BroadcastStatus.Failed, "No contacts returned during batch fetch.");
 
-                    // 3. Enqueue all batch jobs to be processed in parallel by Hangfire workers
-                    for (int i = 1; i <= totalBatches; i++)
+                    await _hubContext.Clients.All.SendAsync("BroadcastStatusUpdated", new
                     {
-                        // Capture the loop variable locally to avoid closure issues in the lambda
-                        int currentBatch = i;
-                        _jobClient.Enqueue<ProcessBatchJob>(job => job.ExecuteAsync(broadcastId, currentBatch, CancellationToken.None));
-                    }
-
-                    _logger.LogInformation("BroadcastDispatchJob: enqueued {TotalBatches} parallel batch job(s) for broadcast {Id}",
-                        totalBatches, broadcastId);
-                }
-                else
-                {
-                    await _repository.CompleteBroadcastAsync(broadcastId, 0, 0, BroadcastStatus.Failed, "No contacts returned during batch fetch.");
-                    await _hubContext.Clients.All.SendAsync("BroadcastUpdated", new
-                    {
-                        id = broadcastId,
-                        status = "Failed",
-                        statusDisplay = "Failed"
+                        BroadcastId = broadcastId,
+                        Status = "Failed",
+                        StatusDisplay = "Failed",
+                        TotalSent = 0,
+                        TotalFailed = 0
                     }, ct);
+
+                    return;
                 }
+
+                // Phase 2: enqueue all batch jobs in parallel.
+                // ProcessBatchJob handles finalization via fn_update_broadcast_counts.
+                foreach (var bn in batchNumbers)
+                {
+                    _jobClient.Enqueue<ProcessBatchJob>(
+                        job => job.ExecuteAsync(broadcastId, bn, CancellationToken.None));
+                }
+
+                _logger.LogInformation(
+                    "BroadcastDispatchJob: enqueued {Total} parallel batch job(s) for broadcast {Id}",
+                    batchNumbers.Count, broadcastId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "BroadcastDispatchJob faulted during batch setup — Id={Id}", broadcastId);
+                _logger.LogError(ex,
+                    "BroadcastDispatchJob faulted — Id={Id}", broadcastId);
 
-                await _repository.CompleteBroadcastAsync(broadcastId, 0, 0, BroadcastStatus.Failed, ex.Message);
-                await _hubContext.Clients.All.SendAsync("BroadcastUpdated", new
+                await _repository.CompleteBroadcastAsync(
+                    broadcastId, 0, 0, BroadcastStatus.Failed, ex.Message);
+
+                await _hubContext.Clients.All.SendAsync("BroadcastStatusUpdated", new
                 {
-                    id = broadcastId,
-                    status = "Failed",
-                    statusDisplay = "Failed"
+                    BroadcastId = broadcastId,
+                    Status = "Failed",
+                    StatusDisplay = "Failed",
+                    TotalSent = 0,
+                    TotalFailed = 0
                 }, ct);
             }
         }

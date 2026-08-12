@@ -29,8 +29,7 @@ namespace MediScope.Business.Services
             _invoiceRepository = invoiceRepository;
             _logger = logger;
         }
-        public async Task<CreatePaymentOrderResponseDto> CreateOrderAsync(
-            Guid invoiceId, decimal amount, string razorpayCustomerId, string? patientContact, string? patientEmail)
+        public async Task<CreatePaymentOrderResponseDto> CreateOrderAsync(Guid invoiceId, decimal amount, string razorpayCustomerId, string? patientContact, string? patientEmail)
         {
             var client = new RazorpayClient(_keyId, _keySecret);
 

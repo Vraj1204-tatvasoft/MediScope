@@ -18,5 +18,6 @@ namespace MediScope.Business.Services.Interfaces
         Task<SubmitResultDto> SubmitQuestionnaireAsync(Guid assignmentId, Guid patientId, Guid userId, SubmitQuestionnaireRequestDto request);
         Task<SubmissionDetailResponseDto> GetSubmissionDetailAsync(Guid submissionId);
         Task<List<SubmissionVersionResponseDto>> GetSubmissionVersionsAsync(Guid assignmentId);
+        Task<Guid> GetPatientIdBySubmissionIdAsync(Guid submissionId);
     }
 }

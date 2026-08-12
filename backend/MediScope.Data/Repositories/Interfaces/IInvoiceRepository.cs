@@ -17,5 +17,8 @@ namespace MediScope.Data.Repositories
         Task SaveCardTokenAsync(Guid patientId, string tokenId, string last4, string network);
         Task<string?> GetRazorpayCustomerIdAsync(Guid patientId);
         Task SaveRazorpayCustomerIdAsync(Guid patientId, string customerId);
+        Task<Guid> GetUserIdByPatientIdAsync(Guid patientId);
+        Task<Guid> GetUserIdByInvoiceIdAsync(Guid invoiceId);
+        Task<Guid> GetDoctorUserIdByInvoiceIdAsync(Guid invoiceId);
     }
 }

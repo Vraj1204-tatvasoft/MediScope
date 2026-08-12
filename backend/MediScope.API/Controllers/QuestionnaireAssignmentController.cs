@@ -134,5 +134,16 @@ namespace MediScope.API.Controllers.Features
             var result = await _service.GetSubmissionVersionsAsync(assignmentId);
             return Success(result);
         }
+        [HttpGet("questionnaire-submissions/{submissionId:guid}/patient-id")]
+        [Authorize(Policy = "DoctorOrAdmin")]
+        public async Task<IActionResult> GetPatientIdBySubmission(Guid submissionId)
+        {
+            var patientId = await _service.GetPatientIdBySubmissionIdAsync(submissionId);
+
+            if (patientId == Guid.Empty)
+                return NotFound("Patient not found for this submission.");
+
+            return Success(new { patientId });
+        }
     }
 }

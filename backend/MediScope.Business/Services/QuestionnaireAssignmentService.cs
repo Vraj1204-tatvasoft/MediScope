@@ -94,8 +94,7 @@ namespace MediScope.Business.Services
             if (request.Responses is null || !request.Responses.Any())
                 throw new ArgumentException("At least one response is required to submit.");
 
-            var result = await _repository.SubmitQuestionnaireAsync(
-                assignmentId, patientId, userId, request);
+            var result = await _repository.SubmitQuestionnaireAsync(assignmentId, patientId, userId, request);
             try
             {
                 var pdfPath = await _pdfService.GenerateSubmissionPdfAsync(
@@ -121,7 +120,7 @@ namespace MediScope.Business.Services
                         type: NotificationType.Info,
                         message: "A patient has submitted their assigned questionnaire responses.",
                         referenceType: "QuestionnaireSubmission",
-                        referenceId: patientId
+                        referenceId: result.SubmissionId
                     );
                 }
             }
@@ -148,6 +147,16 @@ namespace MediScope.Business.Services
                 throw new ArgumentException("Assignment ID is required.");
 
             return await _repository.GetSubmissionVersionsAsync(assignmentId);
+        }
+        public async Task<Guid> GetPatientIdBySubmissionIdAsync(Guid submissionId)
+        {
+            _logger.LogInformation("Fetching Patient ID for Submission {SubmissionId}", submissionId);
+            var patientId = await _repository.GetPatientIdBySubmissionIdAsync(submissionId);
+            if (patientId == Guid.Empty)
+            {
+                _logger.LogWarning("No patient found associated with Submission {SubmissionId}", submissionId);
+            }
+            return patientId;
         }
     }
 }

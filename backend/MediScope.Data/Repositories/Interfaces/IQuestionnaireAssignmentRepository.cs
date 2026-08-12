@@ -17,5 +17,6 @@ namespace MediScope.Data.Repositories
         Task<SubmissionDetailResponseDto?> GetSubmissionDetailAsync(Guid submissionId);
         Task<QuestionnaireAssignment?> GetAssignmentByIdAsync(Guid assignmentId);
         Task<List<SubmissionVersionResponseDto>> GetSubmissionVersionsAsync(Guid assignmentId);
+        Task<Guid> GetPatientIdBySubmissionIdAsync(Guid submissionId);
     }
 }

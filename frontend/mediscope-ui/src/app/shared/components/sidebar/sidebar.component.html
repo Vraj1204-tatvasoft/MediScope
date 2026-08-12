@@ -1,106 +1,121 @@
-<aside class="sidebar">
+<aside class="sidebar">  
 
-    <!-- Logo -->
-    <div class="sidebar-logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-        </svg>
-      </div>
-      <div class="logo-text">
-        <span class="logo-name">MediScope</span>
-        <span class="logo-portal">{{ config().portalLabel }}</span>
-      </div>
-    </div>
+  <!-- Logo -->
+  <div class="sidebar-logo">  
+    <div class="logo-icon">  
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">  
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>  
+      </svg>  
+    </div>  
+    <div class="logo-text">  
+      <span class="logo-name">MediScope</span>  
+      <span class="logo-portal">{{ config().portalLabel }}</span>  
+    </div>  
+  </div>  
 
-    <!-- Access badge -->
-    <div class="access-badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
-      {{ config().accessLabel }}
-    </div>
+  <!-- Access badge -->
+  <div class="access-badge">  
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">  
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>  
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>  
+    </svg>  
+    {{ config().accessLabel }}  
+  </div>  
 
-    <!-- Nav items -->
-    <nav class="nav">
-      <span class="nav-label">NAVIGATION</span>
-      @for (item of config().items; track item.label) {
-
-        @if (!item.children) {
-          <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              [innerHTML]="item.icon">
-            </svg>
-            {{ item.label }}
-          </a>
-        } @else {
-          <button
-            type="button"
-            class="nav-item nav-dropdown"
-            (click)="toggleMenu(item.label)">
-        
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              [innerHTML]="item.icon">
-            </svg>
-        
-            <span>{{ item.label }}</span>
-        
-            <span
-              class="arrow"
-              [class.open]="expandedMenu === item.label">
-              ▼
-            </span>
-        
-          </button>
-        
-          @if (expandedMenu === item.label) {
-            <div class="submenu">
-              @for (child of item.children; track child.route) {
-                <a
-                  [routerLink]="child.route"
-                  routerLinkActive="active"
-                  class="submenu-item">
-                  {{ child.label }}
-                </a>
-              }
-            </div>
+  <!-- Nav items -->
+  <nav class="nav">
+    <span class="nav-label">NAVIGATION</span>
+    @for (item of config().items; track item.label) {
+  
+      @if (!item.children) {
+        <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            [innerHTML]="item.icon">
+          </svg>
+          
+          <!-- Wrap label in span to control flex spacing -->
+          <span class="nav-text">{{ item.label }}</span>
+  
+          <!-- Unread notification count badge -->
+          @if (isNotificationRoute(item.route) && unreadCount() > 0) {
+            <span class="badge-pill">{{ unreadCount() }}</span>
           }
+        </a>
+      } @else {
+        <!-- Same structure for dropdown items if needed -->
+        <button
+          type="button"
+          class="nav-item nav-dropdown"
+          (click)="toggleMenu(item.label)">
+      
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            [innerHTML]="item.icon">
+          </svg>
+      
+          <span class="nav-text">{{ item.label }}</span>
+  
+          @if (isNotificationRoute(item.route) && unreadCount() > 0) {
+            <span class="badge-pill">{{ unreadCount() }}</span>
+          }
+      
+          <span
+            class="arrow"
+            [class.open]="expandedMenu === item.label">
+            ▼
+          </span>
+      
+        </button>
+      
+        @if (expandedMenu === item.label) {
+          <div class="submenu">
+            @for (child of item.children; track child.route) {
+              <a
+                [routerLink]="child.route"
+                routerLinkActive="active"
+                class="submenu-item">
+                <span class="nav-text">{{ child.label }}</span>
+                @if (isNotificationRoute(child.route) && unreadCount() > 0) {
+                  <span class="badge-pill">{{ unreadCount() }}</span>
+                }
+              </a>
+            }
+          </div>
         }
       }
-    </nav>
+    }
+  </nav>  
 
-    <!-- Bottom: user info + sign out -->
-    <div class="sidebar-footer">
-      <div class="user-row">
-        <div class="user-avatar">
-          {{ userInitial() }}
-        </div>
-        <div class="user-info">
-          <span class="user-name">{{ user()?.fullName }}</span>
-          <span class="user-role">{{ user()?.role }}</span>
-        </div>
-        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-      </div>
+  <!-- Bottom: user info + sign out -->
+  <div class="sidebar-footer">  
+    <div class="user-row">  
+      <div class="user-avatar">  
+        {{ userInitial() }}  
+      </div>  
+      <div class="user-info">  
+        <span class="user-name">{{ user()?.fullName }}</span>  
+        <span class="user-role">{{ user()?.role }}</span>  
+      </div>  
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">  
+        <polyline points="9 18 15 12 9 6"/>  
+      </svg>  
+    </div>  
 
-      <button class="signout-btn" (click)="authService.logout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-        Sign Out
-      </button>
-    </div>
+    <button class="signout-btn" (click)="authService.logout()">  
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">  
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>  
+        <polyline points="16 17 21 12 16 7"/>  
+        <line x1="21" y1="12" x2="9" y2="12"/>  
+      </svg>  
+      Sign Out
+    </button>  
+  </div>  
 
-  </aside>
+</aside>  

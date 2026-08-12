@@ -10,6 +10,8 @@ import { PatientNotificationService } from '../../services/patient-notification.
 import { SignalrService } from '../../services/signalr.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Router, RouterModule } from '@angular/router';
+import { QuestionnaireService } from '../../services/questionnaire.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export type DoctorFilterType = 'ALL' | 'UNREAD' | 'ALERTS';
 
@@ -30,6 +32,7 @@ export type DoctorFilterType = 'ALL' | 'UNREAD' | 'ALERTS';
 export class DoctorNotificationsComponent implements OnInit, OnDestroy {
   private notificationService = inject(PatientNotificationService);
   private signalrService = inject(SignalrService);
+  private questionnaireAssignmentService = inject(QuestionnaireService);
   private liveSubscription!: Subscription;
   private router      = inject(Router);
   private authService = inject(AuthService);
@@ -182,17 +185,41 @@ export class DoctorNotificationsComponent implements OnInit, OnDestroy {
         break;
   
       case 'invoice':
-        this.router.navigate(['/doctor/invoices', notification.referenceId]);
+        this.router.navigate(['/doctor/invoice-detail', notification.referenceId]);
         break;
   
       case 'refund':
-        this.router.navigate(['/doctor/invoices', notification.referenceId]);
+        this.router.navigate(['/doctor/invoice-detail', notification.referenceId]);
         break;
-      case 'QuestionnaireSubmission':
-        this.router.navigate(['/doctor/my-patients', notification.referenceId], {
-          queryParams: { tab: 'questionnaires' } // <-- This forces the Questionnaires tab to open
-        });
-                  break;
+
+        case 'QuestionnaireSubmission': {
+          const submissionId = notification.referenceId;
+          if (!submissionId) {
+            break;
+          }
+          this.questionnaireAssignmentService
+            .getPatientIdBySubmissionId(submissionId)
+            .subscribe({
+              next: (patientId: string) => {
+                this.router.navigate(
+                  ['/doctor/my-patients', patientId],
+                  {
+                    queryParams: {
+                      tab: 'questionnaires',
+                      openSubmissionId: submissionId
+                    }
+                  }
+                );
+              },
+              error: (err: HttpErrorResponse) => {
+                console.error('Failed to fetch patient ID for questionnaire submission', err
+                );
+              }
+            });
+        
+          break;
+        }
+
       default:
         break;
     }

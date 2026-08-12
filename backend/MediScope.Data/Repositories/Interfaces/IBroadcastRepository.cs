@@ -25,5 +25,6 @@ namespace MediScope.Data.Repositories
         Task IncrementBroadcastCountsAsync(Guid broadcastId, int sentDelta, int failedDelta);
         Task SetRemainingBatchesAsync(Guid broadcastId, int totalBatches);
         Task<int> DecrementRemainingBatchesAsync(Guid broadcastId, int sentDelta, int failedDelta);
+        Task<bool> UpdateBroadcastCountsAsync(Guid broadcastId, int sentDelta, int failedDelta);
     }
 }

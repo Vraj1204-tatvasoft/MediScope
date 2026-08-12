@@ -1421,6 +1421,10 @@ namespace MediScope.Data
                       .WithMany(b => b.Recipients)
                       .HasForeignKey(r => r.BroadcastId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => new { e.BroadcastId, e.UserId })
+                      .IsUnique()
+                      .HasDatabaseName("uk_broadcast_user");
             });
         }
     }

@@ -20,7 +20,7 @@ export class SidebarComponent implements OnInit {
   expandedMenu = '';
   user   = computed(() => this.authService.currentUser());
   config = computed(() => NAV_CONFIG[this.user()?.role as UserRole] ?? NAV_CONFIG['Patient']);
-
+  unreadCount = this.notificationService.unreadCount;
   notificationCount = computed(() => this.notificationService.unreadCount());
 
   pendingRequestsCount = computed(() => {
@@ -48,5 +48,14 @@ export class SidebarComponent implements OnInit {
         this.doctorPatientService.pendingRequestsCount?.(); 
       }
     }
+  }
+  navItems = computed(() => {
+    const role = this.authService.currentUser()?.role as UserRole;
+    return NAV_CONFIG[role]?.items ?? [];
+  });
+
+  isNotificationRoute(route?: string): boolean {
+    if (!route) return false;
+    return route.includes('notification');
   }
 }
