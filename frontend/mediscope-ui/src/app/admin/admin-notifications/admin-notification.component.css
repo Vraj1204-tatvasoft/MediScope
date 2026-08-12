@@ -1,0 +1,225 @@
+.notification-dashboard-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+  }
+  
+  .notification-header-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+  }
+  
+  .header-title-zone {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  
+  .bell-icon-badge-avatar {
+    background-color: #eff6ff;
+    color: #2563eb;
+    padding: 0.8rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .header-title-zone h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  
+  .subtitle-unread-label {
+    font-size: 0.92rem;
+    color: #64748b;
+    margin: 0.2rem 0 0 0;
+  }
+  
+  .mark-all-read-btn {
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+  }
+  
+  /* Custom segmented menu chips layout configurations */
+  .filter-chips-action-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1.25rem;
+  }
+  
+  .custom-filter-chip {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-radius: 24px !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    padding: 0.25rem 1.4rem !important;
+    box-shadow: none !important;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .active-segment {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+  
+  .badge-pill-alert {
+    background: #ef4444;
+    color: white;
+    font-size: 0.78rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    margin-left: 0.25rem;
+  }
+  
+  /* Notification Item Layout Row Containers */
+  .notifications-feed-vertical-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  
+  .notification-item-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.35rem 1.5rem;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+  }
+  
+  .notification-item-card.unread-vitals-card {
+    border-left: 4px solid #2563eb;
+  }
+  
+  /* Distinct Clinical Severity Color Schemes (Matches Screenshot Perfectly) */
+  .notification-item-card.alert { 
+    background-color: #fff8f8; 
+    border-color: #fee2e2; 
+  }
+  .notification-item-card.success { 
+    background-color: #f0fdf4; 
+    border-color: #dcfce7; 
+  }
+  .notification-item-card.info { 
+    background-color: #f8fafc; 
+    border-color: #e2e8f0; 
+  }
+  .notification-item-card.reminder { 
+    background-color: #fcf9eb; 
+    border-color: #fef08a; 
+  }
+  
+  .card-left-icon-wrapper {
+    margin-right: 1.35rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .status-indicator-icon {
+    transform: scale(1.2);
+  }
+  
+  .alert .status-indicator-icon { color: #ef4444; }
+  .success .status-indicator-icon { color: #22c55e; }
+  .info .status-indicator-icon { color: #64748b; }
+  .reminder .status-indicator-icon { color: #eab308; }
+  
+  .card-center-message-content {
+    flex: 1;
+    padding-right: 2rem;
+  }
+  
+  .notification-body-text {
+    font-size: 1rem;
+    color: #1e293b;
+    margin: 0 0 0.35rem 0;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  
+  .timestamp-elapsed-subtext {
+    font-size: 0.88rem;
+    color: #94a3b8;
+  }
+  
+  .card-right-status-badge-zone {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .status-text-pill-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+  }
+  
+  .alert .status-text-pill-tag { background-color: #fee2e2; color: #b91c1c; }
+  .success .status-text-pill-tag { background-color: #dcfce7; color: #15803d; }
+  .info .status-text-pill-tag { background-color: #f1f5f9; color: #475569; }
+  .reminder .status-text-pill-tag { background-color: #fef9c3; color: #a16207; }
+  
+  .blue-unread-pulse-dot {
+    width: 9px;
+    height: 9px;
+    background-color: #2563eb;
+    border-radius: 50%;
+  }
+  
+  /* Fallback Empty State Layout Configs */
+  .fallback-loading-zone, .fallback-empty-notifications-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem;
+    text-align: center;
+    color: #94a3b8;
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+  }
+  
+  .giant-empty-state-icon {
+    transform: scale(2.5);
+    margin-bottom: 1.5rem;
+    color: #94a3b8;
+  }
+  
+  .fallback-empty-notifications-card h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #334155;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .fallback-empty-notifications-card p {
+    font-size: 0.92rem;
+    max-width: 440px;
+    margin: 0;
+  }
+
+.clickable-row {
+    cursor: pointer;
+    user-select: none;
+  }
+  
+.clickable-row:not(.isRead):hover {
+    background-color: rgba(37, 99, 235, 0.02);
+  }

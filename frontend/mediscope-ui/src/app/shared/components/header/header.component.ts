@@ -70,8 +70,11 @@ export class HeaderComponent {
     const role = this.user()?.role?.toLowerCase();
     if (role === 'doctor') {
       this.router.navigate(['/doctor/doctor-notifications']);
-    } else {
+    } else if (role === 'patient'){
       this.router.navigate(['/patient/patient-notifications']);
+    }
+    else {
+      this.router.navigate(['/admin/admin-notifications']);
     }
   }
 

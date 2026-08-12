@@ -43,6 +43,7 @@ import { PatientQuestionnaireListComponent } from './patient/patient-questionnai
 import { QuestionnaireRendererComponent } from './patient/questionnaire-renderer/questionnaire-renderer.component';
 import { AdminBroadcastComponent } from './admin/admin-broadcast/admin-broadcast.component';
 import { PatientAuditHistoryComponent } from './admin/patient-audit-history/patient-audit-history.component';
+import { AdminNotificationComponent } from './admin/admin-notifications/admin-notification.component';
 
 
 export const routes: Routes = [
@@ -211,6 +212,10 @@ export const routes: Routes = [
       {
         path: 'doctor-patient-links',
         component: DoctorPatientLinksComponent,
+      },
+      {
+        path:'admin-notifications',
+        component: AdminNotificationComponent,
       },
       {
         path: 'manage-rooms',

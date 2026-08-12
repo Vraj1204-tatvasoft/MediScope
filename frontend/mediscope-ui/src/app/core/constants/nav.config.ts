@@ -70,6 +70,7 @@ export const NAV_CONFIG: Record<UserRole, NavConfig> = {
       { label: 'Patients',       route: '/admin/manage-patients',        icon: ICONS.users   },
       { label: 'Metrics',     route: '/admin/manage-metrics',    icon: ICONS.metrics},
       { label: 'Doctor-Patient',     route: '/admin/doctor-patient-links',      icon: ICONS.analytics },
+      {label:'Notifications', route: '/admin/admin-notifications', icon:ICONS.analytics},
       {
         label: 'Hospitalization',
         icon: ICONS.records,
